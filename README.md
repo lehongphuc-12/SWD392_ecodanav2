@@ -1,71 +1,65 @@
-# EcoDana Project - SQL Server Edition
+# 🚲 EcoDana Project - SQL Server Edition
 
-## Introduction
-
-EcoDana is a web application built with Spring Boot, designed to connect vehicle owners and renters with a focus on eco-friendly transportation solutions. This project provides a platform for efficient vehicle management, booking, and rental.
-
-## Key Features
-
-- **User Management:** Registration, login, and user profile management.
-- **Vehicle Management:** Allows vehicle owners to add, update, and manage rental vehicle information.
-- **Booking:** Users can search, view details, and book vehicles.
-- **Payment:** Secure payment integration to handle transactions (VNPAY, PayOS).
-- **Notifications:** Sends email notifications for booking confirmations and other updates.
-- **Image Upload:** Uses Cloudinary for managing vehicle images.
-- **AI Integration:** Integration with Cloudflare AI for advanced features.
-
-## Technologies Used
-
-- **Backend:**
-  - Java 21
-  - Spring Boot 3.5.x
-  - Spring Data JPA
-  - Spring Security (OAuth2)
-- **Frontend:**
-  - Thymeleaf & Vanilla CSS
-- **Database:**
-  - **Microsoft SQL Server 2022+**
-- **Third-Party Services:**
-  - Cloudinary (Images)
-  - Cloudflare AI (LLM)
-  - VNPAY & PayOS (Payments)
-  - OCR Space (Document Scanning)
-
-## Setup Instructions
-
-### 1. Database Setup (SQL Server)
-
-1.  **Create Database**: Create a new database in SQL Server (e.g., `ecodanav2`).
-2.  **Run Script**: Execute the consolidated SQL script **[sql2 (1).sql](<sql2%20(1).sql>)** in your SQL Server instance. This script contains both the schema (tables/constraints) and the initial data (roles, users, vehicles).
-
-### 2. Environment Configuration
-
-1.  Copy `env.example` to `.env`.
-2.  Update the `.env` file with your specific credentials:
-    - `DB_URL`: JDBC URL for SQL Server (e.g., `jdbc:sqlserver://localhost:1433;databaseName=ecodanav2;encrypt=true;trustServerCertificate=true`)
-    - `DB_USERNAME`: Your SQL Server username (e.g., `sa`).
-    - `DB_PASSWORD`: Your SQL Server password.
-    - Provide other 3rd-party keys for Mail, Cloudinary, etc.
-
-### 3. Run the Application
-
-Execute the following command in the project root:
-
-```bash
-./mvnw spring-boot:run
-```
-
-The application will be accessible at `http://localhost:8080`.
-
-## User Roles (Initial Data)
-
-Role Email Password
-Admin admin@ecodana.com password
-Owner owner@ecodana.com password
-Customer customer@ecodana.com password
-
-_Note: Passwords in the database are hashed; the above are the plain-text passwords for the initial data._
+## 📝 Introduction
+**EcoDana** is a premium web application built with **Spring Boot**, designed to seamlessly connect vehicle owners and renters. With a strong focus on eco-friendly transportation, the platform provides an efficient solution for vehicle management, real-time booking, and secure rentals.
 
 ---
 
-Thank you for using EcoDana!
+## ✨ Key Features
+- 👤 **User Management:** Streamlined registration, secure login, and comprehensive profile control.
+- 🚗 **Vehicle Management:** Tools for owners to add and manage high-quality rental fleets.
+- 📅 **Smart Booking:** Intuitive search and reservation system for all vehicle types.
+- 💳 **Secure Payments:** Integrated with **VNPAY** and **PayOS** for reliable transaction handling.
+- 🔔 **Instant Notifications:** Automated email updates for all critical booking events.
+- 🖼️ **Media Hosting:** High-performance image management powered by **Cloudinary**.
+- 🤖 **AI Integration:** Enhanced features leveraging **Cloudflare AI** capabilities.
+
+---
+
+## 🛠️ Technologies Used
+| Category | Stack |
+| :--- | :--- |
+| **Backend** | Java 21, Spring Boot 3.5.x, Data JPA, Security (OAuth2) |
+| **Frontend** | Thymeleaf, Vanilla CSS |
+| **Database** | **Microsoft SQL Server 2022+** |
+| **Services** | Cloudinary, Cloudflare AI, VNPAY, PayOS, OCR Space |
+
+---
+
+## 🚀 Setup Instructions
+
+### 1️⃣ Database Setup (SQL Server)
+1. **Create Database**: Initialize a new database in SQL Server named `ecodanav2`.
+2. **Execute Script**: Run the consolidated script **[sql2 (1).sql](sql2%20(1).sql)**. 
+   > This file contains the complete schema and essential initial data (Roles, Admin/Owner accounts, and sample Vehicles).
+
+### 2️⃣ Environment Configuration
+1. Rename `env.example` to `.env`.
+2. Configure your environment variables:
+   - `DB_URL`: `jdbc:sqlserver://YOUR_HOST;databaseName=ecodanav2;encrypt=true;trustServerCertificate=true`
+   - `DB_USERNAME`: Database user (e.g., `sa`)
+   - `DB_PASSWORD`: Database password
+   - *Fill in additional keys for Cloudinary, Mail, and Payment Gateways as needed.*
+
+### 3️⃣ Launch the Application
+Start the development server from the project root:
+```bash
+./mvnw spring-boot:run
+```
+Once started, the application is available at: [http://localhost:8080](http://localhost:8080)
+
+---
+
+## 🔑 User Roles (Initial Data)
+
+| Role | Email | Password |
+| :--- | :--- | :--- |
+| **Admin** | `admin@ecodana.com` | `password` |
+| **Owner** | `owner@ecodana.com` | `password` |
+| **Customer** | `customer@ecodana.com` | `password` |
+
+> ℹ️ **Note:** Initial passwords in the database are hashed. Use the plain-text passwords above for your first login.
+
+---
+
+**Thank you for choosing EcoDana!**
