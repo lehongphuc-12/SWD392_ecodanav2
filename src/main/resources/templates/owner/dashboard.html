@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments/layout :: head}"></div>
+    <link href="/css/sidebar-common.css" rel="stylesheet">
+    <link href="/css/owner-dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/owner-management.css}" />
+    <link rel="icon" type="image/x-icon" href="https://res.cloudinary.com/ddwt6nl7s/image/upload/v1761906428/favicon_jlbemj.ico">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" th:href="@{/css/bank-account-management.css(v=1.1)}" />
+    <style>
+        /* ... (style của bạn không đổi) ... */
+        .chart-tab {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #4B5563; /* text-gray-600 */
+            background-color: #F3F4F6; /* bg-gray-200 */
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .chart-tab:hover {
+            background-color: #E5E7EB; /* bg-gray-300 */
+        }
+        .chart-tab.active {
+            background-color: #4CAF50; /* bg-primary */
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Ẩn/hiện nội dung tab chính */
+        .main-tab-content {
+            display: none;
+        }
+        .main-tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Bổ sung CSS cho modal customer */
+        .modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 100; display: flex; align-items: center; justify-content: center;
+            animation: modalFadeIn 0.3s ease-in-out;
+        }
+        @keyframes modalFadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal.hidden { display: none; }
+        .modal-overlay { position: absolute; inset: 0; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
+        .modal-content {
+            position: relative; background-color: white; border-radius: 0.75rem;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            display: flex; flex-direction: column;
+            max-width: 56rem; /* max-w-2xl */
+            width: 90%;
+            max-height: 90vh;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn { from { transform: translateY(-30px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid #e5e7eb; background-color: #f9fafb; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; flex-shrink: 0;}
+        .modal-body { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
+        .modal-footer { display: flex; justify-content: flex-end; padding: 1rem 1.5rem; background-color: #f9fafb; border-top: 1px solid #e5e7eb; border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem; flex-shrink: 0;}
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen bg-gray-100 overflow-hidden">
+    <div th:replace="~{fragments/sidebar-layout :: layout(navContentFragment=~{owner/owner-sidebar-nav :: nav})}"></div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+        <div class="flex items-center justify-between h-16 px-4 bg-white shadow-sm">
+            <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-900 lg:hidden">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-900 lg:hidden">EvoDana Owner</h1> <div class="flex-1"></div>
+
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button id="notificationBell" class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span th:if="${pendingBookings != null and pendingBookings > 0}"
+                              id="notificationBadge"
+                              class="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full"
+                              th:text="${pendingBookings > 99 ? '99+' : pendingBookings}">
+                        </span>
+                        <span th:unless="${pendingBookings != null and pendingBookings > 0}"
+                              id="notificationBadge"
+                              class="hidden absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-500 rounded-full">
+                              0
+                        </span>
+                    </button>
+                    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-900">Thông báo</h3>
+                            <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-700">Đánh dấu tất cả đã đọc</button>
+                        </div>
+                        <div id="notificationList" class="max-h-96 overflow-y-auto">
+                            <div class="p-4 text-center text-gray-500">
+                                <i class="fas fa-bell-slash text-3xl mb-2"></i>
+                                <p>Không có thông báo mới</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <button id="userMenuButton" class="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg transition">
+                        <div th:if="${currentUser?.avatarUrl != null and !currentUser.avatarUrl.isEmpty()}" class="w-8 h-8 rounded-full overflow-hidden">
+                            <img th:src="${currentUser.avatarUrl}" alt="Avatar" class="w-full h-full object-cover">
+                        </div>
+                        <i th:unless="${currentUser?.avatarUrl != null and !currentUser.avatarUrl.isEmpty()}" class="fas fa-user-circle text-2xl text-gray-500"></i>
+                        <span class="hidden md:inline text-sm font-medium text-gray-700" th:text="${currentUser?.firstName}">Owner</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                    </button>
+                    <div id="userMenuDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                        <div class="p-3 border-b border-gray-200">
+                            <p class="text-sm font-semibold text-gray-800" th:text="${currentUser?.firstName + ' ' + currentUser?.lastName}">Owner User</p>
+                            <p class="text-xs text-gray-500" th:text="${currentUser?.role?.roleName}">Owner</p> </div>
+                        <div class="py-1">
+                            <a href="/" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-home w-5 mr-2 text-gray-500"></i>
+                                Trang chủ
+                            </a>
+                            <a href="/owner/dashboard?tab=profile" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user-edit w-5 mr-2 text-gray-500"></i>
+                                Hồ sơ
+                            </a>
+                            <a href="/logout" class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt w-5 mr-2"></i>
+                                Đăng Xuất
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <div class="container mx-auto px-0">
+
+                <div th:if="${success}" id="success-notification" class="fixed top-20 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transition-transform duration-300 transform translate-x-0">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-check-circle mr-3"></i>
+                            <span th:text="${success}">Success!</span>
+                        </div>
+                        <button onclick="closeNotification(this)" class="ml-4 text-white hover:text-gray-200 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div th:if="${error}" id="error-notification" class="fixed top-20 right-4 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transition-transform duration-300 transform translate-x-0">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-circle mr-3"></i>
+                            <span th:text="${error}">Error!</span>
+                        </div>
+                        <button onclick="closeNotification(this)" class="ml-4 text-white hover:text-gray-200 transition-colors">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="dashboard-content" class="main-tab-content" th:classappend="${currentPage == 'dashboard' ? 'active' : ''}">
+                    <div th:if="${currentPage == 'dashboard'}">
+                        <div class="mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+                                Welcome back, <span th:text="${currentUser?.firstName ?: 'Owner'}">Owner</span>!
+                            </h2>
+                            <p class="text-gray-600">Here's what's happening with your rental business today.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-gray-600 text-sm font-medium">Total Cars</p>
+                                        <p class="text-3xl font-bold text-gray-800" th:text="${totalVehicles ?: 0}">0</p>
+                                    </div>
+                                    <div class="bg-blue-100 p-3 rounded-full">
+                                        <i class="fas fa-car text-2xl text-blue-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-gray-600 text-sm font-medium">Available Cars</p>
+                                        <p class="text-3xl font-bold text-gray-800" th:text="${availableVehicles ?: 0}">0</p>
+                                    </div>
+                                    <div class="bg-green-100 p-3 rounded-full">
+                                        <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-yellow-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-gray-600 text-sm font-medium">Rented Cars</p>
+                                        <p class="text-3xl font-bold text-gray-800" th:text="${rentedVehicles ?: 0}">0</p>
+                                    </div>
+                                    <div class="bg-yellow-100 p-3 rounded-full">
+                                        <i class="fas fa-key text-2xl text-yellow-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-gray-600 text-sm font-medium">Pending Bookings</p>
+                                        <p class="text-3xl font-bold text-gray-800" th:text="${pendingBookings ?: 0}">0</p>
+                                    </div>
+                                    <div class="bg-purple-100 p-3 rounded-full">
+                                        <i class="fas fa-clock text-2xl text-purple-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <div class="flex flex-col md:flex-row justify-between md:items-start mb-6 gap-4">
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold">Tổng quan doanh thu</h3>
+                                    <p class="text-sm text-gray-500">Biểu đồ doanh thu theo thời gian</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-xl shadow-md border-l-4 border-pink-500 w-full md:w-auto md:min-w-[250px]">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <p class="text-gray-600 text-sm font-medium">Tổng doanh thu</p>
+                                            <p class="text-2xl font-bold text-gray-800" th:text="${#numbers.formatDecimal(totalRevenueAllTime, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</p>
+                                        </div>
+                                        <div class="bg-pink-100 p-3 rounded-full ml-4">
+                                            <i class="fas fa-dollar-sign text-xl text-pink-600"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2 mb-4" id="chart-tabs">
+                                <button class="chart-tab" data-period="day">Ngày</button>
+                                <button class="chart-tab active" data-period="month">Tháng</button>
+                                <button class="chart-tab" data-period="year">Năm</button>
+                            </div>
+                            <div class="relative h-96 md:h-[500px]">
+                                <canvas id="revenueOverviewChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cars-content" class="main-tab-content" th:classappend="${currentPage == 'cars' ? 'active' : ''}">
+                    <div th:if="${currentPage == 'cars'}" th:replace="~{owner/cars-management :: cars-content}"></div>
+                </div>
+
+                <div id="bookings-content" class="main-tab-content" th:classappend="${currentPage == 'bookings' ? 'active' : ''}">
+                    <div th:if="${currentPage == 'bookings'}" th:replace="~{owner/bookings-management :: bookings-content}"></div>
+                </div>
+
+                <div id="payments-content" class="main-tab-content" th:classappend="${currentPage == 'payments' ? 'active' : ''}">
+                    <div th:if="${currentPage == 'payments'}" th:replace="~{owner/owner-payment-management.html :: payments-content}"></div>
+                </div>
+
+                <div id="feedback-content" class="main-tab-content" th:classappend="${currentPage == 'feedback' ? 'active' : ''}">
+                    <div th:if="${currentPage == 'feedback'}" th:replace="~{owner/owner-feedback :: feedback-content}"></div>
+                </div>
+
+                <div id="profile-content" class="main-tab-content" th:classappend="${currentPage == 'profile' ? 'active' : ''}">
+                    <div th:if="${currentPage == 'profile'}" th:replace="~{owner/profile-management :: profile-content}"></div>
+                </div>
+                <div id="bank-accounts-content" class="main-tab-content" th:classappend="${currentPage == 'bank-accounts' ? 'active' : ''}">
+
+                    <div th:if="${currentPage == 'bank-accounts'}"
+                         th:replace="~{auth/bank-account-management :: bank-account-fragment(saveActionUrl=@{/owner/bank-accounts/save})}">
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/sidebar-common.js}"></script>
+<script th:src="@{/js/owner-dashboard.js}"></script> <!-- Chỉ cần file này -->
+
+<div th:replace="~{owner/bookings-management :: booking-modals}"></div>
+<div th:replace="~{owner/cars-management :: car-modals}"></div>
+
+<div id="complete-modal" class="modal hidden">
+    <div class="modal-overlay" onclick="closeModal('complete-modal')"></div>
+    <div class="modal-content max-w-lg">
+        <div class="modal-header">
+            <h3 class="text-xl font-bold text-gray-800">Hoàn thành chuyến đi</h3>
+            <button type="button" onclick="closeModal('complete-modal')" class="text-gray-600 hover:text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div id="complete-form-content" class="modal-body">
+            <p class="text-sm text-gray-600 mb-4">
+                Xác nhận tình trạng xe khi nhận lại và ghi chú (nếu có) để hoàn thành chuyến đi.
+            </p>
+
+            <div class="mb-4">
+                <label for="complete-notes" class="block text-sm font-medium text-gray-700 mb-1">Ghi chú trả xe</label>
+                <textarea id="complete-notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Ví dụ: Xe sạch sẽ, không có vấn đề..."></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="complete-images" class="block text-sm font-medium text-gray-700 mb-1">Ảnh thực tế khi trả xe (Tối đa 5 ảnh)</label>
+                <input type="file" id="complete-images" multiple accept="image/*" onchange="previewCompleteImages(event, 5)" class="w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100
+                "/>
+                <p id="complete-images-error" class="text-xs text-red-600 mt-1 hidden">Bạn chỉ có thể upload tối đa 5 ảnh.</p>
+            </div>
+
+            <div id="complete-images-preview" class="flex flex-wrap gap-2 p-2 bg-gray-50 rounded-md border min-h-[60px]">
+                <p class="text-xs text-gray-400 p-2">Chưa chọn ảnh nào.</p>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeModal('complete-modal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                    Hủy
+                </button>
+                <button type="button" id="confirmMaintenanceBtn" onclick="confirmComplete(true)" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                    <i class="fas fa-tools mr-2"></i>Hoàn thành & Bảo trì
+                </button>
+                <button type="button" id="confirmCompleteBtn" onclick="confirmComplete(false)" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                    <i class="fas fa-flag-checkered mr-2"></i>Hoàn thành
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // Lấy dữ liệu doanh thu (chỉ khi ở tab dashboard)
+    const revenueChartData = /*[[${revenueChartData}]]*/ null;
+
+    // Lấy dữ liệu DTO của Bookings (chỉ khi ở tab bookings)
+    const allBookingsData = /*[[${bookings}]]*/ [];
+
+    // Lấy CSRF token (dùng chung cho các modal)
+    const csrfToken = /*[[${_csrf?.token}]]*/ null;
+    const csrfParameterName = /*[[${_csrf?.parameterName}]]*/ null;
+
+    // Lấy currentPage
+    const currentPage = /*[[${currentPage}]]*/ 'dashboard';
+
+    // Hàm định dạng tiền tệ (chung)
+    const formatCurrency = (value) => {
+        if (value == null) return '0 ₫';
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND',
+            maximumFractionDigits: 0
+        }).format(value);
+    };
+
+    let currentChart = null; // Biến toàn cục để giữ đối tượng Chart
+
+    /**
+     * Hàm vẽ/cập nhật biểu đồ (chỉ chạy ở tab dashboard)
+     */
+    function updateRevenueChart(period) {
+        const ctx = document.getElementById('revenueOverviewChart');
+        if (!ctx || !revenueChartData) return; // Chỉ chạy nếu đang ở tab dashboard
+
+        let labels, data, bgColor, bdColor;
+        switch (period) {
+            case 'day':
+                labels = revenueChartData.dailyLabels; data = revenueChartData.dailyData;
+                bgColor = 'rgba(245, 158, 11, 0.6)'; bdColor = 'rgb(245, 158, 11)'; break;
+            case 'year':
+                labels = revenueChartData.yearlyLabels; data = revenueChartData.yearlyData;
+                bgColor = 'rgba(16, 185, 129, 0.6)'; bdColor = 'rgb(16, 185, 129)'; break;
+            case 'month':
+            default:
+                labels = revenueChartData.monthlyLabels; data = revenueChartData.monthlyData;
+                bgColor = 'rgba(59, 130, 246, 0.6)'; bdColor = 'rgb(59, 130, 246)'; break;
+        }
+
+        if (!currentChart) {
+            const chartConfigTemplate = {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Doanh thu (VND)', data: data,
+                        backgroundColor: bgColor, borderColor: bdColor,
+                        borderWidth: 1, barPercentage: 0.5, categoryPercentage: 0.7
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { callback: (value) => formatCurrency(value) } } },
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: (context) => formatCurrency(context.parsed.y) } } }
+                }
+            };
+            currentChart = new Chart(ctx, chartConfigTemplate);
+        } else {
+            currentChart.data.labels = labels;
+            currentChart.data.datasets[0].data = data;
+            currentChart.data.datasets[0].backgroundColor = bgColor;
+            currentChart.data.datasets[0].borderColor = bdColor;
+            currentChart.update();
+        }
+
+        document.querySelectorAll('#chart-tabs .chart-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.getAttribute('data-period') === period);
+        });
+    }
+
+    /**
+     * THÊM MỚI: Hàm preview ảnh cho modal hoàn thành
+     * @param {Event} event Event từ input file
+     * @param {number} maxFiles Số lượng file tối đa
+     */
+    function previewCompleteImages(event, maxFiles) {
+        const input = event.target;
+        const previewContainer = document.getElementById('complete-images-preview');
+        const errorEl = document.getElementById('complete-images-error');
+        if (!previewContainer || !errorEl) return;
+
+        previewContainer.innerHTML = ''; // Xóa preview cũ
+        errorEl.classList.add('hidden');
+
+        if (!input.files || input.files.length === 0) {
+            previewContainer.innerHTML = '<p class="text-xs text-gray-400 p-2">Chưa chọn ảnh nào.</p>';
+            return;
+        }
+
+        if (input.files.length > maxFiles) {
+            errorEl.textContent = `Bạn chỉ có thể upload tối đa ${maxFiles} ảnh.`;
+            errorEl.classList.remove('hidden');
+            input.value = ''; // Xóa file đã chọn
+            previewContainer.innerHTML = '<p class="text-xs text-gray-400 p-2">Chưa chọn ảnh nào.</p>';
+            return;
+        }
+
+        Array.from(input.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative w-20 h-20 rounded-md overflow-hidden border border-gray-300';
+                div.innerHTML = `<img src="${e.target.result}" alt="${file.name}" class="w-full h-full object-cover">`;
+                previewContainer.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+    // KẾT THÚC THÊM MỚI
+
+    // Khởi tạo chung khi DOM tải xong
+    document.addEventListener('DOMContentLoaded', function() {
+        if (currentPage === 'bank-accounts') {
+            initializeBankAccountManagement({
+                ajaxListUrl: '/owner/bank-accounts/list-ajax',
+                deleteUrlPrefix: '/owner/bank-accounts/delete',
+                setDefaultUrlPrefix: '/owner/bank-accounts/set-default',
+                unsetDefaultUrlPrefix: '/owner/bank-accounts/unset-default',
+                csrfToken: csrfToken,
+                csrfParameterName: csrfParameterName
+            });
+             // --- Tự động mở form nếu có lỗi validation (từ RedirectAttributes) ---
+            if (/*[[${bank_error} != null]]*/ false) {
+                const bankAccountFormContainer = document.getElementById('bank-account-form-container');
+                const addBankBtn = document.getElementById('add-bank-btn');
+                if(bankAccountFormContainer) bankAccountFormContainer.style.display = 'block';
+                if(addBankBtn) addBankBtn.style.display = 'none';
+            }
+        }
+
+        if (currentPage && typeof highlightOwnerSidebarLink === 'function') {
+            highlightOwnerSidebarLink(currentPage);
+        }
+        if (typeof loadNotificationCount === 'function') {
+            loadNotificationCount();
+        }
+
+        // Khởi tạo logic cho tab dashboard
+        if (currentPage === 'dashboard') {
+            document.querySelectorAll('#chart-tabs .chart-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    updateRevenueChart(this.getAttribute('data-period'));
+                });
+            });
+            updateRevenueChart('month'); // Vẽ biểu đồ mặc định
+        }
+
+        // Khởi tạo logic cho tab bookings
+        if (currentPage === 'bookings' && typeof filterAndSortBookings === 'function') {
+            filterAndSortBookings(); // Hàm này từ owner-management.js
+        }
+    });
+    /*]]>*/
+</script>
+
+<script th:src="@{/js/owner-management.js}"></script>
+<script th:src="@{/js/vehicle-form-logic.js}"></script>
+
+<script th:inline="javascript" th:if="${currentPage == 'cars'}">
+    /*<![CDATA[*/
+
+    // --- CÁC HÀM BỊ THIẾU ---
+
+    /**
+     * Hàm bật/tắt Modal
+     * @param {string} modalId ID của modal (ví dụ: 'add-car-modal')
+     */
+    function toggleModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.toggle("hidden");
+            // Khởi tạo features khi modal 'add' được mở
+            if (modalId === 'add-car-modal' && !modal.classList.contains('hidden')) {
+                if (typeof updateFeatures === 'function') {
+                    updateFeatures(); // Render features
+                }
+            }
+        }
+    }
+
+    /**
+     * Hàm đóng Modal (phiên bản đầy đủ cho 'cars'
+     * @param {string} modalId ID của modal
+     */
+    function closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.classList.add("hidden");
+            const form = modal.querySelector('form');
+            if (form) form.reset();
+
+            // Xóa ảnh preview khi đóng
+            if (modalId === 'add-car-modal') {
+                const addPreview = document.getElementById('add-mainImagePreview');
+                if(addPreview) {
+                    const img = addPreview.querySelector('img');
+                    if(img) {
+                        img.src = '';
+                        img.classList.add('hidden');
+                    }
+                }
+                const addAuxPreview = document.getElementById('add-auxiliaryImagesPreview');
+                if(addAuxPreview) addAuxPreview.innerHTML = '';
+                const addAuxError = document.getElementById('add-auxiliaryImagesError');
+                if(addAuxError) addAuxError.classList.add('hidden');
+
+            } else if (modalId === 'edit-car-modal') {
+                const editPreview = document.getElementById('edit-mainImagePreview');
+                if(editPreview) {
+                    const currentImg = editPreview.querySelector('#edit-currentMainImage');
+                    if(currentImg) currentImg.src = '';
+                    const newImg = editPreview.querySelector('#edit-newMainImagePreviewDisplay');
+                    if(newImg) {
+                        newImg.src = '';
+                        newImg.classList.add('hidden');
+                    }
+                }
+                const editAuxContainer = document.getElementById('edit-currentAuxiliaryImages');
+                if(editAuxContainer) editAuxContainer.innerHTML = '';
+                const editAuxPreview = document.getElementById('edit-auxiliaryImagesPreview');
+                if(editAuxPreview) editAuxPreview.innerHTML = '';
+                const editAuxError = document.getElementById('edit-auxiliaryImagesError');
+                if (editAuxError) editAuxError.classList.add('hidden');
+            }
+        }
+    }
+
+    /**
+     * Hàm mở Edit Modal
+     * @param {string} id Vehicle ID
+     */
+    async function openEditCarModal(id) {
+        console.log("Editing car with ID:", id);
+        try {
+            // Sử dụng API endpoint từ OwnerApiController.java
+            const response = await fetch(`/owner/api/cars/${id}`);
+            if (!response.ok) {
+                let errorMsg = `Failed to fetch vehicle data. Status: ${response.status}`;
+                try {
+                    const errorData = await response.json();
+                    errorMsg = errorData.message || errorMsg;
+                } catch(e) {/* ignore json parse error */}
+                throw new Error(errorMsg);
+            }
+            const vehicle = await response.json();
+
+            // Populate form fields
+            document.getElementById("edit-vehicleId").value = vehicle.vehicleId || "";
+            document.getElementById("edit-model").value = vehicle.vehicleModel || "";
+
+            // Sửa lỗi: Lấy ID từ object lồng nhau
+            document.getElementById("edit-transmissionTypeId").value = vehicle.transmission ? vehicle.transmission.transmissionTypeId : "";
+            document.getElementById("edit-categoryId").value = vehicle.category ? vehicle.category.categoryId : "";
+
+            document.getElementById("edit-type").value = vehicle.type || "ElectricCar";
+            document.getElementById("edit-yearManufactured").value = vehicle.yearManufactured || "";
+            document.getElementById("edit-licensePlate").value = vehicle.licensePlate || "";
+            document.getElementById("edit-seats").value = vehicle.seats || "";
+            document.getElementById("edit-odometer").value = vehicle.odometer || "0";
+
+            // Sửa lỗi: Lấy giá từ API response
+            document.getElementById("edit-hourlyRate").value = vehicle.hourlyRate || "0";
+            document.getElementById("edit-dailyRate").value = vehicle.dailyRate || "0";
+            document.getElementById("edit-monthlyRate").value = vehicle.monthlyRate || "0";
+
+            document.getElementById("edit-batteryCapacity").value = vehicle.batteryCapacity || "";
+            document.getElementById("edit-description").value = vehicle.description || "";
+            document.getElementById("edit-requiresLicense").value = vehicle.requiresLicense ? "true" : "false";
+            document.getElementById("edit-status").value = vehicle.status || "Available";
+
+            // Load ảnh chính hiện tại
+            const currentMainImage = document.getElementById('edit-currentMainImage');
+            if (vehicle.mainImageUrl && currentMainImage) {
+                currentMainImage.src = vehicle.mainImageUrl;
+                currentMainImage.classList.remove('hidden');
+            } else if (currentMainImage) {
+                // Đặt ảnh placeholder nếu không có ảnh
+                currentMainImage.src = 'https://via.placeholder.com/160x100?text=No+Image';
+                currentMainImage.classList.remove('hidden');
+            }
+
+            // Reset preview ảnh chính mới
+            const newMainImagePreview = document.getElementById('edit-newMainImagePreviewDisplay');
+            if(newMainImagePreview){
+                newMainImagePreview.src = '';
+                newMainImagePreview.classList.add('hidden');
+            }
+            document.getElementById('edit-mainImage').value = ''; // Xóa file đã chọn (nếu có)
+
+            // Load ảnh phụ hiện tại
+            const currentAuxiliaryContainer = document.getElementById('edit-currentAuxiliaryImages');
+            if (currentAuxiliaryContainer) {
+                currentAuxiliaryContainer.innerHTML = ''; // Xóa ảnh cũ
+                let auxiliaryUrls = vehicle.imageUrls || [];
+
+                if (Array.isArray(auxiliaryUrls) && auxiliaryUrls.length > 0) {
+                    auxiliaryUrls.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.alt = "Ảnh phụ hiện tại";
+                        img.classList.add('max-h-20', 'h-20', 'w-auto', 'object-contain', 'rounded', 'border', 'p-1');
+                        currentAuxiliaryContainer.appendChild(img);
+                    });
+                } else {
+                    currentAuxiliaryContainer.innerHTML = '<p class="text-xs text-gray-400 col-span-full">Không có ảnh phụ.</p>';
+                }
+            }
+            // Reset preview ảnh phụ mới
+            document.getElementById('edit-auxiliaryImagesPreview').innerHTML = '';
+            document.getElementById('edit-auxiliaryImages').value = '';
+            const editAuxError = document.getElementById('edit-auxiliaryImagesError');
+            if (editAuxError) editAuxError.classList.add('hidden');
+
+            // Load Features
+            document.getElementById("edit-selected-features").value = JSON.stringify(vehicle.features || []);
+            if(typeof updateEditFeatures === 'function') {
+                updateEditFeatures(); // Render checkboxes
+            }
+
+            // Set form action URL
+            const form = document.getElementById("edit-car-form");
+            form.action = `/owner/cars/${id}`;
+
+            toggleModal("edit-car-modal");
+        } catch (error) {
+            console.error("Error opening edit modal:", error);
+            alert("Could not load vehicle data: " + error.message);
+        }
+    }
+
+    /**
+     * Hàm Xóa Xe
+     * @param {string} id Vehicle ID
+     */
+    async function deleteCar(id) {
+        if (!confirm("Are you sure you want to delete this vehicle?")) return;
+        try {
+            const headers = { "X-Requested-With": "XMLHttpRequest" };
+            // Biến csrfHeaderName và csrfToken được định nghĩa ở scope global của dashboard.html
+            if (csrfHeaderName && csrfToken) {
+                headers[csrfHeaderName] = csrfToken;
+            }
+
+            const response = await fetch(`/owner/cars/${id}`, { method: "DELETE", headers: headers });
+            const result = await response.json();
+
+            if (result.status === "success") {
+                alert(result.message || "Vehicle deleted successfully!");
+                location.reload();
+            } else {
+                throw new Error(result.message || "Failed to delete vehicle.");
+            }
+        } catch (error) {
+            console.error("Error deleting vehicle:", error);
+            alert("Error: " + error.message);
+        }
+    }
+
+    /**
+     * Hàm Lọc (filter)
+     * @param {string} status Trạng thái (Available, Rented, ...)
+     */
+    function quickFilterStatus(status) {
+        const rows = document.querySelectorAll(".vehicle-row");
+        let found = false;
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute("data-status");
+            if (rowStatus === status) {
+                row.style.display = ""; // Show matching rows
+                found = true;
+            } else {
+                row.style.display = "none"; // Hide non-matching rows
+            }
+        });
+        const emptyRow = document.querySelector('tbody tr td[colspan="5"]');
+        if (emptyRow && emptyRow.parentNode) {
+            emptyRow.parentNode.style.display = found ? 'none' : '';
+        }
+    }
+
+    /**
+     * Hàm Reset Lọc
+     */
+    function showAllVehicles() {
+        const rows = document.querySelectorAll(".vehicle-row");
+        let hasRows = rows.length > 0;
+        rows.forEach(row => {
+            row.style.display = "";
+        });
+        const emptyRow = document.querySelector('tbody tr td[colspan="5"]');
+        if (emptyRow && emptyRow.parentNode) {
+            emptyRow.parentNode.style.display = hasRows ? 'none' : '';
+        }
+    }
+
+    // --- KẾT THÚC HÀM MỚI ---
+
+
+    // Chạy ngay lập tức (Code cũ của bạn, giờ đã có các hàm bên trên)
+    (function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const openModal = urlParams.get('openModal');
+        if (openModal === 'add-car-modal') {
+            // Bây giờ hàm toggleModal đã tồn tại
+            toggleModal('add-car-modal');
+        }
+
+        if (typeof updateFeatures === 'function') {
+            updateFeatures();
+        }
+        if (typeof handleImagePreview === 'function') {
+            handleImagePreview('add-mainImage', 'add-mainImagePreview', false);
+            handleImagePreview('add-auxiliaryImages', 'add-auxiliaryImagesPreview', true, 10);
+            handleImagePreview('edit-mainImage', 'edit-newMainImagePreviewDisplay', false);
+            handleImagePreview('edit-auxiliaryImages', 'edit-auxiliaryImagesPreview', true, 10);
+        }
+    })();
+    /*]]>*/
+</script>
+<script th:inline="javascript" th:if="${currentPage == 'customers'}">
+    /*<![CDATA[*/
+    // Hàm viewCustomer (phải được định nghĩa ở global scope hoặc attach vào window)
+    // Sửa lỗi: Đảm bảo hàm này tồn tại khi nút được nhấn
+    async function viewCustomer(customerId) {
+        const modal = document.getElementById('customer-detail-modal');
+        const contentEl = document.getElementById('customer-detail-content');
+        if (!modal || !contentEl) return;
+
+        modal.classList.remove('hidden');
+        contentEl.innerHTML = '<p class="p-6 text-center text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Loading customer details...</p>'; // Show loading
+
+        try {
+            const response = await fetch(`/owner/management/customer/${customerId}`);
+            if (!response.ok) throw new Error('Failed to fetch customer details.');
+            const customer = await response.json();
+
+            let html = '<div class="space-y-4">';
+            // Basic Info
+            html += `
+                <div class="flex items-center space-x-4 pb-4 border-b">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex-shrink-0 flex items-center justify-center">`;
+            if (customer.avatarUrl) {
+                html += `<img src="${customer.avatarUrl}" alt="${customer.fullName}" class="w-full h-full rounded-full object-cover"/>`;
+            } else {
+                html += `<i class="fas fa-user text-gray-500 text-3xl"></i>`;
+            }
+            html += `</div>
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-900">${customer.fullName || 'N/A'}</h4>
+                        <p class="text-sm text-gray-600">${customer.email || 'N/A'}</p>
+                         <span class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${customer.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${customer.status || 'Unknown'}</span>
+                    </div>
+                </div>`;
+            // Details Grid
+            html += '<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm pt-4">';
+            html += `<div><strong class="text-gray-500 block mb-1">Username:</strong> <span class="text-gray-800">${customer.username || 'N/A'}</span></div>`;
+            html += `<div><strong class="text-gray-500 block mb-1">Phone:</strong> <span class="text-gray-800">${customer.phoneNumber || 'N/A'}</span></div>`;
+            html += `<div><strong class="text-gray-500 block mb-1">DOB:</strong> <span class="text-gray-800">${customer.dateOfBirth ? new Date(customer.dateOfBirth).toLocaleDateString('vi-VN') : 'N/A'}</span></div>`;
+            html += `<div><strong class="text-gray-500 block mb-1">Gender:</strong> <span class="text-gray-800">${customer.gender || 'N/A'}</span></div>`;
+            html += `<div><strong class="text-gray-500 block mb-1">Role:</strong> <span class="text-gray-800">${customer.role || 'N/A'}</span></div>`;
+            html += `<div><strong class="text-gray-500 block mb-1">Member Since:</strong> <span class="text-gray-800">${customer.createdDate ? new Date(customer.createdDate).toLocaleDateString('vi-VN') : 'N/A'}</span></div>`;
+            html += '</div>';
+            // Booking Stats
+            html += `
+                <div class="pt-4 border-t mt-4">
+                    <h5 class="text-md font-semibold text-gray-700 mb-2">Booking Stats</h5>
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                         <div class="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                            <p class="text-xl font-bold text-blue-600">${customer.totalBookings || 0}</p>
+                            <p class="text-xs text-gray-500">Total</p>
+                        </div>
+                        <div class="bg-green-50 p-3 rounded-lg border border-green-200">
+                            <p class="text-xl font-bold text-green-600">${customer.completedBookings || 0}</p>
+                            <p class="text-xs text-gray-500">Completed</p>
+                        </div>
+                        <div class="bg-red-50 p-3 rounded-lg border border-red-200">
+                            <p class="text-xl font-bold text-red-600">${customer.cancelledBookings || 0}</p>
+                            <p class="text-xs text-gray-500">Cancelled</p>
+                        </div>
+                    </div>
+                </div>`;
+            html += '</div>';
+            contentEl.innerHTML = html;
+
+        } catch (error) {
+            console.error('Error fetching customer details:', error);
+            contentEl.innerHTML = `<p class="p-6 text-center text-red-600">Could not load customer details. ${error.message}</p>`;
+        }
+    }
+    /*]]>*/
+</script>
+
+</body>
+</html>

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="bookings-content">
+    <div class="status-tab-container" id="status-tabs">
+        <button class="status-tab active" data-status="" onclick="changeStatusTab(this)">
+            Tất cả <span class="count-badge" th:text="${countAll ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="Pending" onclick="changeStatusTab(this)">
+            Chờ duyệt <span class="count-badge" th:text="${countPending ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="Approved" onclick="changeStatusTab(this)">
+            Đã duyệt <span class="count-badge" th:text="${countApproved ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="AwaitingDeposit" onclick="changeStatusTab(this)">
+            Chờ cọc <span class="count-badge" th:text="${countAwaitingDeposit ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="Confirmed" onclick="changeStatusTab(this)">
+            Chờ nhận xe <span class="count-badge" th:text="${countConfirmed ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="Ongoing" onclick="changeStatusTab(this)">
+            Đang thuê <span class="count-badge" th:text="${countOngoing ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="Completed" onclick="changeStatusTab(this)">
+            Hoàn thành <span class="count-badge" th:text="${countCompleted ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="Rejected,Cancelled" onclick="changeStatusTab(this)">
+            Đã hủy/Từ chối <span class="count-badge" th:text="${countCancelled ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="NoShow" onclick="changeStatusTab(this)">
+            Không đến <span class="count-badge" th:text="${countNoShow ?: 0}">0</span>
+        </button>
+    </div>
+
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="search-input" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm</label>
+                <input type="text" id="search-input" onkeyup="filterAndSortBookings()" placeholder="Tìm theo mã, khách hàng..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
+            </div>
+            <div>
+                <label for="sort-select" class="block text-sm font-medium text-gray-700 mb-1">Sắp xếp theo</label>
+                <select id="sort-select" onchange="filterAndSortBookings()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                    <option value="newest">Mới nhất trước</option>
+                    <option value="oldest">Cũ nhất trước</option>
+                    <option value="amount-high">Giá: Cao đến thấp</option>
+                    <option value="amount-low">Giá: Thấp đến cao</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div id="booking-list-container" class="bg-white p-6 rounded-lg shadow-md">
+        <p id="no-bookings-message" class="hidden text-center text-gray-500 text-lg py-12">
+            <i class="fas fa-inbox text-6xl text-gray-300 mb-4"></i><br>
+            Không có booking nào.
+        </p>
+    </div>
+</div>
+
+<div th:fragment="booking-modals">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <div id="booking-detail-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('booking-detail-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-2xl font-bold text-gray-800">Booking Details</h3>
+                <button onclick="closeModal('booking-detail-modal')" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="booking-detail-content">
+                <!-- Nội dung chi tiết sẽ được load vào đây -->
+            </div>
+            <!-- Map Container -->
+            <div id="pickup-location-map-container" class="hidden p-4">
+                <h4 class="text-lg font-semibold mb-2">Bản đồ vị trí giao xe</h4>
+                <div id="pickup-location-map" class="w-full h-64 bg-gray-200 rounded-lg">
+                    <!-- Bản đồ sẽ được khởi tạo ở đây -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="approve-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('approve-modal')"></div>
+        <div class="modal-content max-w-md">
+            <div class="modal-header">
+                <h3 class="text-xl font-bold text-gray-800">Approve Booking</h3>
+                <button onclick="closeModal('approve-modal')" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-gray-700 mb-4">
+                    Bạn có chắc chắn muốn duyệt đơn đặt xe này?
+                </p>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="closeModal('approve-modal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                        Hủy
+                    </button>
+                    <button id="confirmApproveBtn" onclick="confirmApprove()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                        <i class="fas fa-check mr-2"></i>Duyệt
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="reject-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('reject-modal')"></div>
+        <div class="modal-content max-w-md">
+            <div class="modal-header">
+                <h3 class="text-xl font-bold text-gray-800">Reject Booking</h3>
+                <button onclick="closeModal('reject-modal')" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-gray-700 mb-4">Vui lòng nhập lý do từ chối đơn đặt xe này:</p>
+                <textarea id="reject-reason" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                          placeholder="Nhập lý do từ chối..."></textarea>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button onclick="closeModal('reject-modal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                        Hủy
+                    </button>
+                    <button id="confirmRejectBtn" onclick="confirmReject()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                        <i class="fas fa-times mr-2"></i>Từ chối
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="cancel-no-show-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('cancel-no-show-modal')"></div>
+        <div class="modal-content max-w-md">
+            <div class="modal-header">
+                <h3 class="text-xl font-bold text-gray-800">Hủy đơn do khách không đến</h3>
+                <button onclick="closeModal('cancel-no-show-modal')" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="text-gray-700 mb-4">Bạn có chắc chắn muốn hủy đơn hàng này vì khách đã trễ hẹn nhận xe?</p>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button onclick="closeModal('cancel-no-show-modal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Không</button>
+                    <button id="confirmCancelNoShowBtn" onclick="confirmCancelNoShow()" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">
+                        <i class="fas fa-user-clock mr-2"></i>Xác nhận Hủy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="handover-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('handover-modal')"></div>
+        <div class="modal-content max-w-md">
+            <form id="handover-form" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h3 class="text-xl font-bold text-gray-800">Xác nhận Giao Xe</h3>
+                    <button type="button" onclick="closeModal('handover-modal')" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="modal-body space-y-4">
+                    <p class="text-sm text-gray-600">Vui lòng nhập số Odometer và tải lên ảnh tình trạng xe lúc giao.</p>
+                    <div>
+                        <label for="handover-odometer" class="block text-sm font-medium text-gray-700 mb-1">Số Odometer (km) *</label>
+                        <input type="number" id="handover-odometer" name="odometer" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                               placeholder="VD: 15000">
+                    </div>
+                    <div>
+                        <label for="handover-notes" class="block text-sm font-medium text-gray-700 mb-1">Ghi chú (nếu có)</label>
+                        <textarea id="handover-notes" name="notes" rows="2"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                  placeholder="VD: Xe có vết xước nhỏ ở cửa sau..."></textarea>
+                    </div>
+                    <div>
+                        <label for="handover-images" class="block text-sm font-medium text-gray-700 mb-1">Ảnh Tình Trạng Xe (Ít nhất 1 ảnh) *</label>
+                        <input type="file" id="handover-images" name="handoverImages" multiple required accept="image/*"
+                               class="w-full text-sm text-gray-500
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-full file:border-0
+                                      file:text-sm file:font-semibold
+                                      file:bg-primary file:text-white
+                                      hover:file:bg-accent">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal('handover-modal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                        Hủy
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                        <i class="fas fa-key mr-2"></i>Xác nhận Giao Xe
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- UNIFIED MODAL FOR COMPLETING TRIPS -->
+    <div id="complete-trip-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('complete-trip-modal')"></div>
+        <div class="modal-content max-w-lg">
+            <form id="complete-trip-form" onsubmit="return false;">
+                <div class="modal-header">
+                    <h3 class="text-xl font-bold text-gray-800">Hoàn thành chuyến đi</h3>
+                    <button type="button" onclick="closeModal('complete-trip-modal')" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="modal-body space-y-4">
+                    <input type="hidden" id="complete-booking-id">
+                    <input type="hidden" id="complete-remaining-amount">
+                    <div>
+                        <label for="return-notes" class="block text-sm font-medium text-gray-700 mb-1">Ghi chú trả xe</label>
+                        <textarea id="return-notes" name="returnNotes" rows="3"
+                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                                  placeholder="Nhập tình trạng xe khi trả, chi phí phát sinh (nếu có)..."></textarea>
+                    </div>
+                    <div>
+                        <label for="return-images" class="block text-sm font-medium text-gray-700 mb-1">Ảnh thực tế khi trả xe (Tối đa 5 ảnh)</label>
+                        <input type="file" id="return-images" name="returnImages" multiple accept="image/*"
+                               onchange="validateImageUpload(this, 5)"
+                               class="w-full text-sm text-gray-500
+                                      file:mr-4 file:py-2 file:px-4
+                                      file:rounded-full file:border-0
+                                      file:text-sm file:font-semibold
+                                      file:bg-primary file:text-white
+                                      hover:file:bg-accent">
+                        <small id="return-images-error" class="text-red-500 hidden">Chỉ được phép tải lên tối đa 5 ảnh.</small>
+                    </div>
+                    <div id="remaining-amount-section" class="hidden text-center p-4 bg-gray-100 rounded-lg">
+                        <p class="text-gray-700">Số tiền còn lại khách hàng cần thanh toán:</p>
+                        <p id="remaining-amount-display" class="text-3xl font-bold text-green-600">0 ₫</p>
+                    </div>
+                </div>
+                <div class="modal-footer justify-between">
+                    <button type="button" onclick="closeModal('complete-trip-modal')" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">Hủy</button>
+                    <!-- Payment buttons - shown when remaining amount > 0 -->
+                    <div id="payment-buttons" class="hidden space-x-2">
+                        <button type="button" onclick="openCashPaymentModal()" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                            <i class="fas fa-money-bill-wave mr-2"></i>Tiền mặt
+                        </button>
+                        <button type="button" onclick="openTransferPaymentModal()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+                            <i class="fas fa-credit-card mr-2"></i>Chuyển khoản
+                        </button>
+                    </div>
+                    <!-- Confirmation buttons - shown when remaining amount <= 0 -->
+                    <div id="confirmation-buttons" class="hidden space-x-2">
+                        <button type="button" onclick="processTripCompletion('Completed')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                            <i class="fas fa-check mr-2"></i>Xác nhận
+                        </button>
+                        <button type="button" onclick="processTripCompletion('Maintenance')" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                            <i class="fas fa-tools mr-2"></i>Xác nhận và Bảo trì
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="cash-payment-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('cash-payment-modal')"></div>
+        <div class="modal-content max-w-md">
+            <div class="modal-header">
+                <h3 class="text-xl font-bold text-gray-800">Thanh toán Tiền mặt</h3>
+                <button type="button" onclick="closeModal('cash-payment-modal')" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="modal-body space-y-4">
+                <p class="text-gray-700">Số tiền còn lại khách hàng cần thanh toán:</p>
+                <p id="cash-amount-display" class="text-3xl font-bold text-center text-green-600">0 ₫</p>
+                <p class="text-sm text-gray-500">Xác nhận đã nhận đủ số tiền này từ khách hàng.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="closeModal('cash-payment-modal')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                    Hủy
+                </button>
+                <button type="button" onclick="processTripCompletion('Completed')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+                    <i class="fas fa-check mr-2"></i>Xác nhận
+                </button>
+                <button type="button" onclick="processTripCompletion('Maintenance')" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                    <i class="fas fa-tools mr-2"></i>Xác nhận và Bảo trì
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="transfer-payment-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="stopPaymentPolling()" style="cursor: pointer;"></div>
+        <div class="modal-content max-w-md">
+            <div class="modal-header">
+                <h3 class="text-xl font-bold text-gray-800">Thanh toán Chuyển khoản</h3>
+                <button type="button" onclick="stopPaymentPolling(); closeModal('transfer-payment-modal');" class="text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="modal-body space-y-4 text-center">
+                <p class="text-gray-700">Số tiền còn lại cần thanh toán:</p>
+                <p id="transfer-amount-display" class="text-3xl font-bold text-green-600">0 ₫</p>
+                <p class="text-gray-700">Quét mã QR PayOS để thanh toán:</p>
+
+                <div id="payos-qr-code-container" class="w-64 h-64 mx-auto bg-gray-100 flex items-center justify-center">
+                    <i class="fas fa-spinner fa-spin text-4xl text-gray-400"></i>
+                </div>
+
+                <p class="text-sm text-gray-500">Đang chờ thanh toán...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="payment-success-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('payment-success-modal')"></div>
+        <div class="modal-content max-w-md">
+            <div class="modal-header">
+                <h3 class="text-xl font-bold text-gray-800">Thanh toán thành công!</h3>
+            </div>
+            <div class="modal-body space-y-4 text-center">
+                <i class="fas fa-check-circle text-8xl text-green-500 mb-4"></i>
+                <p class="text-lg text-gray-700">Đã nhận thanh toán thành công.</p>
+            </div>
+            <div class="modal-footer flex-col">
+                <button type="button" onclick="processTripCompletion('Completed')" class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 w-full">
+                    <i class="fas fa-check mr-2"></i>Xác nhận hoàn tất
+                </button>
+                <button type="button" onclick="processTripCompletion('Maintenance')" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 w-full mt-2">
+                    <i class="fas fa-tools mr-2"></i>Xác nhận và Bảo trì
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+
+        // Lưu bookingId đang được xử lý
+        let currentNoShowBookingId = null;
+        let pickupMap = null;
+        let pickupMarker = null;
+
+        /**
+         * Khởi tạo bản đồ trong modal chi tiết booking.
+         * @param {number} lat - Vĩ độ
+         * @param {number} lng - Kinh độ
+         * @param {string} locationName - Tên địa điểm
+         */
+        function initPickupLocationMap(lat, lng, locationName) {
+            const mapContainer = document.getElementById('pickup-location-map-container');
+            const mapElement = document.getElementById('pickup-location-map');
+            if (!mapElement) return;
+
+            mapContainer.classList.remove('hidden');
+
+            // Nếu bản đồ đã được khởi tạo, chỉ cần cập nhật vị trí
+            if (pickupMap) {
+                pickupMap.setView([lat, lng], 15);
+            } else {
+                // Khởi tạo bản đồ mới
+                pickupMap = L.map(mapElement).setView([lat, lng], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(pickupMap);
+            }
+
+            // Xóa marker cũ nếu có
+            if (pickupMarker) {
+                pickupMarker.remove();
+            }
+
+            // Thêm marker mới
+            pickupMarker = L.marker([lat, lng]).addTo(pickupMap)
+                .bindPopup(`<b>Địa điểm giao xe:</b><br>${locationName}`)
+                .openPopup();
+
+            // Cần gọi invalidateSize để đảm bảo bản đồ hiển thị đúng trong modal
+            setTimeout(() => {
+                pickupMap.invalidateSize();
+            }, 100);
+        }
+
+        /**
+         * Chuyển đổi địa chỉ thành tọa độ và hiển thị bản đồ.
+         * @param {string} address - Địa chỉ cần tìm kiếm.
+         */
+        function showMapForAddress(address) {
+            // Sử dụng Nominatim (dịch vụ miễn phí của OpenStreetMap) để geocode
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const { lat, lon } = data[0]; // Lấy kết quả đầu tiên
+                        initPickupLocationMap(parseFloat(lat), parseFloat(lon), address);
+                    } else {
+                        alert('Không tìm thấy tọa độ cho địa chỉ này.');
+                        document.getElementById('pickup-location-map-container').classList.add('hidden');
+                    }
+                })
+                .catch(error => console.error('Lỗi khi geocoding địa chỉ:', error));
+        }
+        
+        /**
+         * Mở modal và hiển thị chi tiết booking.
+         * @param {string} bookingId - ID của booking cần xem.
+         */
+        function openBookingDetailModal(bookingId) {
+            const modal = document.getElementById('booking-detail-modal');
+            const contentDiv = document.getElementById('booking-detail-content');
+            const mapContainer = document.getElementById('pickup-location-map-container');
+
+            // Hiển thị loading
+            contentDiv.innerHTML = '<div class="text-center py-10"><i class="fas fa-spinner fa-spin text-4xl text-primary"></i><p class="mt-2">Đang tải dữ liệu...</p></div>';
+            mapContainer.classList.add('hidden'); // Ẩn bản đồ khi tải
+            openModal('booking-detail-modal');
+
+            // Lấy CSRF token
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            // Gọi API để lấy chi tiết booking
+            fetch(`/api/owner/bookings/${bookingId}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Không thể tải thông tin chi tiết booking.');
+                }
+                return response.json();
+            })
+            .then(booking => {
+                // Hàm format tiền tệ
+                const formatCurrency = (amount) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+
+                // **Tạo nút "Xem bản đồ"**
+                let locationHtml = `<p class="font-semibold text-gray-800">${booking.pickupLocation || 'Chưa cập nhật'}</p>`;
+                if (booking.pickupLocation) {
+                    // Dùng backtick và escape ký tự đặc biệt để truyền vào onclick
+                    const escapedLocation = booking.pickupLocation.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    locationHtml += `
+                        <button onclick="showMapForAddress('${escapedLocation}')"
+                                class="mt-1 text-sm text-primary hover:underline font-semibold flex items-center gap-1">
+                            <i class="fas fa-map-marked-alt"></i>
+                            Xem bản đồ
+                        </button>
+                    `;
+                }
+
+                // Tạo nội dung HTML cho modal
+                contentDiv.innerHTML = `
+                    <div class="space-y-6">
+                        <!-- Thông tin khách hàng -->
+                        <div class="p-4 bg-gray-50 rounded-lg border">
+                            <h4 class="font-bold text-lg mb-3 text-gray-700">Thông tin khách hàng</h4>
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                <div class="flex items-center gap-2"><i class="fas fa-user text-gray-400 w-4"></i><strong>Khách hàng:</strong> ${booking.customerName}</div>
+                                <div class="flex items-center gap-2"><i class="fas fa-phone text-gray-400 w-4"></i><strong>Điện thoại:</strong> ${booking.customerPhone}</div>
+                                <div class="flex items-center gap-2 col-span-2"><i class="fas fa-envelope text-gray-400 w-4"></i><strong>Email:</strong> ${booking.customerEmail}</div>
+                            </div>
+                        </div>
+
+                        <!-- Thông tin chuyến đi -->
+                        <div class="p-4 bg-gray-50 rounded-lg border">
+                            <h4 class="font-bold text-lg mb-3 text-gray-700">Thông tin chuyến đi</h4>
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                                <div>
+                                    <p class="text-gray-500">Nhận xe</p>
+                                    <p class="font-semibold text-gray-800">${new Date(booking.pickupDateTime).toLocaleString('vi-VN')}</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500">Trả xe</p>
+                                    <p class="font-semibold text-gray-800">${new Date(booking.returnDateTime).toLocaleString('vi-VN')}</p>
+                                </div>
+                                <div class="col-span-2">
+                                    <p class="text-gray-500">Địa điểm giao xe</p>
+                                    ${locationHtml}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Chi tiết thanh toán -->
+                        <div class="p-4 bg-gray-50 rounded-lg border">
+                            <h4 class="font-bold text-lg mb-3 text-gray-700">Chi tiết thanh toán</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between"><span>Tiền thuê xe:</span> <span class="font-semibold">${formatCurrency(booking.vehicleRentalFee)}</span></div>
+                                <div class="flex justify-between"><span>Phí nền tảng:</span> <span class="font-semibold">${formatCurrency(booking.platformFee)}</span></div>
+                                <div class="flex justify-between text-green-600"><span>Giảm giá:</span> <span class="font-semibold">-${formatCurrency(booking.discountAmount)}</span></div>
+                                <div class="flex justify-between border-t pt-2 mt-2">
+                                    <strong class="text-base">Tổng cộng:</strong>
+                                    <strong class="text-base text-primary">${formatCurrency(booking.totalAmount)}</strong>
+                                </div>
+                                <div class="flex justify-between text-blue-600"><span>Đã cọc (20%):</span> <span class="font-semibold">${formatCurrency(booking.depositAmountRequired)}</span></div>
+                                <div class="flex justify-between text-red-600"><span>Còn lại (thu khi giao xe):</span> <span class="font-semibold">${formatCurrency(booking.remainingAmount)}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error fetching booking details:', error);
+                contentDiv.innerHTML = `<div class="text-center py-10 text-red-500"><i class="fas fa-exclamation-triangle text-4xl"></i><p class="mt-2">${error.message}</p></div>`;
+            });
+        }
+
+        function openCancelNoShowModal(bookingId) {
+            currentNoShowBookingId = bookingId;
+            openModal('cancel-no-show-modal');
+        }
+
+        function confirmCancelNoShow() {
+            if (!currentNoShowBookingId) return;
+
+            const btn = document.getElementById('confirmCancelNoShowBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang xử lý...';
+
+            // Lấy CSRF token từ thẻ meta
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            fetch(`/api/owner/bookings/${currentNoShowBookingId}/no-show`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [csrfHeader]: csrfToken
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                return response.json().then(err => { throw new Error(err.message || 'Hủy đơn hàng thất bại.'); });
+            })
+            .then(data => {
+                showToast('success', 'Đã cập nhật trạng thái đơn hàng thành "Không đến".');
+                closeModal('cancel-no-show-modal');
+                loadBookingsForCurrentTab(); // Tải lại danh sách booking
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('error', error.message);
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-clock mr-2"></i>Xác nhận Hủy';
+                currentNoShowBookingId = null;
+            });
+        }
+        /*]]>*/
+    </script>
+</div>
+</html>

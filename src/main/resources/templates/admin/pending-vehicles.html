@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xe chờ duyệt - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+
+<!-- Navigation -->
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<!-- Main Content -->
+<main class="pt-20 pb-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Xe chờ duyệt</h1>
+            <p class="text-gray-600">Quản lý các xe mới được owner thêm vào hệ thống</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <div th:if="${success}" class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                <p class="text-green-800" th:text="${success}">Success message</p>
+            </div>
+        </div>
+
+        <div th:if="${error}" class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
+                <p class="text-red-800" th:text="${error}">Error message</p>
+            </div>
+        </div>
+
+        <!-- Pending Vehicles List -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+            <div class="p-6">
+                <h2 class="text-xl font-semibold mb-4">Danh sách xe chờ duyệt (<span th:text="${pendingVehicles.size()}">0</span>)</h2>
+                
+                <div th:if="${pendingVehicles.isEmpty()}" class="text-center py-12">
+                    <i class="fas fa-check-circle text-green-500 text-6xl mb-4"></i>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">Không có xe chờ duyệt</h3>
+                    <p class="text-gray-500">Tất cả xe đã được xử lý</p>
+                </div>
+
+                <div th:if="${!pendingVehicles.isEmpty()}" class="space-y-4">
+                    <div th:each="vehicle : ${pendingVehicles}" 
+                         class="border border-orange-200 bg-orange-50 rounded-lg p-4 hover:shadow-md transition-all">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <img th:src="${vehicle.mainImageUrl}" 
+                                     th:alt="${vehicle.vehicleModel}"
+                                     class="w-24 h-24 object-cover rounded-lg"
+                                     onerror="this.src='https://via.placeholder.com/150'">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900" th:text="${vehicle.vehicleModel}">Model</h3>
+                                    <p class="text-sm text-gray-600">
+                                        <i class="fas fa-id-card mr-1"></i>
+                                        <span th:text="${vehicle.licensePlate}">Biển số</span>
+                                    </p>
+                                    <p class="text-sm text-gray-600">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        Thêm ngày: <span th:text="${#temporals.format(vehicle.createdDate, 'dd/MM/yyyy HH:mm')}">Date</span>
+                                    </p>
+                                    <p class="text-sm text-orange-600 font-semibold">
+                                        <i class="fas fa-clock mr-1"></i>
+                                        Chờ duyệt
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="approveVehicle(this)" 
+                                        th:attr="data-id=${vehicle.vehicleId}"
+                                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-semibold">
+                                    <i class="fas fa-check mr-2"></i>
+                                    Duyệt
+                                </button>
+                                <button onclick="rejectVehicle(this)" 
+                                        th:attr="data-id=${vehicle.vehicleId}"
+                                        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
+                                    <i class="fas fa-times mr-2"></i>
+                                    Từ chối
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    function approveVehicle(button) {
+        const vehicleId = button.getAttribute('data-id');
+        
+        if (!confirm('Bạn có chắc muốn duyệt xe này?')) {
+            return;
+        }
+        
+        fetch(`/admin/vehicles/api/approve/${vehicleId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Lỗi kết nối: ' + error);
+        });
+    }
+    
+    function rejectVehicle(button) {
+        const vehicleId = button.getAttribute('data-id');
+        const reason = prompt('Nhập lý do từ chối:');
+        
+        if (!reason) {
+            return;
+        }
+        
+        fetch(`/admin/vehicles/api/reject/${vehicleId}?reason=${encodeURIComponent(reason)}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert('Lỗi: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Lỗi kết nối: ' + error);
+        });
+    }
+</script>
+
+</body>
+</html>

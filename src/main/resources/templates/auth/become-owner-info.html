@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Đăng Ký Cho Thuê Xe - EcoDana</title>
+</head>
+<head>
+    <link rel="stylesheet" th:href="@{/css/become-owner.css}" />
+    <style>
+        .contract-input {
+            border: none;
+            border-bottom: 1px dotted #333;
+            background-color: transparent;
+            font-family: inherit;
+            font-size: inherit;
+            padding: 0 2px;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 pt-16">
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<main class="pt-12 pb-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-xl shadow-xl overflow-hidden">
+            <div class="p-8 md:p-12 text-center bg-gradient-to-r from-green-500 to-primary">
+                <h1 class="text-3xl md:text-4xl font-bold text-white mb-4 mt-4">Gia tăng thu nhập hàng tháng cùng EcoDana!</h1>
+                <p class="text-green-100 text-lg mb-8">Biến chiếc xe điện nhàn rỗi của bạn thành nguồn thu nhập ổn định.</p>
+                <button id="openContractModal"
+                   class="inline-block bg-white text-primary font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition duration-300 shadow-md text-lg">
+                    <i class="fas fa-car mr-2"></i> Đăng Ký Xe Ngay
+                </button>
+            </div>
+
+            <div class="p-8 md:p-12">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Thủ tục đăng ký đơn giản & nhanh chóng</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                    <div class="step-item">
+                        <div class="w-16 h-16 bg-green-100 text-primary rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1">1. Điền thông tin</h3>
+                        <p class="text-sm text-gray-600">Cung cấp thông tin chi tiết về xe của bạn.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="w-16 h-16 bg-green-100 text-primary rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1">2. Đăng ảnh xe</h3>
+                        <p class="text-sm text-gray-600">Tải lên hình ảnh rõ ràng, chất lượng.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="w-16 h-16 bg-green-100 text-primary rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1">3. Chờ duyệt xe</h3>
+                        <p class="text-sm text-gray-600">EcoDana sẽ kiểm tra và duyệt xe của bạn.</p>
+                    </div>
+                    <div class="step-item">
+                        <div class="w-16 h-16 bg-green-100 text-primary rounded-full flex items-center justify-center mx-auto mb-3 text-2xl">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <h3 class="font-semibold mb-1">4. Bắt đầu cho thuê</h3>
+                        <p class="text-sm text-gray-600">Xe của bạn sẵn sàng xuất hiện trên nền tảng.</p>
+                    </div>
+                </div>
+                <div class="mt-10 text-center text-sm text-gray-600">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Xem chi tiết <a href="#" class="text-primary hover:underline font-medium">Chính sách đối tác chủ xe</a>.
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Contract Modal -->
+<div id="contractModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <h3 class="text-xl leading-6 font-bold text-gray-900 mb-4">HỢP ĐỒNG HỢP TÁC CHO THUÊ XE</h3>
+            <div id="contractContent" class="w-full h-96 overflow-y-scroll p-6 bg-gray-50 border border-gray-300 rounded-md text-base text-gray-800 font-serif leading-relaxed shadow-inner text-left">
+                <pre class="whitespace-pre-wrap font-serif">
+<div class="text-center font-bold">
+CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+Độc Lập – Tự Do – Hạnh Phúc
+----------oOo----------
+</div>
+<div class="text-center font-bold mt-4 mb-4">
+HỢP ĐỒNG HỢP TÁC CHO THUÊ XE
+(Áp dụng cho Chủ xe – Nền tảng EcoDana)
+</div></pre>
+<div class="space-y-2">
+    <p>Số: …… – ……./HĐHT</p>
+    <p>- Căn cứ Bộ Luật Dân sự 2015;</p>
+    <p>- Căn cứ Luật Thương mại 2005;</p>
+    <p>- Căn cứ Luật Giao thông đường bộ 2008;</p>
+    <p>- Căn cứ nhu cầu hợp tác giữa các bên.</p>
+    <p>Hôm nay, ngày … tháng … năm …, chúng tôi gồm:</p>
+    <div class="pl-4">
+        <p class="font-bold">BÊN A: CÔNG TY ECODANA (Nền tảng trung gian)</p>
+        <p>- Địa chỉ: ........................................................</p>
+        <p>- Đại diện: ...................................................... - Chức vụ: Giám đốc</p>
+        <p>- Mã số thuế: .....................................................</p>
+    </div>
+    <div class="pl-4 mt-2">
+        <p class="font-bold">BÊN B: <input type="text" class="contract-input w-1/2" placeholder="(Chủ xe)" required></p>
+        <p>- Địa chỉ: <input type="text" class="contract-input w-3/4" required></p>
+        <p>- Điện thoại: <input type="tel" class="contract-input w-1/2" required></p>
+        <p>- Email: <input type="email" class="contract-input w-1/2" required></p>
+        <p>- CMND/CCCD số: <input type="text" class="contract-input w-1/4"> cấp ngày <input type="text" class="contract-input w-1/4"> tại <input type="text" class="contract-input w-1/4"></p>
+        <p>- Tài khoản ngân hàng: <input type="text" class="contract-input w-1/2"></p>
+    </div>
+    <p class="pt-2">Hai bên cùng thống nhất ký kết Hợp đồng hợp tác cho thuê xe với các điều khoản sau:</p>
+</div>
+<pre class="whitespace-pre-wrap font-serif">
+-----------------------------------
+ĐIỀU 1: PHẠM VI HỢP TÁC
+1. Bên B đồng ý đưa phương tiện của mình lên nền tảng EcoDana để cho khách thuê sử dụng.
+2. Bên A cung cấp nền tảng trung gian để kết nối Bên B và khách thuê xe.
+3. Bên A **không phải là người thuê xe**, không sử dụng xe và không chịu trách nhiệm phát sinh giữa Bên B và khách thuê, trừ các trách nhiệm thuộc phạm vi nền tảng.
+
+Thông tin xe đăng ký:
+- Loại xe: ......................................................
+- Năm sản xuất: ...............................................
+- Biển số: .......................................................
+- Tình trạng xe: ................................................
+
+-----------------------------------
+ĐIỀU 2: GIÁ CHO THUÊ & PHÍ DỊCH VỤ NỀN TẢNG
+1. Giá cho thuê xe do Bên B tự thiết lập và đăng tải lên hệ thống.
+2. Bên A thu **20% phí dịch vụ** trên **mỗi đơn thuê xe thành công**, bao gồm:
+   - Chi phí vận hành nền tảng,
+   - Chi phí marketing thu hút khách hàng,
+   - Chi phí hỗ trợ xử lý đơn hàng, chăm sóc khách thuê,
+   - Chi phí hệ thống bảo mật.
+3. Bên B nhận **80% giá trị đơn hàng** sau khi trừ phí dịch vụ.
+4. Việc thanh toán cho Bên B được thực hiện trong vòng **03 – 05 ngày làm việc** sau khi đơn thuê hoàn tất.
+
+-----------------------------------
+ĐIỀU 3: TRÁCH NHIỆM CỦA BÊN B (CHỦ XE)
+- Đảm bảo quyền sở hữu hợp pháp của phương tiện.
+- Cung cấp thông tin, hình ảnh xe trung thực.
+- Đảm bảo xe được đăng kiểm, bảo dưỡng, bảo hiểm đầy đủ.
+- Chịu trách nhiệm pháp lý đối với mọi vi phạm về phương tiện.
+- Tự thoả thuận và làm việc trực tiếp với khách thuê trong các vấn đề:
+  + Giao – nhận xe
+  + Kiểm tra tình trạng xe
+  + Bồi thường hư hỏng (nếu có)
+- Không đăng xe có nguồn gốc không rõ ràng hoặc sai thông tin thực tế.
+
+-----------------------------------
+ĐIỀU 4: TRÁCH NHIỆM CỦA BÊN A (NỀN TẢNG ECODANA)
+- Cung cấp hệ thống đặt xe, quản lý giao dịch, hỗ trợ kỹ thuật.
+- Hỗ trợ quảng bá xe của Bên B trên nền tảng.
+- Bảo vệ thông tin cá nhân của Bên B theo quy định pháp luật.
+- Hỗ trợ xử lý tranh chấp ở mức nền tảng (không chịu trách nhiệm thay khách thuê hoặc chủ xe về thiệt hại trực tiếp).
+- Thu và tạm giữ tiền thuê xe từ khách thuê cho đến khi hoàn tất giao dịch.
+
+-----------------------------------
+ĐIỀU 5: HIỆU LỰC VÀ CHẤM DỨT HỢP ĐỒNG
+1. Hợp đồng có hiệu lực kể từ ngày ký và vô thời hạn cho đến khi một trong hai bên đề nghị chấm dứt.
+2. Mỗi bên có quyền chấm dứt hợp đồng nhưng phải thông báo cho bên còn lại trước **07 ngày**.
+3. Trong thời gian hợp đồng có hiệu lực, Bên B vẫn chịu trách nhiệm hoàn thành các đơn thuê đã phát sinh.
+
+-----------------------------------
+ĐIỀU 6: GIẢI QUYẾT TRANH CHẤP
+- Hai bên ưu tiên giải quyết tranh chấp bằng thương lượng.
+- Nếu không đạt được thỏa thuận, tranh chấp sẽ được đưa ra **Tòa án có thẩm quyền tại Việt Nam**.
+- Hợp đồng tuân theo pháp luật nước Cộng hòa xã hội chủ nghĩa Việt Nam.
+
+-----------------------------------
+Hợp đồng được lập thành 02 bản có giá trị pháp lý như nhau, mỗi bên giữ 01 bản.
+
+ĐẠI DIỆN BÊN A                              ĐẠI DIỆN BÊN B
+(Ký và ghi rõ họ tên)                         (Ký và ghi rõ họ tên)
+
+                
+(Hợp đồng này mang tính chất hợp tác dịch vụ, không phải hợp đồng thuê xe trực tiếp)
+(Hợp đồng này chỉ mang tính chất tham khảo)
+                </pre>
+            </div>
+            <div class="items-center px-4 py-3">
+                <button id="agreeContractBtn"
+                        class="px-4 py-2 bg-primary text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled>
+                    Tôi đã đọc và đồng ý với hợp đồng
+                </button>
+                <button id="closeContractModal"
+                        class="mt-2 px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const openContractModalBtn = document.getElementById('openContractModal');
+        const contractModal = document.getElementById('contractModal');
+        const closeContractModalBtn = document.getElementById('closeContractModal');
+        const contractContent = document.getElementById('contractContent');
+        const agreeContractBtn = document.getElementById('agreeContractBtn');
+
+        openContractModalBtn.addEventListener('click', function() {
+            contractModal.classList.remove('hidden');
+            // Reset scroll and disable button when opening
+            contractContent.scrollTop = 0;
+            agreeContractBtn.disabled = true;
+            agreeContractBtn.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
+        });
+
+        closeContractModalBtn.addEventListener('click', function() {
+            contractModal.classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            if (event.target === contractModal) {
+                contractModal.classList.add('hidden');
+            }
+        });
+
+        contractContent.addEventListener('scroll', function() {
+            // Enable button if scrolled to the bottom
+            const isScrolledToBottom = contractContent.scrollHeight - contractContent.scrollTop <= contractContent.clientHeight + 1;
+            if (isScrolledToBottom) {
+                agreeContractBtn.disabled = false;
+                agreeContractBtn.classList.remove('disabled:opacity-50', 'disabled:cursor-not-allowed');
+            } else {
+                agreeContractBtn.disabled = true;
+                agreeContractBtn.classList.add('disabled:opacity-50', 'disabled:cursor-not-allowed');
+            }
+        });
+
+        agreeContractBtn.addEventListener('click', function() {
+            if (!agreeContractBtn.disabled) {
+                window.location.href = /*[[@{/owner/cars/add}]]*/ '/owner/cars/add';
+            }
+        });
+    });
+</script>
+</body>
+</html>

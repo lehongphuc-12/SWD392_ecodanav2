@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments/layout :: head}"></div>
+    <link href="/css/sidebar-common.css" rel="stylesheet">
+    <link href="/css/owner-dashboard.css" rel="stylesheet">
+    <style>
+        .primary { color: #4CAF50; }
+        .notification-item:hover { background-color: #f9fafb; }
+        .notification-item .icon-wrapper {
+            width: 2.5rem; /* w-10 */
+            height: 2.5rem; /* h-10 */
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 9999px; /* rounded-full */
+        }
+        .icon-info { background-color: #dbeafe; color: #1d4ed8; } /* bg-blue-100 text-blue-700 */
+        .icon-warning { background-color: #fef3c7; color: #92400e; } /* bg-yellow-100 text-yellow-700 */
+        .icon-success { background-color: #d1fae5; color: #065f46; } /* bg-green-100 text-green-700 */
+        .icon-error { background-color: #fee2e2; color: #991b1b; } /* bg-red-100 text-red-700 */
+    </style>
+</head>
+<body class="bg-gray-100">
+<div class="flex h-screen bg-gray-100 overflow-hidden">
+
+    <div th:replace="~{fragments/sidebar-layout :: layout(navContentFragment=~{owner/owner-sidebar-nav :: nav})}"></div>
+
+    <div class="flex-1 flex flex-col overflow-hidden">
+
+        <div class="flex items-center justify-between h-16 px-4 bg-white shadow-sm border-b flex-shrink-0">
+            <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-900 lg:hidden">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <div class="flex-grow md:flex-grow-0">
+                <h1 class="text-lg font-semibold text-gray-800 truncate">Notifications</h1>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <button id="userMenuButton" class="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded-lg transition">
+                        <div th:if="${currentUser?.avatarUrl != null and !currentUser.avatarUrl.isEmpty()}" class="w-8 h-8 rounded-full overflow-hidden">
+                            <img th:src="${currentUser.avatarUrl}" alt="Avatar" class="w-full h-full object-cover">
+                        </div>
+                        <i th:unless="${currentUser?.avatarUrl != null and !currentUser.avatarUrl.isEmpty()}" class="fas fa-user-circle text-2xl text-gray-500"></i>
+                        <span class="hidden md:inline text-sm font-medium text-gray-700" th:text="${currentUser?.firstName}">Owner</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-500"></i>
+                    </button>
+                    <div id="userMenuDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                        <div class="p-3 border-b border-gray-200">
+                            <p class="text-sm font-semibold text-gray-800" th:text="${currentUser?.firstName + ' ' + currentUser?.lastName}">Owner User</p>
+                            <p class="text-xs text-gray-500" th:text="${currentUser?.role?.roleName}">Owner</p>
+                        </div>
+                        <div class="py-1">
+                            <a href="/" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-home w-5 mr-2 text-gray-500"></i>
+                                Trang chủ
+                            </a>
+                            <a href="/owner/profile" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-user-edit w-5 mr-2 text-gray-500"></i>
+                                Hồ sơ
+                            </a>
+                            <a href="/logout" class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                <i class="fas fa-sign-out-alt w-5 mr-2"></i>
+                                Đăng Xuất
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <div class="container mx-auto max-w-3xl">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <h2 class="text-xl font-semibold text-gray-800">Tất cả thông báo</h2>
+                        <button class="text-sm text-blue-600 hover:text-blue-800">Đánh dấu tất cả đã đọc</button>
+                    </div>
+
+                    <div class="divide-y divide-gray-200">
+                        <div th:if="${notifications == null || #lists.isEmpty(notifications)}" class="text-center py-20">
+                            <i class="fas fa-bell-slash text-6xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500 text-lg">Bạn không có thông báo nào.</p>
+                        </div>
+
+                        <div th:each="noti : ${notifications}" class="notification-item p-6 flex items-start space-x-4 transition-colors duration-150">
+                            <div class="icon-wrapper"
+                                 th:classappend="${noti.type == 'VEHICLE_APPROVAL'} ? 'icon-warning' :
+                                                (${noti.type == 'BOOKING_APPROVED'} ? 'icon-success' :
+                                                (${noti.type == 'BOOKING_REJECTED'} ? 'icon-error' : 'icon-info'))">
+                                <i class="fas"
+                                   th:classappend="${noti.type == 'VEHICLE_APPROVAL'} ? 'fa-car' :
+                                                    (${noti.type == 'BOOKING_APPROVED'} ? 'fa-check-circle' :
+                                                    (${noti.type == 'BOOKING_REJECTED'} ? 'fa-ban' : 'fa-info-circle'))">
+                                </i>
+                            </div>
+
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-700" th:text="${noti.message}">
+                                    Nội dung thông báo...
+                                </p>
+                                <p class="text-xs text-gray-500 mt-2" th:text="${#temporals.format(noti.createdDate, 'dd/MM/yyyy HH:mm')}">
+                                    10/10/2025 10:30
+                                </p>
+                            </div>
+
+                            <div class="flex-shrink-0">
+                                <span th:if="${!noti.read}" class="w-3 h-3 bg-blue-500 rounded-full" title="Chưa đọc"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script th:src="@{/js/sidebar-common.js}"></script>
+<script th:src="@{/js/owner-dashboard.js}"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        // Đánh dấu trang "notifications" là active trên sidebar
+        const currentPage = /*[[${currentPage}]]*/ 'notifications';
+        if (currentPage && typeof highlightOwnerSidebarLink === 'function') {
+            highlightOwnerSidebarLink(currentPage);
+        }
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head}"></head>
+  <body class="bg-gray-50">
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <main class="pt-20 pb-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-8 flex items-center justify-between">
+          <h1 class="text-2xl font-bold text-gray-900">Xe yêu thích</h1>
+        </div>
+
+        <div th:if="${vehicles == null or vehicles.isEmpty()}" class="bg-white rounded-lg shadow p-12 text-center">
+          <i class="fas fa-heart-broken text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-700 mb-2">Chưa có xe yêu thích</h3>
+          <p class="text-gray-500 mb-6">Hãy khám phá và thêm xe vào danh sách yêu thích của bạn.</p>
+          <a
+            th:href="@{/vehicles}"
+            class="inline-block bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-600 transition-all"
+          >
+            Khám phá xe
+          </a>
+        </div>
+
+        <div
+          th:if="${vehicles != null and !vehicles.isEmpty()}"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
+          <div
+            th:each="vehicle : ${vehicles}"
+            class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+          >
+            <a th:href="@{/vehicles/{id}(id=${vehicle.vehicleId})}" class="block">
+              <img
+                th:src="${vehicle.mainImageUrl ?: 'https://via.placeholder.com/400x224?text=No+Image'}"
+                th:alt="${vehicle.vehicleModel}"
+                class="w-full h-48 object-cover"
+              />
+              <div class="p-4">
+                <h3 class="text-lg font-semibold mb-2 truncate" th:text="${vehicle.vehicleModel}">Mẫu xe</h3>
+                <div class="flex items-center text-sm text-gray-600 mb-3">
+                  <i class="fas fa-chair mr-1"></i>
+                  <span th:text="${vehicle.seats}">4</span> chỗ
+                  <span class="mx-2">|</span>
+                  <i class="fas fa-cog mr-1"></i>
+                  <span
+                    th:text="${vehicle.transmissionType != null ? vehicle.transmissionType.transmissionTypeName : 'Tự động'}"
+                    >Tự động</span
+                  >
+                </div>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span
+                      class="text-xl font-bold text-green-600"
+                      th:text="${#numbers.formatDecimal(vehicle.getDailyPriceFromJson(), 0, 'COMMA', 0, 'POINT')}"
+                      >600,000</span
+                    >
+                    <span class="text-sm text-gray-600">₫/ngày</span>
+                  </div>
+                  <span class="text-green-600 hover:text-green-700 font-semibold"
+                    >Xem chi tiết <i class="fas fa-arrow-right ml-1"></i
+                  ></span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

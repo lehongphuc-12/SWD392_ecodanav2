@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <div th:fragment="nav">
+      <ul class="space-y-1">
+        <li>
+          <a
+            th:href="@{/owner/dashboard}"
+            data-page="dashboard"
+            class="sidebar-item flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+            th:classappend="${currentPage == 'dashboard' ? 'active' : ''}"
+          >
+            <i class="fas fa-chart-pie mr-3 text-lg"></i>
+            <span>OVERVIEW</span>
+          </a>
+        </li>
+        <li>
+          <a
+            th:href="@{/owner/cars}"
+            data-page="cars"
+            class="sidebar-item flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+            th:classappend="${currentPage == 'cars' ? 'active' : ''}"
+          >
+            <i class="fas fa-car mr-3 text-lg"></i>
+            <span>CAR MANAGEMENT</span>
+          </a>
+        </li>
+        <li>
+          <a
+            th:href="@{/owner/bookings}"
+            data-page="bookings"
+            class="sidebar-item flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+            th:classappend="${currentPage == 'bookings' ? 'active' : ''}"
+          >
+            <i class="fas fa-book-open mr-3 text-lg"></i>
+            <span>BOOKING MANAGEMENT</span>
+          </a>
+        </li>
+        <li>
+          <a
+            th:href="@{/owner/payments}"
+            data-page="payments"
+            class="sidebar-item flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+            th:classappend="${currentPage == 'payments' ? 'active' : ''}"
+          >
+            <i class="fas fa-file-invoice-dollar mr-3 text-lg"></i>
+            <span>PAYMENT MANAGEMENT</span>
+          </a>
+        </li>
+        <li>
+          <a
+            th:href="@{/owner/feedback}"
+            data-page="feedback"
+            class="sidebar-item flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+            th:classappend="${currentPage == 'feedback' ? 'active' : ''}"
+          >
+            <i class="fas fa-comments mr-3 text-lg"></i>
+            <span>FEEDBACK MANAGEMENT</span>
+          </a>
+        </li>
+        <li>
+          <a
+            th:href="@{/owner/profile}"
+            data-page="profile"
+            class="sidebar-item flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+            th:classappend="${currentPage == 'profile' ? 'active' : ''}"
+          >
+            <i class="fas fa-user-cog mr-3 text-lg"></i>
+            <span>PROFILE</span>
+          </a>
+        </li>
+          <li>
+              <a
+                      th:href="@{/owner/dashboard(tab='bank-accounts')}"
+                      data-page="bank-accounts"
+                      class="sidebar-item flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+                      th:classappend="${currentPage == 'bank-accounts' ? 'active' : ''}"
+              >
+                  <i class="fas fa-university mr-3 text-lg"></i>
+                  <span>Tài khoản ngân hàng</span>
+              </a>
+          </li>
+      </ul>
+    </div>
+  </body>
+</html>

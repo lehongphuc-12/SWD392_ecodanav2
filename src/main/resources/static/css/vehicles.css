@@ -1,0 +1,18 @@
+
+:root {
+    --primary-color: #4CAF50; /* Your chosen green color */
+    --accent-color: #45a049;  /* A slightly darker green for hover */
+}
+.text-primary { color: var(--primary-color); }
+.bg-primary { background-color: var(--primary-color); }
+/* Thêm hiệu ứng hover trực tiếp cho lớp .bg-primary */
+.bg-primary:hover {
+    background-color: var(--accent-color);
+}
+.card-hover {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}

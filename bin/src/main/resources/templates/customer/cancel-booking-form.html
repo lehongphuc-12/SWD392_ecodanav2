@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hủy đặt xe</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="/customer/dashboard" class="text-xl font-bold text-green-600">EcoDana</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-700" th:text="${currentUser.username}">User</span>
+                    <a href="/logout" class="text-red-600 hover:text-red-800">Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto py-8 px-4">
+        <!-- Header -->
+        <div class="mb-8">
+            <div class="flex items-center mb-4">
+                <a href="/booking/my-bookings" class="text-green-600 hover:text-green-800 mr-4">
+                    <i class="fas fa-arrow-left mr-2"></i>Quay lại
+                </a>
+                <h1 class="text-3xl font-bold text-gray-900">Hủy đặt xe</h1>
+            </div>
+            <p class="text-gray-600">Gửi yêu cầu hủy xe đến admin để xử lý hoàn tiền</p>
+        </div>
+
+        <!-- Booking Information -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4">Thông tin đặt xe</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <p class="text-sm text-gray-600">Mã đặt xe</p>
+                    <p class="font-medium" th:text="${booking.bookingCode}">Booking Code</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Xe</p>
+                    <p class="font-medium" th:text="${booking.vehicle.name}">Vehicle Name</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Thời gian nhận xe</p>
+                    <p class="font-medium" th:text="${#temporals.format(booking.pickupDateTime, 'dd/MM/yyyy HH:mm')}">Pickup Time</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Thời gian trả xe</p>
+                    <p class="font-medium" th:text="${#temporals.format(booking.returnDateTime, 'dd/MM/yyyy HH:mm')}">Return Time</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Tổng tiền</p>
+                    <p class="font-medium text-green-600" th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">Total Amount</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Trạng thái</p>
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        Đã thanh toán
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Refund Policy -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+            <h3 class="text-lg font-semibold text-yellow-800 mb-3">
+                <i class="fas fa-info-circle mr-2"></i>Chính sách hoàn tiền
+            </h3>
+            <div class="space-y-2 text-sm text-yellow-700">
+                <p><strong>• Hủy trong 2 giờ sau thanh toán:</strong> Hoàn 100% số tiền</p>
+                <p><strong>• Hủy trước 7 ngày:</strong> Phí hủy 10% tổng giá trị chuyến</p>
+                <p><strong>• Hủy trong 7 ngày:</strong> Phí hủy 40% tổng giá trị chuyến</p>
+                <p class="mt-3 font-medium">Số tiền sẽ được chuyển vào tài khoản ngân hàng mặc định của bạn trong 1-3 ngày làm việc sau khi admin duyệt.</p>
+            </div>
+        </div>
+
+        <!-- Cancel Form -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-xl font-semibold mb-4">Lý do hủy xe</h2>
+            
+            <form th:action="@{'/booking/cancel/' + ${booking.bookingId}}" method="post" class="space-y-6">
+                <div>
+                    <label for="cancelReason" class="block text-sm font-medium text-gray-700 mb-2">
+                        Vui lòng cho biết lý do hủy xe <span class="text-red-500">*</span>
+                    </label>
+                    <textarea id="cancelReason" 
+                              name="cancelReason" 
+                              rows="4" 
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                              placeholder="Nhập lý do hủy xe (ví dụ: Thay đổi kế hoạch, có việc đột xuất, không cần xe nữa...)"
+                              required></textarea>
+                    <p class="text-sm text-gray-500 mt-2">Lý do hủy sẽ được gửi đến admin để xem xét và xử lý yêu cầu hoàn tiền.</p>
+                </div>
+
+                <!-- Bank Account Selection -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start">
+                        <i class="fas fa-university text-blue-500 mt-1 mr-3"></i>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-blue-800">Tài khoản ngân hàng nhận hoàn tiền <span class="text-xs text-blue-600">(tùy chọn)</span></h4>
+                            <p class="text-sm text-blue-700 mt-2">
+                                Chọn tài khoản ngân hàng để nhận hoàn tiền. Nếu chưa có, bạn có thể tạo mới ngay dưới đây. Nếu không chọn, admin sẽ liên hệ để lấy thông tin.
+                            </p>
+                            
+                            <!-- Bank Accounts List -->
+                            <div id="bankAccountsList" class="mt-3 space-y-2">
+                                <p class="text-sm text-gray-600"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải tài khoản...</p>
+                            </div>
+                            
+                            <!-- Add New Bank Account Button -->
+                            <button type="button" 
+                                    id="addBankAccountBtn"
+                                    class="mt-3 inline-flex items-center px-3 py-2 border border-blue-300 rounded-md text-sm font-medium text-blue-700 bg-white hover:bg-blue-50">
+                                <i class="fas fa-plus mr-2"></i>Thêm tài khoản ngân hàng mới
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confirmation -->
+                <div class="flex items-center">
+                    <input type="checkbox" 
+                           id="confirmCancel" 
+                           class="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded" 
+                           required>
+                    <label for="confirmCancel" class="ml-2 block text-sm text-gray-700">
+                        Tôi xác nhận muốn hủy đặt xe này và đồng ý với chính sách hoàn tiền
+                    </label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex space-x-4 pt-6">
+                    <button type="submit" 
+                            class="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg hover:bg-red-700 transition-colors font-medium">
+                        <i class="fas fa-paper-plane mr-2"></i>Gửi yêu cầu hủy xe
+                    </button>
+                    <a href="/booking/my-bookings" 
+                       class="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-400 transition-colors font-medium text-center">
+                        <i class="fas fa-times mr-2"></i>Hủy bỏ
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Bank Account Modal -->
+    <div id="addBankAccountModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-lg font-semibold">Thêm tài khoản ngân hàng</h3>
+                <button type="button" id="closeModalBtn" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="addBankAccountForm" class="p-6 space-y-4">
+                <div>
+                    <label for="bankName" class="block text-sm font-medium text-gray-700 mb-1">
+                        Ngân hàng <span class="text-red-500">*</span>
+                    </label>
+                    <select id="bankName" name="bankName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" required>
+                        <option value="">-- Chọn ngân hàng --</option>
+                        <option value="Vietcombank">Vietcombank</option>
+                        <option value="Techcombank">Techcombank</option>
+                        <option value="BIDV">BIDV</option>
+                        <option value="Agribank">Agribank</option>
+                        <option value="VietinBank">VietinBank</option>
+                        <option value="MB Bank">MB Bank</option>
+                        <option value="ACB">ACB</option>
+                        <option value="TPBank">TPBank</option>
+                        <option value="Sacombank">Sacombank</option>
+                        <option value="VPBank">VPBank</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-1">
+                        Số tài khoản <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="accountNumber" name="accountNumber" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập số tài khoản" required>
+                </div>
+                
+                <div>
+                    <label for="accountHolder" class="block text-sm font-medium text-gray-700 mb-1">
+                        Chủ tài khoản <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="accountHolder" name="accountHolder" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                           placeholder="Nhập tên chủ tài khoản" required>
+                </div>
+                
+                <div>
+                    <label for="qrCodeImage" class="block text-sm font-medium text-gray-700 mb-1">
+                        Mã QR (tùy chọn)
+                    </label>
+                    <input type="file" id="qrCodeImage" name="qrCodeImage" accept="image/*"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500">
+                    <p class="text-xs text-gray-500 mt-1">Tải lên ảnh mã QR của tài khoản (JPG, PNG)</p>
+                    <div id="qrPreview" class="mt-2"></div>
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 font-medium">
+                        Thêm tài khoản
+                    </button>
+                    <button type="button" id="cancelModalBtn" class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 font-medium">
+                        Hủy bỏ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let selectedBankAccountId = null;
+
+        // Load bank accounts on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBankAccounts();
+        });
+
+        // Load bank accounts
+        function loadBankAccounts() {
+            fetch('/customer/bank-accounts/api/list')
+                .then(response => response.json())
+                .then(data => {
+                    const listDiv = document.getElementById('bankAccountsList');
+                    if (data.bankAccounts && data.bankAccounts.length > 0) {
+                        listDiv.innerHTML = data.bankAccounts.map(account => `
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-blue-50 cursor-pointer">
+                                <input type="radio" name="selectedBankAccount" value="${account.bankAccountId}" 
+                                       class="h-4 w-4 text-green-600" onchange="selectedBankAccountId = '${account.bankAccountId}'">
+                                <div class="ml-3 flex-1">
+                                    <p class="font-medium text-gray-900">${account.bankName}</p>
+                                    <p class="text-sm text-gray-600">${account.accountNumber} - ${account.accountHolderName}</p>
+                                    ${account.isDefault ? '<span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Mặc định</span>' : ''}
+                                </div>
+                            </label>
+                        `).join('');
+                    } else {
+                        listDiv.innerHTML = '<p class="text-sm text-gray-600">Chưa có tài khoản ngân hàng nào</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading bank accounts:', error);
+                    document.getElementById('bankAccountsList').innerHTML = 
+                        '<p class="text-sm text-red-600">Lỗi khi tải tài khoản</p>';
+                });
+        }
+
+        // Modal controls
+        document.getElementById('addBankAccountBtn').addEventListener('click', function() {
+            document.getElementById('addBankAccountModal').classList.remove('hidden');
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', function() {
+            document.getElementById('addBankAccountModal').classList.add('hidden');
+        });
+
+        document.getElementById('cancelModalBtn').addEventListener('click', function() {
+            document.getElementById('addBankAccountModal').classList.add('hidden');
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('addBankAccountModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+
+        // QR code preview
+        document.getElementById('qrCodeImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('qrPreview').innerHTML = 
+                        `<img src="${event.target.result}" class="w-32 h-32 border border-gray-300 rounded">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Add bank account form submission
+        document.getElementById('addBankAccountForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('bankName', document.getElementById('bankName').value);
+            formData.append('accountNumber', document.getElementById('accountNumber').value);
+            formData.append('accountHolder', document.getElementById('accountHolder').value);
+            
+            const qrFile = document.getElementById('qrCodeImage').files[0];
+            if (qrFile) {
+                formData.append('qrCodeImage', qrFile);
+            }
+
+            fetch('/customer/bank-accounts/api/add', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Thêm tài khoản ngân hàng thành công!');
+                    document.getElementById('addBankAccountModal').classList.add('hidden');
+                    document.getElementById('addBankAccountForm').reset();
+                    document.getElementById('qrPreview').innerHTML = '';
+                    loadBankAccounts();
+                } else {
+                    alert('Lỗi: ' + (data.message || 'Không thể thêm tài khoản'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Lỗi khi thêm tài khoản ngân hàng');
+            });
+        });
+
+        // Cancel booking form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const reason = document.getElementById('cancelReason').value.trim();
+            const confirm = document.getElementById('confirmCancel').checked;
+            
+            if (!reason) {
+                alert('Vui lòng nhập lý do hủy xe!');
+                e.preventDefault();
+                return;
+            }
+            
+            if (reason.length < 10) {
+                alert('Lý do hủy xe phải có ít nhất 10 ký tự!');
+                e.preventDefault();
+                return;
+            }
+            
+            if (!confirm) {
+                alert('Vui lòng xác nhận đồng ý với chính sách hoàn tiền!');
+                e.preventDefault();
+                return;
+            }
+
+            // Bank account is optional - customer can add it later or admin can add it
+            // if (!selectedBankAccountId) {
+            //     alert('Vui lòng chọn hoặc thêm tài khoản ngân hàng để nhận hoàn tiền!');
+            //     e.preventDefault();
+            //     return;
+            // }
+            
+            if (!confirm('Bạn có chắc chắn muốn gửi yêu cầu hủy xe này không?')) {
+                e.preventDefault();
+                return;
+            }
+
+            // Add selected bank account ID to form
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'bankAccountId';
+            hiddenInput.value = selectedBankAccountId;
+            this.appendChild(hiddenInput);
+        });
+    </script>
+</body>
+</html>

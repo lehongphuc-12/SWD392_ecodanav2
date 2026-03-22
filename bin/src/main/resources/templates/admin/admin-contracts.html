@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Management - EvoDana</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-lg fixed h-full z-10">
+            <div class="p-4 bg-gradient-to-r from-blue-600 to-purple-600">
+                <h1 class="text-white text-2xl font-bold flex items-center">
+                    <i class="fas fa-car-side mr-2"></i> EvoDana
+                </h1>
+            </div>
+            <nav class="mt-6 overflow-y-auto" style="max-height: calc(100vh - 100px);">
+                <a href="/admin/dashboard" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                    <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
+                </a>
+                <a href="/admin/users" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                    <i class="fas fa-users mr-3"></i> User Management
+                </a>
+                <a href="/admin/vehicles" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                    <i class="fas fa-car mr-3"></i> Vehicle Management
+                </a>
+                <a href="/admin/bookings" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                    <i class="fas fa-calendar-check mr-3"></i> Booking Management
+                </a>
+                <a href="/admin/contracts" class="flex items-center px-6 py-3 bg-blue-50 text-blue-600 border-r-4 border-blue-600">
+                    <i class="fas fa-file-contract mr-3"></i> Contract Management
+                </a>
+                <a href="/admin/payments" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                    <i class="fas fa-credit-card mr-3"></i> Payment Management
+                </a>
+                <a href="/admin/discounts" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600">
+                    <i class="fas fa-tags mr-3"></i> Discount Management
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 ml-64 min-h-screen">
+            <!-- Header -->
+            <header class="bg-white shadow-sm sticky top-0 z-5">
+                <div class="flex justify-between items-center px-6 py-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">Contract Management</h2>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-gray-600" th:if="${currentUser != null}" th:text="${currentUser.firstName + ' ' + currentUser.lastName}">Admin</span>
+                        <a href="/logout" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <main class="p-6 bg-gray-50">
+                <!-- Debug Info -->
+                <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4" th:if="${contracts != null}">
+                    <p><strong>Debug:</strong> Found <span th:text="${contracts.size()}">0</span> contracts in database</p>
+                </div>
+                
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Total Contracts</p>
+                                <p class="text-2xl font-bold text-gray-900" th:text="${totalContracts}">0</p>
+                            </div>
+                            <div class="bg-blue-100 rounded-full p-3">
+                                <i class="fas fa-file-contract text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Draft</p>
+                                <p class="text-2xl font-bold text-yellow-600" th:text="${draftContracts}">0</p>
+                            </div>
+                            <div class="bg-yellow-100 rounded-full p-3">
+                                <i class="fas fa-file-alt text-yellow-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Signed</p>
+                                <p class="text-2xl font-bold text-green-600" th:text="${signedContracts}">0</p>
+                            </div>
+                            <div class="bg-green-100 rounded-full p-3">
+                                <i class="fas fa-file-signature text-green-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Completed</p>
+                                <p class="text-2xl font-bold text-blue-600" th:text="${completedContracts}">0</p>
+                            </div>
+                            <div class="bg-blue-100 rounded-full p-3">
+                                <i class="fas fa-check-circle text-blue-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">Cancelled</p>
+                                <p class="text-2xl font-bold text-red-600" th:text="${cancelledContracts}">0</p>
+                            </div>
+                            <div class="bg-red-100 rounded-full p-3">
+                                <i class="fas fa-times-circle text-red-600"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contracts Table -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-medium text-gray-900">Contract Management</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="generateTestData()" class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
+                                    <i class="fas fa-database"></i> Generate Test Data
+                                </button>
+                                <form method="get" action="/admin/contracts" class="flex space-x-2">
+                                    <select name="status" onchange="this.form.submit()" class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="" th:selected="${selectedStatus == 'All Status'}">All Status</option>
+                                        <option th:each="status : ${statuses}" th:value="${status}" th:text="${status}" th:selected="${selectedStatus == status.toString()}"></option>
+                                    </select>
+                                    <input type="text" name="search" th:value="${searchTerm}" placeholder="Search contracts..." class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contract Code</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Signed Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr th:each="contract : ${contracts}">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${contract.contractCode}">-</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-medium text-gray-900" th:text="${contract.user != null ? contract.user.firstName + ' ' + contract.user.lastName : 'N/A'}">-</div>
+                                        <div class="text-sm text-gray-500" th:text="${contract.user != null ? contract.user.email : 'N/A'}">-</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm text-gray-900" th:if="${contract.booking != null && contract.booking.vehicle != null}" th:text="${contract.booking.vehicle.vehicleModel}">-</div>
+                                        <div class="text-sm text-gray-500" th:if="${contract.booking != null && contract.booking.vehicle != null}" th:text="${contract.booking.vehicle.licensePlate}">-</div>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span th:if="${contract.status.toString() == 'Signed'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800" th:text="${contract.status}">-</span>
+                                        <span th:if="${contract.status.toString() == 'Draft'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800" th:text="${contract.status}">-</span>
+                                        <span th:if="${contract.status.toString() == 'Completed'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800" th:text="${contract.status}">-</span>
+                                        <span th:if="${contract.status.toString() == 'Cancelled'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" th:text="${contract.status}">-</span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${contract.createdDate != null ? #temporals.format(contract.createdDate, 'dd/MM/yyyy HH:mm') : 'N/A'}">-</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${contract.signedDate != null ? #temporals.format(contract.signedDate, 'dd/MM/yyyy HH:mm') : 'Not signed'}">-</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                        <button onclick="viewContract(this)" th:data-contract-id="${contract.contractId}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <button th:if="${contract.status.toString() == 'Draft'}" onclick="signContract(this)" th:data-contract-id="${contract.contractId}" class="text-green-600 hover:text-green-900 mr-3">
+                                            <i class="fas fa-signature"></i> Sign
+                                        </button>
+                                        <button th:if="${contract.status.toString() == 'Signed'}" onclick="completeContract(this)" th:data-contract-id="${contract.contractId}" class="text-blue-600 hover:text-blue-900 mr-3">
+                                            <i class="fas fa-check"></i> Complete
+                                        </button>
+                                        <button th:if="${contract.status.toString() != 'Completed' && contract.status.toString() != 'Cancelled'}" onclick="cancelContract(this)" th:data-contract-id="${contract.contractId}" class="text-red-600 hover:text-red-900">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr th:if="${contracts == null or contracts.empty}">
+                                    <td colspan="7" class="px-6 py-4 text-center text-gray-500">No contracts found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- View Contract Modal -->
+    <div id="viewContractModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Contract Details</h3>
+                <button onclick="closeModal('viewContractModal')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="contractDetails" class="space-y-4">
+                <!-- Contract details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function generateTestData() {
+            if (confirm('This will create test contracts from existing bookings. Continue?')) {
+                fetch('/admin/contracts/generate-test-data', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                })
+                .then(response => response.json())
+                .then(result => {
+                    alert(result.message);
+                    if (result.status === 'success') {
+                        location.reload();
+                    }
+                })
+                .catch(error => alert('Error: ' + error.message));
+            }
+        }
+
+        function viewContract(button) {
+            const contractId = button.getAttribute('data-contract-id');
+            fetch(`/admin/contracts/${contractId}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.status === 'success') {
+                        const contract = result.data;
+                        const detailsHtml = `
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><strong>Contract Code:</strong> ${contract.contractCode}</div>
+                                <div><strong>Status:</strong> <span class="px-2 py-1 rounded-full text-xs ${getStatusClass(contract.status)}">${contract.status}</span></div>
+                                <div><strong>Customer:</strong> ${contract.user ? contract.user.fullName : 'N/A'}</div>
+                                <div><strong>Email:</strong> ${contract.user ? contract.user.email : 'N/A'}</div>
+                                <div><strong>Phone:</strong> ${contract.user ? contract.user.phoneNumber : 'N/A'}</div>
+                                <div><strong>Vehicle:</strong> ${contract.booking && contract.booking.vehicle ? contract.booking.vehicle.model : 'N/A'}</div>
+                                <div><strong>License Plate:</strong> ${contract.booking && contract.booking.vehicle ? contract.booking.vehicle.licensePlate : 'N/A'}</div>
+                                <div><strong>Total Amount:</strong> ${contract.booking && contract.booking.totalAmount ? contract.booking.totalAmount : 'N/A'} VND</div>
+                                <div><strong>Created Date:</strong> ${formatDate(contract.createdDate)}</div>
+                                <div><strong>Signed Date:</strong> ${contract.signedDate ? formatDate(contract.signedDate) : 'Not signed'}</div>
+                                <div><strong>Completed Date:</strong> ${contract.completedDate ? formatDate(contract.completedDate) : 'Not completed'}</div>
+                                <div><strong>Terms Accepted:</strong> ${contract.termsAccepted ? 'Yes' : 'No'}</div>
+                            </div>
+                            ${contract.notes ? `<div class="mt-4"><strong>Notes:</strong><p class="mt-2 text-gray-600">${contract.notes}</p></div>` : ''}
+                            ${contract.cancellationReason ? `<div class="mt-4"><strong>Cancellation Reason:</strong><p class="mt-2 text-red-600">${contract.cancellationReason}</p></div>` : ''}
+                        `;
+                        document.getElementById('contractDetails').innerHTML = detailsHtml;
+                        document.getElementById('viewContractModal').classList.remove('hidden');
+                    } else {
+                        alert('Error loading contract: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    alert('Error: ' + error.message);
+                });
+        }
+
+        function signContract(button) {
+            const contractId = button.getAttribute('data-contract-id');
+            if (confirm('Are you sure you want to sign this contract?')) {
+                fetch(`/admin/contracts/${contractId}/sign`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({signatureData: 'admin-signature', signatureMethod: 'digital'})
+                })
+                .then(response => response.json())
+                .then(result => {
+                    alert(result.message);
+                    if (result.status === 'success') location.reload();
+                })
+                .catch(error => alert('Error: ' + error.message));
+            }
+        }
+
+        function completeContract(button) {
+            const contractId = button.getAttribute('data-contract-id');
+            if (confirm('Are you sure you want to complete this contract?')) {
+                fetch(`/admin/contracts/${contractId}/complete`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                })
+                .then(response => response.json())
+                .then(result => {
+                    alert(result.message);
+                    if (result.status === 'success') location.reload();
+                })
+                .catch(error => alert('Error: ' + error.message));
+            }
+        }
+
+        function cancelContract(button) {
+            const contractId = button.getAttribute('data-contract-id');
+            const reason = prompt('Please enter cancellation reason:');
+            if (reason) {
+                fetch(`/admin/contracts/${contractId}/cancel`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({reason: reason})
+                })
+                .then(response => response.json())
+                .then(result => {
+                    alert(result.message);
+                    if (result.status === 'success') location.reload();
+                })
+                .catch(error => alert('Error: ' + error.message));
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'Draft': return 'bg-yellow-100 text-yellow-800';
+                case 'Signed': return 'bg-green-100 text-green-800';
+                case 'Completed': return 'bg-blue-100 text-blue-800';
+                case 'Cancelled': return 'bg-red-100 text-red-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('vi-VN');
+        }
+    </script>
+</body>
+</html>

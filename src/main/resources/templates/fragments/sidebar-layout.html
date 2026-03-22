@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="layout(navContentFragment)" >
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0">
+        <div class="sidebar-header flex items-center justify-between h-16 px-6 bg-gradient-to-r from-blue-600 to-purple-600">
+            <a th:href="@{/}" class="flex items-center"> <i class="fas fa-leaf text-2xl text-white mr-3"></i> <h1 class="text-xl font-bold text-white">EcoDana</h1>
+            </a>
+            <button id="sidebar-close" class="text-white lg:hidden">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+
+        <nav class="mt-6 px-3 flex-1 overflow-y-auto" th:replace="${navContentFragment}">
+            <p class="text-gray-400 p-3">Loading navigation...</p>
+        </nav>
+
+        <div class="p-3 border-t border-gray-700"> <a href="/logout" class="sidebar-item flex items-center w-full p-2 text-sm text-red-400 rounded-lg hover:bg-gray-700 hover:text-red-300 group mt-1">
+            <i class="fas fa-sign-out-alt mr-3 text-red-500 group-hover:text-red-300"></i>
+            <span>Logout</span>
+        </a>
+        </div>
+    </aside>
+
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden hidden"></div>
+</div>
+</body>
+</html>

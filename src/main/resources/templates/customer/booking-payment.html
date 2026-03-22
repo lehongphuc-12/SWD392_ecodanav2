@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Thanh toán - EcoDana</title>
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- Navigation -->
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<!-- Main Content -->
+<main class="pt-20 pb-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Thanh toán đặt xe</h1>
+            <p class="text-gray-600">Mã đặt xe: <span class="font-semibold text-green-600" th:text="${booking.bookingCode}">BK123456</span></p>
+        </div>
+
+        <!-- Booking Summary -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-info-circle text-green-500 mr-2"></i>
+                Thông tin đặt xe
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Vehicle Info -->
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-3">Thông tin xe</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-car text-gray-400 w-5 mr-2"></i>
+                            <span class="text-gray-600">Xe:</span>
+                            <span class="ml-auto font-semibold" th:text="${vehicle.vehicleModel}">VinFast VF8</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-id-card text-gray-400 w-5 mr-2"></i>
+                            <span class="text-gray-600">Biển số:</span>
+                            <span class="ml-auto font-semibold" th:text="${vehicle.licensePlate}">43A-12345</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rental Period -->
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-3">Thời gian thuê</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar-check text-gray-400 w-5 mr-2"></i>
+                            <span class="text-gray-600">Nhận xe:</span>
+                            <span class="ml-auto font-semibold" th:text="${#temporals.format(booking.pickupDateTime, 'dd/MM/yyyy HH:mm')}">21/10/2025 21:00</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar-times text-gray-400 w-5 mr-2"></i>
+                            <span class="text-gray-600">Trả xe:</span>
+                            <span class="ml-auto font-semibold" th:text="${#temporals.format(booking.returnDateTime, 'dd/MM/yyyy HH:mm')}">22/10/2025 20:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Amount -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-semibold text-gray-700">Tổng tiền:</span>
+                    <span class="text-2xl font-bold text-green-500" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">1,060,401 ₫</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Options -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-credit-card text-green-500 mr-2"></i>
+                Chọn phương thức thanh toán
+            </h2>
+
+            <div class="space-y-4">
+                <!-- Option 1: Pay 20% Deposit -->
+                <form th:action="@{/booking/payment/process/{id}(id=${booking.bookingId})}" method="post" class="border-2 border-green-500 rounded-lg p-6 hover:bg-green-50 transition-all">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="paymentType" value="deposit">
+                    
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">
+                                <i class="fas fa-hand-holding-usd text-green-500 mr-2"></i>
+                                Thanh toán cọc 20%
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-3">Đặt cọc trước, thanh toán phần còn lại khi nhận xe</p>
+                            <div class="bg-green-100 border border-green-300 rounded-lg p-3">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-sm text-gray-700">Thanh toán ngay:</span>
+                                    <span class="font-bold text-green-600" th:text="${#numbers.formatDecimal(depositAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">212,080 ₫</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-700">Thanh toán khi nhận xe:</span>
+                                    <span class="font-semibold text-gray-600" th:text="${#numbers.formatDecimal(remainingAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">848,321 ₫</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-green-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-600 transition-all shadow-md flex items-center justify-center">
+                        <i class="fas fa-lock mr-2"></i>
+                        Thanh toán cọc 20% qua PayOS
+                    </button>
+                </form>
+
+                <!-- Option 2: Pay 100% -->
+                <form th:action="@{/booking/payment/process/{id}(id=${booking.bookingId})}" method="post" class="border-2 border-blue-500 rounded-lg p-6 hover:bg-blue-50 transition-all">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                    <input type="hidden" name="paymentType" value="full">
+                    
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">
+                                <i class="fas fa-check-circle text-blue-500 mr-2"></i>
+                                Thanh toán toàn bộ 100%
+                            </h3>
+                            <p class="text-sm text-gray-600 mb-3">Thanh toán một lần, không cần thanh toán thêm khi nhận xe</p>
+                            <div class="bg-blue-100 border border-blue-300 rounded-lg p-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-700">Thanh toán ngay:</span>
+                                    <span class="font-bold text-blue-600" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">1,060,401 ₫</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-600 transition-all shadow-md flex items-center justify-center">
+                        <i class="fas fa-lock mr-2"></i>
+                        Thanh toán toàn bộ qua PayOS
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex items-start">
+                <i class="fas fa-shield-alt text-blue-500 text-2xl mr-3 mt-1"></i>
+                <div>
+                    <h3 class="font-semibold text-blue-900 mb-1">Thanh toán an toàn & bảo mật</h3>
+                    <p class="text-sm text-blue-800">Giao dịch được bảo mật bởi PayOS - Cổng thanh toán trực tuyến hiện đại</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center">
+            <a th:href="@{/booking/my-bookings}" class="inline-flex items-center text-gray-600 hover:text-gray-800 font-semibold">
+                <i class="fas fa-arrow-left mr-2"></i>
+                Quay lại lịch sử đặt xe
+            </a>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

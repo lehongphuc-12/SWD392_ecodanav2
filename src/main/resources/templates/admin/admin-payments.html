@@ -1,0 +1,59 @@
+<!-- Payments Tab Content -->
+<div th:fragment="payments-tab">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">Payment Management</h3>
+                <div class="flex space-x-2">
+                    <select class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option>All Status</option>
+                        <option>Pending</option>
+                        <option>Completed</option>
+                        <option>Failed</option>
+                        <option>Refunded</option>
+                    </select>
+                    <input type="text" placeholder="Search payments..." class="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Booking Code</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Method</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="payment : ${payments}" th:if="${payments != null and !payments.empty}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${payment.paymentId}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${payment.bookingId}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${#numbers.formatDecimal(payment.amount, 0, 'COMMA', 0, 'POINT')} VND">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${payment.paymentMethod}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${payment.paymentType}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span th:if="${payment.paymentStatus == 'Completed'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800" th:text="${payment.paymentStatus}">-</span>
+                            <span th:if="${payment.paymentStatus == 'Pending'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800" th:text="${payment.paymentStatus}">-</span>
+                            <span th:if="${payment.paymentStatus == 'Failed'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" th:text="${payment.paymentStatus}">-</span>
+                            <span th:if="${payment.paymentStatus == 'Refunded'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800" th:text="${payment.paymentStatus}">-</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${payment.paymentDate != null ? #temporals.format(payment.paymentDate, 'dd/MM/yyyy HH:mm') : 'Not paid'}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-3">View</button>
+                            <button th:if="${payment.paymentStatus == 'Completed'}" class="text-yellow-600 hover:text-yellow-900 mr-3" data-action="refund" th:data-payment-id="${payment.paymentId}">Refund</button>
+                        </td>
+                    </tr>
+                    <tr th:if="${payments == null or payments.empty}">
+                        <td colspan="8" class="px-6 py-4 text-center text-gray-500">No payments found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

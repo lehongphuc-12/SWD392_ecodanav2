@@ -1,0 +1,557 @@
+/* =============================================
+   USER MANAGEMENT STYLES
+   Modern, responsive design for user administration
+   ============================================= */
+
+/* =============================================
+   GLOBAL STYLES
+   ============================================= */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.5;
+    color: #1f2937;
+}
+
+/* =============================================
+   ANIMATION UTILITIES
+   ============================================= */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-in-out;
+}
+
+/* =============================================
+   HEADER STYLES
+   ============================================= */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(10px);
+}
+
+/* =============================================
+   STATISTICS CARDS
+   ============================================= */
+.stat-card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* =============================================
+   TABLE STYLES
+   ============================================= */
+#usersTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#usersTable thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb;
+    z-index: 10;
+}
+
+#usersTable tbody tr {
+    transition: background-color 0.15s ease-in-out;
+}
+
+#usersTable tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* User Avatar */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+}
+
+.user-avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.25rem;
+}
+
+.status-active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-inactive {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-banned {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Role Badges */
+.role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.role-admin {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.role-staff {
+    background-color: #e0e7ff;
+    color: #4338ca;
+}
+
+.role-customer {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.role-owner {
+    background-color: #fce7f3;
+    color: #9f1239;
+}
+
+/* =============================================
+   ACTION BUTTONS
+   ============================================= */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+}
+
+.action-btn:hover {
+    transform: scale(1.1);
+}
+
+.action-btn-edit {
+    color: #3b82f6;
+}
+
+.action-btn-edit:hover {
+    background-color: #dbeafe;
+}
+
+.action-btn-delete {
+    color: #ef4444;
+}
+
+.action-btn-delete:hover {
+    background-color: #fee2e2;
+}
+
+.action-btn-view {
+    color: #10b981;
+}
+
+.action-btn-view:hover {
+    background-color: #d1fae5;
+}
+
+/* =============================================
+   MODAL STYLES
+   ============================================= */
+#userModal {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#userModal.show {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Form Inputs */
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="date"],
+input[type="url"],
+input[type="password"],
+select,
+textarea {
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="date"]:focus,
+input[type="url"]:focus,
+input[type="password"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Checkbox Styles */
+input[type="checkbox"] {
+    cursor: pointer;
+}
+
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* =============================================
+   TOAST NOTIFICATION
+   ============================================= */
+#toast {
+    transition: all 0.3s ease-in-out;
+    z-index: 9999;
+}
+
+#toast.show {
+    display: block !important;
+    animation: slideIn 0.3s ease-in-out;
+}
+
+.toast-success {
+    border-left: 4px solid #10b981;
+}
+
+.toast-error {
+    border-left: 4px solid #ef4444;
+}
+
+.toast-warning {
+    border-left: 4px solid #f59e0b;
+}
+
+.toast-info {
+    border-left: 4px solid #3b82f6;
+}
+
+/* =============================================
+   LOADING STATES
+   ============================================= */
+.loading-spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* =============================================
+   EMPTY STATES
+   ============================================= */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-state-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.empty-state-text {
+    color: #6b7280;
+    font-size: 1rem;
+}
+
+/* =============================================
+   FILTERS SECTION
+   ============================================= */
+.filters-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+/* =============================================
+   RESPONSIVE DESIGN
+   ============================================= */
+@media (max-width: 768px) {
+    /* Stack statistics cards */
+    .grid-cols-1 {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Adjust table for mobile */
+    #usersTable {
+        font-size: 0.875rem;
+    }
+    
+    #usersTable th,
+    #usersTable td {
+        padding: 0.5rem;
+    }
+    
+    /* Hide less important columns on mobile */
+    .hide-mobile {
+        display: none;
+    }
+    
+    /* Stack filters */
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    /* Full width buttons on mobile */
+    .action-buttons {
+        width: 100%;
+    }
+    
+    .action-buttons button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    /* Adjust modal for small screens */
+    .modal-content {
+        margin: 1rem;
+        max-width: calc(100% - 2rem);
+    }
+    
+    /* Stack form fields */
+    .grid-cols-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =============================================
+   ACCESSIBILITY
+   ============================================= */
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Skip to main content link */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #3b82f6;
+    color: white;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .status-badge,
+    .role-badge {
+        border: 2px solid currentColor;
+    }
+    
+    button {
+        border: 2px solid currentColor;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* =============================================
+   PRINT STYLES
+   ============================================= */
+@media print {
+    header,
+    .filters-container,
+    .action-buttons,
+    .action-btn {
+        display: none;
+    }
+    
+    #usersTable {
+        border: 1px solid #000;
+    }
+    
+    #usersTable th,
+    #usersTable td {
+        border: 1px solid #000;
+        padding: 0.5rem;
+    }
+}
+
+/* =============================================
+   UTILITY CLASSES
+   ============================================= */
+.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.no-select {
+    user-select: none;
+}
+
+.transition-all {
+    transition: all 0.3s ease-in-out;
+}
+
+/* =============================================
+   CUSTOM SCROLLBAR
+   ============================================= */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Firefox scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
+}

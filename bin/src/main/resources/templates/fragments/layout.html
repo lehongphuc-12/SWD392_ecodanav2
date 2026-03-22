@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoDana - Cho thuê xe điện</title>
+    <link rel="icon" type="image/x-icon" href="https://res.cloudinary.com/ddwt6nl7s/image/upload/v1761906428/favicon_jlbemj.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script th:src="@{/js/sidebar-common.js}"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4CAF50',
+                        secondary: '#2196F3',
+                        accent: '#81C784'
+                    },
+                    fontFamily: {
+                        'sans': ['Be Vietnam Pro', 'sans-serif'], // Font mặc định
+                        'poppins': ['Poppins', 'sans-serif']     // Thêm font Poppins
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+
+        /* 3. Đặt font mặc định cho body là Be Vietnam Pro */
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+        }
+
+        /* 4. Ghi đè font cho thanh nav (sử dụng Tailwind) */
+        .nav-font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* ----- Các style CSS cũ của bạn ----- */
+        .hero-bg { background: linear-gradient(rgba(76, 175, 80, 0.8), rgba(33, 150, 243, 0.6)), url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%234CAF50" width="1200" height="600"/><path fill="%232196F3" opacity="0.3" d="M0,300 Q300,200 600,300 T1200,300 L1200,600 L0,600 Z"/></svg>'); background-size: cover; background-position: center; }
+        .vehicle-card { transition: all 0.3s ease; }
+        .vehicle-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div th:fragment="content">
+        <!-- Nội dung sẽ được thay thế ở đây -->
+    </div>
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <!-- Chatbot AI -->
+    <div th:replace="~{fragments/chatbot :: chatbot}"></div>
+</body>
+</html>

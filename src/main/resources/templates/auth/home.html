@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}">
+    <link rel="icon" type="image/x-icon" href="https://res.cloudinary.com/ddwt6nl7s/image/upload/v1761906428/favicon_jlbemj.ico">
+</head>
+
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<div th:if="${success}" id="success-notification" class="fixed top-4 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-3"></i>
+            <span th:text="${success}">Đăng ký thành công!</span>
+        </div>
+        <button onclick="closeNotification(this)" class="ml-4 text-white hover:text-gray-200 transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<section class="hero pt-16">
+    <div class="container mx-auto px-4 py-12">
+        <div class="relative rounded-lg shadow-xl overflow-hidden">
+            <img src="/images/tripview.png" alt="Ứng dụng cho thuê xe" class="w-full">
+            <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+            <div class="absolute inset-0 flex flex-col justify-center items-center text-center text-white p-4">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">Tìm, Đặt và Thuê xe dễ dàng</h1>
+                <p class="text-xl mb-8">Thuê xe ở bất cứ đâu và bất cứ khi nào bạn cần.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 bg-white rounded-xl shadow-lg p-6 -mb-16 relative z-10 max-w-5xl">
+        <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+            <div class="search-field flex items-center space-x-4 p-4 border rounded-lg flex-1 cursor-pointer" onclick="openPopup('search-popup')">
+                <div class="search-icon text-primary text-xl">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="search-details flex-grow">
+                    <h4 class="font-semibold">Địa điểm</h4>
+                    <p class="text-gray-500">Khu đô thị FPT City, Phường Ngũ Hành Sơn, Thành phố Đà Nẵng</p>
+                </div>
+                <div class="search-icon text-primary text-xl ml-auto">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+
+            <div class="search-field flex items-center space-x-4 p-4 border rounded-lg flex-1 cursor-pointer" onclick="openDateTimePopup()">
+                <div class="search-icon text-primary text-xl">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <div class="search-details flex-grow">
+                    <h4 class="font-semibold">Ngày nhận & trả xe</h4>
+                    <p class="text-gray-500" id="date-time-display">Thứ 3, 15/02, 09:00 - Thứ 5, 16/02, 11:00</p>
+                </div>
+                <div class="search-icon text-primary text-xl ml-auto">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+
+            <button id="quick-search-btn" onclick="performSearch()" class="search-btn bg-primary text-white px-6 py-4 rounded-lg hover:bg-accent transition-colors flex items-center">
+                Tìm kiếm
+                <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 mt-20">
+    <div class="container mx-auto px-4">
+        <div class="text-center">
+            <div class="section-badge bg-blue-100 text-blue-600 px-4 py-1 rounded-full text-sm font-semibold inline-block mb-4">
+                CÁCH THỨC HOẠT ĐỘNG
+            </div>
+            <h2 class="section-title text-3xl md:text-4xl font-bold text-gray-800 mb-12">Thuê xe với 3 bước đơn giản</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="step text-center p-6 rounded-lg hover:shadow-lg transition-shadow">
+                <div class="step-icon bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl mb-4">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <h3 class="step-title text-xl font-semibold mb-2">Chọn địa điểm</h3>
+                <p class="step-description text-gray-600">Nhập vị trí của bạn và tìm xe ở gần</p>
+            </div>
+
+            <div class="step text-center p-6 rounded-lg hover:shadow-lg transition-shadow">
+                <div class="step-icon bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl mb-4">
+                    <i class="fas fa-calendar"></i>
+                </div>
+                <h3 class="step-title text-xl font-semibold mb-2">Chọn ngày nhận xe</h3>
+                <p class="step-description text-gray-600">Chọn ngày và giờ bạn muốn đặt</p>
+            </div>
+
+            <div class="step text-center p-6 rounded-lg hover:shadow-lg transition-shadow">
+                <div class="step-icon bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto text-2xl mb-4">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h3 class="step-title text-xl font-semibold mb-2">Đặt xe</h3>
+                <p class="step-description text-gray-600">Đặt xe và chúng tôi sẽ giao xe tận nơi cho bạn</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0 md:pr-12">
+                <div class="section-badge bg-blue-100 text-blue-600 px-4 py-1 rounded-full text-sm font-semibold inline-block mb-4">
+                    TẠI SAO CHỌN CHÚNG TÔI
+                </div>
+                <h2 class="section-title text-3xl md:text-4xl font-bold text-gray-800 mb-8">Chúng tôi mang đến trải nghiệm tốt nhất với các ưu đãi thuê xe</h2>
+
+                <div class="space-y-6">
+                    <div class="feature flex items-start space-x-4">
+                        <div class="feature-icon bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h4 class="font-semibold text-lg mb-1">Đảm bảo giá tốt nhất</h4>
+                            <p class="text-gray-600">Tìm thấy giá thấp hơn? Chúng tôi sẽ hoàn lại 100% chênh lệch.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature flex items-start space-x-4">
+                        <div class="feature-icon bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h4 class="font-semibold text-lg mb-1">Tài xế kinh nghiệm</h4>
+                            <p class="text-gray-600">Bạn không có tài xế? Đừng lo, chúng tôi có nhiều tài xế kinh nghiệm cho bạn.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature flex items-start space-x-4">
+                        <div class="feature-icon bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h4 class="font-semibold text-lg mb-1">Giao xe 24 giờ</h4>
+                            <p class="text-gray-600">Đặt xe bất cứ lúc nào và chúng tôi sẽ giao xe tận nơi.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature flex items-start space-x-4">
+                        <div class="feature-icon bg-green-100 text-green-600 w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="feature-text">
+                            <h4 class="font-semibold text-lg mb-1">Hỗ trợ kỹ thuật 24/7</h4>
+                            <p class="text-gray-600">Có câu hỏi? Liên hệ hỗ trợ của Rentcars bất cứ lúc nào bạn gặp sự cố.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="md:w-1/2 flex justify-center">
+                <img src="https://res.cloudinary.com/ddwt6nl7s/image/upload/v1763189513/copy_1025FA88-C6C0-4E00-A7F9-260AEACDB1B4_yd2zus.gif" alt="Tại sao chọn chúng tôi" class="rounded-lg shadow-xl" style="width: 636px; height: 432px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-20">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <div class="section-badge bg-blue-100 text-blue-600 px-4 py-1 rounded-full text-sm font-semibold inline-block mb-4">
+                ƯU ĐÃI THUÊ XE HẤP DẪN
+            </div>
+            <h2 class="section-title text-3xl md:text-4xl font-bold text-gray-800">Các ưu đãi thuê xe phổ biến nhất</h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div th:each="vehicle : ${vehicles}" class="car-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                <a th:href="@{'/vehicles/' + ${vehicle.vehicleId}}" class="block h-48 overflow-hidden">
+                    <!-- Sửa lại: Sử dụng vehicle.mainImageUrl để lấy ảnh từ database -->
+                    <img th:src="${vehicle.mainImageUrl ?: 'https://via.placeholder.com/400x224?text=No+Image'}"
+                         th:alt="${vehicle.vehicleModel}" class="w-full h-full object-cover transition-transform duration-300 hover:scale-110">
+                </a>
+                <div class="car-details p-6">
+                    <h3 class="car-title text-xl font-semibold mb-2" th:text="${vehicle.vehicleModel}">Mẫu xe</h3>
+
+                    <div class="car-type mb-2">
+                            <span th:class="${'px-2 py-1 rounded-full text-xs font-medium ' +
+                                           (vehicle.vehicleType == 'ElectricCar' ? 'bg-blue-100 text-blue-800' :
+                                            'bg-green-100 text-green-800')}"
+                                  th:text="${vehicle.vehicleType}">Loại</span>
+                    </div>
+
+                    <div class="car-rating flex items-center mb-4">
+                        <div class="stars text-yellow-400 mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <span class="rating-text text-sm text-gray-500">(15 đánh giá)</span>
+                    </div>
+
+                    <div class="car-specs grid grid-cols-2 gap-2 mb-4">
+                        <div class="spec flex items-center text-sm text-gray-600">
+                            <i class="fas fa-user mr-2 text-primary"></i>
+                            <span th:text="${vehicle.seats} + ' chỗ'">4 chỗ</span>
+                        </div>
+                        <div class="spec flex items-center text-sm text-gray-600">
+                            <i th:class="${vehicle.requiresLicense ? 'fas fa-id-card mr-2 text-primary' : 'fas fa-ban mr-2 text-primary'}"></i>
+                            <span th:text="${vehicle.requiresLicense ? 'Yêu cầu bằng lái' : 'Không cần bằng lái'}">Bằng lái</span>
+                        </div>
+                        <div class="spec flex items-center text-sm text-gray-600" th:if="${vehicle.batteryCapacity != null}">
+                            <i class="fas fa-battery-half mr-2 text-primary"></i>
+                            <span th:text="${vehicle.batteryCapacity} + ' kWh'">Pin</span>
+                        </div>
+                        <div class="spec flex items-center text-sm text-gray-600">
+                            <i class="fas fa-tachometer-alt mr-2 text-primary"></i>
+                            <span th:text="${vehicle.odometer} + ' km'">Odo</span>
+                        </div>
+                    </div>
+
+                    <div class="price-container flex justify-between items-center mb-4">
+                        <span class="price-label text-gray-600">Giá:</span>
+                        <span class="price font-bold text-lg" th:text="${#numbers.formatCurrency(vehicle.getDailyPriceFromJson())} + ' / ngày'">$89 / ngày</span>
+                    </div>
+
+                    <a th:href="@{'/vehicles/' + ${vehicle.vehicleId}}"
+                       class="rent-btn w-full bg-primary text-white py-3 rounded-lg hover:bg-accent transition-colors flex items-center justify-center">
+                        Xem chi tiết
+                        <i class="fas fa-arrow-right ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-12">
+            <a th:href="@{/vehicles}"
+               class="view-all-btn bg-transparent border border-primary text-primary px-6 py-3 rounded-lg hover:bg-primary hover:text-white transition-colors flex items-center justify-center mx-auto">
+                Xem tất cả xe
+                <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!--<section class="py-20 bg-gray-50">-->
+<!--    <div class="container mx-auto px-4">-->
+<!--        <div class="text-center mb-12">-->
+<!--            <div class="section-badge bg-blue-100 text-blue-600 px-4 py-1 rounded-full text-sm font-semibold inline-block mb-4">NHẬN XÉT</div>-->
+<!--            <h2 class="section-title text-3xl md:text-4xl font-bold text-gray-800">Mọi người nói gì về chúng tôi?</h2>-->
+<!--        </div>-->
+
+<!--        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">-->
+<!--            <div class="testimonial-card bg-white p-8 rounded-xl shadow-md">-->
+<!--                <div class="testimonial-image w-16 h-16 bg-gray-300 rounded-full mb-4"></div>-->
+<!--                <div class="testimonial-content">-->
+<!--                    <div class="testimonial-rating text-2xl font-bold text-gray-800 mb-2">5.0</div>-->
+<!--                    <div class="testimonial-stars text-yellow-400 mb-4">-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                    </div>-->
+<!--                    <p class="testimonial-text text-gray-600 italic mb-4">"Tôi đã sử dụng dịch vụ của bạn trong 3 năm. Dịch vụ của bạn rất tuyệt, tôi sẽ tiếp tục sử dụng dịch vụ của bạn."</p>-->
+<!--                    <h4 class="testimonial-author font-semibold text-lg">Jenny Wilson</h4>-->
+<!--                    <p class="testimonial-location text-gray-500">Từ New York, Mỹ</p>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="testimonial-card bg-white p-8 rounded-xl shadow-md">-->
+<!--                <div class="testimonial-image w-16 h-16 bg-gray-300 rounded-full mb-4"></div>-->
+<!--                <div class="testimonial-content">-->
+<!--                    <div class="testimonial-rating text-2xl font-bold text-gray-800 mb-2">5.0</div>-->
+<!--                    <div class="testimonial-stars text-yellow-400 mb-4">-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                        <i class="fas fa-star"></i>-->
+<!--                    </div>-->
+<!--                    <p class="testimonial-text text-gray-600 italic mb-4">"Tôi cảm thấy rất an toàn khi sử dụng dịch vụ của bạn. Đội ngũ chăm sóc khách hàng của bạn rất nhiệt tình và tài xế luôn đúng giờ."</p>-->
+<!--                    <h4 class="testimonial-author font-semibold text-lg">Charlie Johnson</h4>-->
+<!--                    <p class="testimonial-location text-gray-500">Từ New York, Mỹ</p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</section>-->
+
+<div id="search-popup" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-2xl w-full">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold">Tìm kiếm</h3>
+            <button onclick="closePopup('search-popup')" class="text-gray-500 hover:text-gray-800">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="search-field flex items-center space-x-4 p-4 border rounded-lg flex-1 mb-4 cursor-pointer" onclick="openLocationPopup()">
+            <div class="search-icon text-primary text-xl">
+                <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="search-details flex-grow">
+                <h4 class="font-semibold">Địa điểm</h4>
+                <p class="text-gray-500"></p>
+            </div>
+            <div class="search-icon text-primary text-xl ml-auto">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+
+        <div class="border rounded-lg p-4 mb-4 search-popup-section">
+            <h4 class="font-semibold text-gray-800">Theo nhu cầu</h4>
+            <div class="flex flex-wrap gap-2 mt-2 search-tags">
+                <button class="tag-btn bg-gray-200 px-4 py-2 rounded-full text-sm">Công việc, đi lại</button>
+                <button class="tag-btn bg-gray-200 px-4 py-2 rounded-full text-sm">Gia đình</button>
+                <button class="tag-btn bg-gray-200 px-4 py-2 rounded-full text-sm">Tiếp khách, dự tiệc</button>
+            </div>
+        </div>
+
+        <div class="border rounded-lg p-4 mb-4 search-popup-section">
+            <h4 class="font-semibold text-gray-800">Theo xu hướng</h4>
+            <div class="flex flex-wrap gap-2 mt-2 search-tags">
+                <button class="tag-btn bg-gray-200 px-4 py-2 rounded-full text-sm">Xe ô tô điện</button>
+                <button class="tag-btn bg-gray-200 px-4 py-2 rounded-full text-sm">Xe máy điện</button>
+            </div>
+        </div>
+
+        <div class="border rounded-lg p-4 mb-4 search-popup-section">
+            <h4 class="font-semibold text-gray-800">Ngân sách</h4>
+            <div class="flex flex-wrap gap-2 mt-2 search-tags">
+                <button class="tag-btn bg-gray-200 px-4 py-2 rounded-full text-sm">Dưới 500 nghìn</button>
+                <button class="tag-btn bg-gray-200 px-4 py-2 rounded-full text-sm">Trên 500 nghìn</button>
+            </div>
+        </div>
+
+        <button onclick="closePopup('search-popup')" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-accent transition-colors">Xác nhận</button>
+    </div>
+</div>
+
+<div id="location-popup" class="fixed inset-0 bg-black bg-opacity-50 z-[9998] flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 max-w-lg w-full">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold">Địa điểm</h3>
+            <button onclick="confirmLocationAndBackToSearch(event, false)" class="text-gray-500 hover:text-gray-800">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="mb-4">
+            <label for="location-search-input" class="sr-only">Tìm kiếm địa điểm</label>
+            <div class="relative">
+                <input type="text" id="location-search-input" placeholder="Nhập địa chỉ hoặc chọn trên bản đồ"
+                       class="w-full p-3 border rounded-lg focus:ring-primary focus:border-primary pl-10">
+                <i class="fas fa-search absolute left-3 top-3.5 text-gray-400"></i>
+            </div>
+        </div>
+
+        <div id="map" class="w-full h-64 bg-gray-200 rounded-lg mb-4 flex items-center justify-center text-gray-500">
+            Bản đồ sẽ hiển thị ở đây
+        </div>
+
+        <div class="space-y-3 mb-6">
+            <div id="currentLocationBtn" class="border rounded-lg p-3 flex items-center space-x-3 cursor-pointer hover:bg-gray-50 transition-colors">
+                <i class="fas fa-location-arrow text-green-500"></i>
+                <p class="text-gray-700 font-semibold" id="currentLocationDisplay">Sử dụng vị trí hiện tại</p>
+            </div>
+
+            <div>
+                <p class="text-sm font-medium text-gray-500 mb-2">Địa điểm gợi ý:</p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="suggested-location-btn" data-address="Khu đô thị FPT City, P. Hoà Hải, Q. Ngũ Hành Sơn, TP. Đà Nẵng">
+                        Đại học FPT
+                    </button>
+                    <button type="button" class="suggested-location-btn" data-address="Đường Duy Tân, P. Hòa Thuận Tây, Q. Hải Châu, TP. Đà Nẵng">
+                        Sân bay Đà Nẵng
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-green-50 p-3 rounded-lg">
+            <p class="text-xs text-gray-600">Địa điểm đã chọn:</p>
+            <p id="modalSelectedLocation" class="font-semibold text-green-800">Chưa có</p>
+        </div>
+
+        <button onclick="confirmLocationAndBackToSearch(event, true)" class="w-full mt-6 bg-primary text-white py-3 rounded-lg hover:bg-accent transition-colors font-semibold">
+            Xác nhận
+        </button>
+    </div>
+</div>
+
+<div id="date-time-popup" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 max-w-4xl w-full" style="max-height: 90vh; overflow-y: auto;">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold">Thời gian</h3>
+            <button onclick="closePopup('date-time-popup')" class="text-gray-500 hover:text-gray-800">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="flex border-b mb-6">
+            <button class="py-2 px-4 font-semibold text-primary border-b-2 border-primary">Thuê theo ngày</button>
+            <button class="py-2 px-4 font-semibold text-gray-500 cursor-not-allowed hover:text-gray-500">Thuê theo giờ</button>
+        </div>
+
+        <div class="flex justify-between items-center mb-4">
+            <button onclick="changeMonthOffset(-1)" class="p-2 rounded-full hover:bg-gray-200 text-gray-700">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="flex space-x-8" id="calendar-month-titles">
+            </div>
+            <button onclick="changeMonthOffset(1)" class="p-2 rounded-full hover:bg-gray-200 text-gray-700">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <div id="calendar-container" class="flex justify-center space-x-8">
+        </div>
+
+        <div class="flex space-x-4 mt-6">
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700">Nhận xe</label>
+                <select id="pickup-time" class="w-full p-3 border rounded-lg mt-1 focus:ring-primary focus:border-primary">
+                </select>
+            </div>
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700">Trả xe</label>
+                <select id="return-time" class="w-full p-3 border rounded-lg mt-1 focus:ring-primary focus:border-primary">
+                </select>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between mt-6 pt-4 border-t">
+            <p id="rental-summary" class="text-sm text-gray-600">Chọn ngày nhận và trả xe</p>
+            <button onclick="confirmDateTime()" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-accent transition-colors font-semibold">
+                Tiếp tục
+            </button>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<div th:replace="~{fragments/chatbot :: chatbot}"></div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const googleApiKey = /*[[${googleApiKey}]]*/ null;
+    /*]]>*/
+</script>
+
+<script>
+    // Google Maps variables
+    let map, marker, geocoder, autocomplete;
+
+    // Biến toàn cục để lưu trạng thái
+    let selectedTagsState = []; // <-- Lưu trữ các Tag được chọn (như "Giao tại nhà", "Tiết kiệm")
+    // Giá trị mặc định ban đầu hiển thị
+    let selectedLocationText = 'Khu đô thị FPT City, Phường Ngũ Hành Sơn, Thành phố Đà Nẵng';
+
+    // Dynamically load Google Maps API
+    (function() {
+        if (googleApiKey) {
+            var script = document.createElement('script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${googleApiKey}&libraries=places,geocoding&callback=initMap&language=vi`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        } else {
+            console.warn("Google API Key is not available. Map functionality will be disabled.");
+        }
+    })();
+
+    // --- Hàm chung ---
+    function closeNotification(button) {
+        const notification = button.closest('#success-notification');
+        if (notification) {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }
+    }
+
+    function openPopup(id) {
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closePopup(id) {
+        document.getElementById(id).classList.add('hidden');
+    }
+
+    // --- Logic Flow (Cập nhật để lưu Tag khi mở Location Popup) ---
+    function openLocationPopup() {
+        // 1. Lưu trạng thái của tất cả các tag đã được chọn TRƯỚC KHI mở Location Popup
+        selectedTagsState = Array.from(document.querySelectorAll('#search-popup .tag-btn.selected')).map(btn => btn.textContent.trim());
+
+        // 2. Mở Location Popup và đóng Search Popup
+        openPopup('location-popup');
+        document.getElementById('modalSelectedLocation').textContent = selectedLocationText || 'Chưa có';
+        closePopup('search-popup');
+    }
+
+    function backToSearchPopup() {
+        closePopup('location-popup');
+        openPopup('search-popup');
+        restoreTagsState();
+    }
+
+    function restoreTagsState() {
+        const tagButtons = document.querySelectorAll('.tag-btn');
+        tagButtons.forEach(button => {
+            const buttonText = button.textContent.trim();
+            const isSelected = selectedTagsState.includes(buttonText);
+
+            button.classList.toggle('selected', isSelected);
+            button.classList.toggle('bg-primary', isSelected);
+            button.classList.toggle('text-white', isSelected);
+            button.classList.toggle('bg-gray-200', !isSelected);
+        });
+    }
+
+    // --- Google Maps and Location Modal Logic ---
+    function initMap() {
+        geocoder = new google.maps.Geocoder();
+        const daNang = { lat: 16.054407, lng: 108.202164 };
+
+        const mapElement = document.getElementById("map");
+        if (!mapElement) return;
+
+        map = new google.maps.Map(mapElement, { center: daNang, zoom: 13 });
+        marker = new google.maps.Marker({ map: map, anchorPoint: new google.maps.Point(0, -29) });
+
+        const searchInput = document.getElementById("location-search-input");
+        if (searchInput) {
+            autocomplete = new google.maps.places.Autocomplete(searchInput);
+            autocomplete.setFields(["formatted_address", "geometry", "name"]);
+            autocomplete.bindTo("bounds", map);
+
+            autocomplete.addListener("place_changed", () => {
+                marker.setVisible(false);
+                const place = autocomplete.getPlace();
+                if (!place.geometry || !place.geometry.location) {
+                    console.warn("Autocomplete place not found or geometry missing.");
+                    return;
+                }
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
+                }
+                marker.setPosition(place.geometry.location);
+                marker.setVisible(true);
+                updateSelectedLocation(place.formatted_address);
+            });
+        }
+
+        map.addListener("click", (e) => {
+            geocoder.geocode({ location: e.latLng }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                    map.setZoom(17);
+                    marker.setPosition(e.latLng);
+                    marker.setVisible(true);
+                    updateSelectedLocation(results[0].formatted_address);
+                    if (searchInput) searchInput.value = results[0].formatted_address;
+                } else {
+                    window.alert("Geocoder thất bại do: " + status);
+                }
+            });
+        });
+    }
+
+    function updateSelectedLocation(address) {
+        const modalSelected = document.getElementById('modalSelectedLocation');
+        if (modalSelected) modalSelected.textContent = address;
+    }
+
+    function getAndSetCurrentLocation() {
+        const currentLocationDisplay = document.getElementById('currentLocationDisplay');
+        if (!currentLocationDisplay) return;
+
+        currentLocationDisplay.textContent = 'Đang tìm vị trí...';
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+                if (map) {
+                    map.setCenter(pos);
+                    map.setZoom(17);
+                }
+                if (marker) {
+                    marker.setPosition(pos);
+                    marker.setVisible(true);
+                }
+                geocoder.geocode({ location: pos }, (results, status) => {
+                    if (status === "OK" && results[0]) {
+                        const address = results[0].formatted_address;
+                        updateSelectedLocation(address);
+                        currentLocationDisplay.textContent = 'Sử dụng vị trí hiện tại';
+                        const searchInput = document.getElementById("location-search-input");
+                        if (searchInput) searchInput.value = address;
+                    } else {
+                        currentLocationDisplay.textContent = 'Không tìm thấy địa chỉ';
+                    }
+                });
+            }, () => {
+                alert('Lỗi: Dịch vụ định vị địa lý không thành công.');
+                currentLocationDisplay.textContent = 'Sử dụng vị trí hiện tại';
+            });
+        } else {
+            alert('Lỗi: Trình duyệt của bạn không hỗ trợ định vị địa lý.');
+            currentLocationDisplay.textContent = 'Sử dụng vị trí hiện tại';
+        }
+    }
+
+    // --- Hàm Chính: Lưu Địa điểm và quay lại Search Popup (ĐÃ CẬP NHẬT) ---
+    function confirmLocationAndBackToSearch(event, isConfirmed = false) {
+        if (event) event.stopPropagation();
+
+        // 1. Lấy trạng thái Tags MỚI NHẤT (vì Tags được chọn trong Search Popup)
+        selectedTagsState = Array.from(document.querySelectorAll('#search-popup .tag-btn.selected')).map(btn => btn.textContent.trim());
+
+        if (isConfirmed) {
+            const modalSelectedLocation = document.getElementById('modalSelectedLocation');
+            const newLocation = modalSelectedLocation ? modalSelectedLocation.textContent : 'Chưa có';
+
+            if (newLocation && newLocation !== 'Chưa có') {
+                selectedLocationText = newLocation;
+            }
+
+            let displayLocationText = selectedLocationText;
+            let parts = [];
+
+            // Tags
+            if (selectedTagsState.length > 0) {
+                parts.push(`[${selectedTagsState.join(', ')}]`);
+            }
+
+            // Kết hợp tất cả
+            if (parts.length > 0) { // Only add tags if they exist
+                displayLocationText = `${selectedLocationText} ${parts.join(' ')}`;
+            }
+
+            // 4. Cập nhật text hiển thị trên trang chủ và Search Popup
+            const mainSearchFieldP = document.querySelector('.search-field:first-child .search-details p');
+            const searchPopupFieldP = document.querySelector('#search-popup .search-field .search-details p');
+            if (mainSearchFieldP) {
+                mainSearchFieldP.textContent = displayLocationText;
+            }
+            if (searchPopupFieldP) {
+                searchPopupFieldP.textContent = displayLocationText;
+            }
+
+            // 5. Quay lại Search Popup
+            backToSearchPopup();
+
+        } else {
+            // Trường hợp ấn nút 'X' (Hủy bỏ), chỉ quay lại Search Popup
+            backToSearchPopup();
+        }
+    }
+
+    // --- Logic Popup Lịch (Giữ nguyên) ---
+    let selectedDates = [];
+    let currentMonthOffset = 0;
+
+    function openDateTimePopup() {
+        openPopup('date-time-popup');
+        currentMonthOffset = 0;
+        renderCalendar();
+        populateTimeSelects();
+    }
+
+    function changeMonthOffset(delta) {
+        if (currentMonthOffset + delta < 0) return;
+
+        currentMonthOffset += delta;
+        renderCalendar();
+    }
+
+    function isSameDate(d1, d2) {
+        return d1.getFullYear() === d2.getFullYear() &&
+            d1.getMonth() === d2.getMonth() &&
+            d1.getDate() === d2.getDate();
+    }
+
+    function isPastDate(date) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const checkDate = new Date(date);
+        checkDate.setHours(0, 0, 0, 0);
+        return checkDate.getTime() < today.getTime();
+    }
+
+    function isDateBetween(date, start, end) {
+        return date.getTime() > start.getTime() && date.getTime() < end.getTime();
+    }
+
+    function formatDateForDisplay(date) {
+        const options = { weekday: 'short', month: 'short', day: 'numeric' };
+        let formatted = date.toLocaleDateString('vi-VN', options);
+        formatted = formatted.replace(/,/g, '');
+        formatted = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+        return formatted;
+    }
+
+    function renderCalendar() {
+        const today = new Date();
+        const startMonth = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1);
+
+        const calendarContainer = document.getElementById('calendar-container');
+        const titleContainer = document.getElementById('calendar-month-titles');
+
+        if (!calendarContainer || !titleContainer) return;
+
+        calendarContainer.innerHTML = '';
+        titleContainer.innerHTML = '';
+
+        for (let i = 0; i < 2; i++) {
+            const date = new Date(startMonth.getFullYear(), startMonth.getMonth() + i, 1);
+            const month = date.getMonth();
+            const year = date.getFullYear();
+
+            const monthName = date.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' });
+
+            titleContainer.innerHTML += `<h4 class="text-center font-bold mb-3 w-[150px]">${monthName.charAt(0).toUpperCase() + monthName.slice(1)}</h4>`;
+
+            const monthDiv = document.createElement('div');
+            monthDiv.className = 'w-1/2 p-2';
+            monthDiv.innerHTML = `
+                <div class="grid grid-cols-7 text-center text-sm font-semibold text-gray-500 mb-1">
+                    <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>
+                </div>
+                <div class="grid grid-cols-7 text-center text-sm" id="month-${i}"></div>
+            `;
+            calendarContainer.appendChild(monthDiv);
+
+            const daysContainer = document.getElementById(`month-${i}`);
+
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let startDayOffset = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+
+            for (let j = 0; j < startDayOffset; j++) {
+                daysContainer.innerHTML += '<div></div>';
+            }
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(year, month, day);
+                date.setHours(0, 0, 0, 0);
+
+                let dayClass = 'p-2 rounded-full cursor-pointer hover:bg-gray-200 transition-colors';
+                const isPast = isPastDate(date);
+
+                let isPickup = selectedDates[0] && isSameDate(date, selectedDates[0]);
+                let isReturn = selectedDates[1] && isSameDate(date, selectedDates[1]);
+                let isBetween = selectedDates.length === 2 && isDateBetween(date, selectedDates[0], selectedDates[1]);
+
+                if (isPast) {
+                    dayClass = 'p-2 text-gray-400 cursor-not-allowed';
+                } else {
+                    if (isPickup || isReturn) {
+                        dayClass += ' bg-primary text-white font-bold hover:bg-primary';
+
+                        if (isPickup && isReturn) {
+                            // nothing
+                        } else if (isPickup && selectedDates.length === 2) {
+                            dayClass = dayClass.replace('rounded-full', 'rounded-l-full');
+                        } else if (isReturn && selectedDates.length === 2) {
+                            dayClass = dayClass.replace('rounded-full', 'rounded-r-full');
+                        }
+                    } else if (isBetween) {
+                        dayClass = 'p-2 bg-green-100 text-gray-800 rounded-none cursor-pointer hover:bg-green-200 transition-colors';
+                    }
+                }
+
+                if (isPast) {
+                    daysContainer.innerHTML += `<div class="${dayClass}">${day}</div>`;
+                } else {
+                    daysContainer.innerHTML += `
+                        <div class="${dayClass}" data-date="${date.toISOString()}" onclick="selectDate(this)">
+                            ${day}
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        const prevButton = document.querySelector('.fa-chevron-left').parentNode;
+        prevButton.disabled = currentMonthOffset <= 0;
+        prevButton.classList.toggle('opacity-50', currentMonthOffset <= 0);
+        prevButton.classList.toggle('cursor-not-allowed', currentMonthOffset <= 0);
+
+        updateSummary();
+    }
+
+    function selectDate(element) {
+        const dateStr = element.getAttribute('data-date');
+        const date = new Date(dateStr);
+        date.setHours(0, 0, 0, 0);
+
+        if (isPastDate(date)) {
+            return;
+        }
+
+        if (selectedDates.length === 0) {
+            selectedDates = [date];
+        } else if (selectedDates.length === 1) {
+            const pickupDate = selectedDates[0];
+            if (date.getTime() < pickupDate.getTime()) {
+                selectedDates = [date];
+            } else if (isSameDate(date, pickupDate)) {
+                selectedDates = [];
+            } else {
+                selectedDates.push(date);
+                selectedDates.sort((a, b) => a.getTime() - b.getTime());
+            }
+        } else if (selectedDates.length === 2) {
+            selectedDates = [date];
+        }
+
+        renderCalendar();
+    }
+
+    function calculateRentalDays() {
+        if (selectedDates.length !== 2) return 0;
+
+        const start = selectedDates[0];
+        const end = selectedDates[1];
+
+        const diffTime = Math.abs(end.getTime() - start.getTime());
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+        return diffDays;
+    }
+
+    function updateSummary() {
+        const summaryElement = document.getElementById('rental-summary');
+        const timeElement = document.getElementById('date-time-display');
+        const pickupTimeSelect = document.getElementById('pickup-time');
+        const returnTimeSelect = document.getElementById('return-time');
+
+        if (!summaryElement || !timeElement || !pickupTimeSelect || !returnTimeSelect) return;
+
+        const pickupTime = pickupTimeSelect.value;
+        const returnTime = returnTimeSelect.value;
+
+        if (selectedDates.length === 2) {
+            const pickupDateDisplay = formatDateForDisplay(selectedDates[0]);
+            const returnDateDisplay = formatDateForDisplay(selectedDates[1]);
+            const rentalDays = calculateRentalDays();
+
+            summaryElement.innerHTML = `${pickupDateDisplay}, ${pickupTime} - ${returnDateDisplay}, ${returnTime} | **Thời gian thuê: ${rentalDays} ngày**`;
+            timeElement.textContent = `${pickupDateDisplay}, ${pickupTime} - ${returnDateDisplay}, ${returnTime}`;
+        } else if (selectedDates.length === 1) {
+            const pickupDateDisplay = formatDateForDisplay(selectedDates[0]);
+            summaryElement.innerHTML = `${pickupDateDisplay}, ${pickupTime} - Chọn ngày trả xe...`;
+            timeElement.textContent = `Chọn ngày trả xe...`;
+        } else {
+            summaryElement.innerHTML = `Chọn ngày nhận và trả xe`;
+            timeElement.textContent = `Chọn ngày nhận và trả xe`;
+        }
+    }
+
+    function populateTimeSelects() {
+        const pickupSelect = document.getElementById('pickup-time');
+        const returnSelect = document.getElementById('return-time');
+
+        if (!pickupSelect || !returnSelect) return;
+
+        pickupSelect.innerHTML = '';
+        returnSelect.innerHTML = '';
+
+        for (let h = 0; h < 24; h++) {
+            for (let m = 0; m < 60; m += 30) {
+                const hour = h.toString().padStart(2, '0');
+                const minute = m.toString().padStart(2, '0');
+                const time = `${hour}:${minute}`;
+
+                const option = document.createElement('option');
+                option.value = time;
+                option.textContent = time;
+
+                if (time === '09:00') {
+                    option.selected = true;
+                }
+
+                const returnOption = option.cloneNode(true);
+                if (time === '11:00') {
+                    returnOption.selected = true;
+                }
+
+                returnSelect.appendChild(returnOption);
+                pickupSelect.appendChild(option);
+            }
+        }
+
+        pickupSelect.onchange = updateSummary;
+        returnSelect.onchange = updateSummary;
+    }
+
+    function confirmDateTime() {
+        if (selectedDates.length !== 2) {
+            alert('Vui lòng chọn đủ ngày nhận và trả xe.');
+            return;
+        }
+
+        updateSummary();
+        closePopup('date-time-popup');
+    }
+
+    function performSearch() {
+        const baseUrl = '[[@{/vehicles}]]';
+        const params = new URLSearchParams();
+
+        // 1. Lấy địa điểm
+        if (selectedLocationText && selectedLocationText.trim() !== '' && selectedLocationText !== 'Khu đô thị FPT City, Phường Ngũ Hành Sơn, Thành phố Đà Nẵng') {
+            params.append('location', selectedLocationText);
+        }
+
+        // 2. Lấy ngày và giờ
+        if (selectedDates.length === 2) {
+            const pickupDate = selectedDates[0].toISOString().split('T')[0];
+            const returnDate = selectedDates[1].toISOString().split('T')[0];
+            const pickupTime = document.getElementById('pickup-time').value;
+            const returnTime = document.getElementById('return-time').value;
+
+            params.append('pickupDate', pickupDate);
+            params.append('returnDate', returnDate);
+            params.append('pickupTime', pickupTime);
+            params.append('returnTime', returnTime);
+        }
+
+        // 3. Lấy các tags đã chọn và chuyển đổi thành parameters
+        const selectedTags = document.querySelectorAll('#search-popup .tag-btn.selected');
+        selectedTags.forEach(tag => {
+            const tagText = tag.textContent.trim();
+            switch (tagText) {
+                case 'Xe ô tô điện':
+                    params.set('vehicleType', 'ElectricCar');
+                    break;
+                case 'Xe máy điện':
+                    params.set('vehicleType', 'ElectricMotorcycle');
+                    break;
+                case 'Dưới 500 nghìn':
+                    params.set('budget', 'under500k');
+                    break;
+                case 'Trên 500 nghìn':
+                    params.set('budget', 'over500k');
+                    break;
+                case 'Công việc, đi lại':
+                case 'Gia đình':
+                case 'Tiếp khách, dự tiệc':
+                    params.set('category', tagText);
+                    break;
+            }
+        });
+
+        // 4. Chuyển hướng
+        window.location.href = `${baseUrl}?${params.toString()}`;
+    }
+
+    // --- DOMContentLoaded ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const notification = document.getElementById('success-notification');
+        if (notification) {
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            setTimeout(() => {
+                if (notification.querySelector('button')) {
+                    closeNotification(notification.querySelector('button'));
+                }
+            }, 5000);
+        }
+
+        // Xử lý chọn các tag trong popup tìm kiếm
+        const tagButtons = document.querySelectorAll('.tag-btn');
+        tagButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const section = this.closest('.search-popup-section');
+                const sectionTitle = section.querySelector('h4').textContent.trim();
+                const isSingleChoice = ['Theo xu hướng', 'Ngân sách'].includes(sectionTitle);
+
+                if (isSingleChoice) {
+                    // Logic chọn đơn
+                    const wasSelected = this.classList.contains('selected');
+                    
+                    // Deselect all buttons in the same section
+                    const siblings = this.parentElement.querySelectorAll('.tag-btn');
+                    siblings.forEach(sibling => {
+                        sibling.classList.remove('selected', 'bg-primary', 'text-white');
+                        sibling.classList.add('bg-gray-200');
+                    });
+
+                    // If the button was not already selected, select it.
+                    if (!wasSelected) {
+                        this.classList.add('selected', 'bg-primary', 'text-white');
+                        this.classList.remove('bg-gray-200');
+                    }
+                } else {
+                    // Logic chọn nhiều (như cũ)
+                    const isSelected = this.classList.toggle('selected');
+                    this.classList.toggle('bg-primary', isSelected);
+                    this.classList.toggle('text-white', isSelected);
+                    this.classList.toggle('bg-gray-200', !isSelected);
+                }
+
+                this.classList.add('pulse-animation');
+                setTimeout(() => {
+                    this.classList.remove('pulse-animation');
+                }, 300);
+            });
+        });
+
+        // ===============================================
+        // LOGIC CHO LOCATION POPUP
+        // ===============================================
+        const currentLocationBtn = document.getElementById('currentLocationBtn');
+        if (currentLocationBtn) {
+            currentLocationBtn.addEventListener('click', getAndSetCurrentLocation);
+        }
+
+        document.querySelectorAll('.suggested-location-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const address = this.getAttribute('data-address');
+                updateSelectedLocation(address);
+                const searchInput = document.getElementById('location-search-input');
+                if (searchInput) searchInput.value = address;
+                // Simulate map marker placement if map is initialized
+                if (geocoder) {
+                    geocoder.geocode({ 'address': address }, function(results, status) {
+                        if (status == 'OK' && map && marker) {
+                            map.setCenter(results[0].geometry.location);
+                            marker.setPosition(results[0].geometry.location);
+                            marker.setVisible(true);
+                            map.setZoom(15);
+                        }
+                    });
+                }
+            });
+        });
+
+        // Xử lý hover cho các section tìm kiếm
+        const searchSections = document.querySelectorAll('.border.rounded-lg');
+        searchSections.forEach(section => {
+            section.addEventListener('mouseenter', function() {
+                this.style.borderColor = '#2F855A';
+                this.style.boxShadow = '0 2px 8px rgba(47, 133, 90, 0.1)';
+            });
+
+            section.addEventListener('mouseleave', function() {
+                this.style.borderColor = '#e2e8f0';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // --- Logic mới để đóng popup khi click ra khoảng đen (lớp phủ) ---
+        document.addEventListener('click', function(event) {
+            const searchPopup = document.getElementById('search-popup');
+            const locationPopup = document.getElementById('location-popup');
+            const dateTimePopup = document.getElementById('date-time-popup');
+
+            // 1. Xử lý Popup Địa điểm (#location-popup) - Đóng và quay lại Search Popup
+            if (locationPopup && !locationPopup.classList.contains('hidden')) {
+                const popupContent = locationPopup.querySelector('.bg-white');
+                if (event.target === locationPopup && !popupContent.contains(event.target)) {
+                    backToSearchPopup();
+                    return;
+                }
+            }
+
+            // 2. Xử lý Popup Lịch (#date-time-popup)
+            if (dateTimePopup && !dateTimePopup.classList.contains('hidden')) {
+                const popupContent = dateTimePopup.querySelector('.bg-white');
+                if (event.target === dateTimePopup && !popupContent.contains(event.target)) {
+                    closePopup('date-time-popup');
+                    return;
+                }
+            }
+
+            // 3. Xử lý Popup Tìm kiếm (#search-popup)
+            const isOtherPopupActive = (locationPopup && !locationPopup.classList.contains('hidden')) ||
+                (dateTimePopup && !dateTimePopup.classList.contains('hidden'));
+
+            if (searchPopup && !searchPopup.classList.contains('hidden') && !isOtherPopupActive) {
+                const popupContent = searchPopup.querySelector('.bg-white');
+                if (event.target === searchPopup && !popupContent.contains(event.target)) {
+                    closePopup('search-popup');
+                }
+            }
+        });
+
+        // Initialize main search bar text
+        const mainSearchFieldP = document.querySelector('.search-field:first-child .search-details p');
+        if (mainSearchFieldP) {
+            mainSearchFieldP.textContent = selectedLocationText;
+        }
+    });
+</script>
+<style>
+    .suggested-location-btn { background-color: #f3f4f6; border-radius: 9999px; padding: 6px 12px; font-size: 0.875rem; color: #4b5563; transition: all 0.2s; border: 1px solid transparent; }
+    .suggested-location-btn:hover { background-color: #e5e7eb; color: #1f2937; }
+</style>
+
+</body>
+
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="payments-content">
+    <!-- Status Tabs -->
+    <div class="status-tab-container" id="status-tabs">
+        <button class="status-tab active" data-status="" onclick="changeStatusTab(this)">
+            Tất cả <span class="count-badge" th:text="${countAll ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="Completed" onclick="changeStatusTab(this)">
+            Hoàn Thành <span class="count-badge" th:text="${countCompleted ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="Refunded" data-filter-type="payment" onclick="changeStatusTab(this)">
+            Hoàn Tiền <span class="count-badge" th:text="${countRefunded ?: 0}">0</span>
+        </button>
+        <button class="status-tab" data-status="NoShow" onclick="changeStatusTab(this)">
+            Không đến <span class="count-badge" th:text="${countNoShow ?: 0}">0</span>
+        </button>
+    </div>
+
+    <!-- Statistic Panels -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+            <div class="bg-green-100 p-3 rounded-full">
+                <i class="fas fa-chart-line text-2xl text-green-600"></i>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Tổng doanh thu</p>
+                <p class="text-2xl font-bold text-gray-800" th:text="${#numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'">150.000.000 ₫</p>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-xl shadow-md flex items-center space-x-4">
+            <div class="bg-blue-100 p-3 rounded-full">
+                <i class="fas fa-wallet text-2xl text-blue-600"></i>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Tiền thực nhận</p>
+                <p class="text-2xl font-bold text-gray-800" th:text="${#numbers.formatDecimal(netRevenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'">145.000.000 ₫</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Sort -->
+    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="search-input" class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm thông tin</label>
+                <input type="text" id="search-input" onkeyup="filterAndSortPayments()" placeholder="Tìm theo mã đơn, khách hàng, mẫu xe..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm"/>
+            </div>
+            <div>
+                <label for="sort-select" class="block text-sm font-medium text-gray-700 mb-1">Sắp xếp theo</label>
+                <select id="sort-select" onchange="filterAndSortPayments()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-sm">
+                    <option value="newest">Mới nhất</option>
+                    <option value="oldest">Cũ nhất</option>
+                    <option value="amount-high">Số tiền: Cao đến thấp</option>
+                    <option value="amount-low">Số tiền: Thấp đến cao</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mã đơn</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Khách hàng</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vị trí nhận xe</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thời gian thuê</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trạng thái</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Số tiền</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ngày tạo</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="payment-list-body">
+                <tr th:each="payment : ${payments}" class="hover:bg-gray-50"
+                    th:with="displayStatus=${payment.paymentStatus?.name() == 'Refunded' ? 'Refunded' : (payment.booking?.status?.name() ?: 'Unknown')},
+                             searchInfoBase = ${(payment.booking?.bookingCode ?: '') + ' ' +
+                                               (payment.booking?.user?.firstName ?: '') + ' ' +
+                                               (payment.booking?.user?.lastName ?: '') + ' ' +
+                                               (payment.booking?.vehicle?.vehicleModel ?: '') + ' ' +
+                                               (payment.booking?.vehicle?.licensePlate ?: '')}"
+                    th:attr="data-display-status=${displayStatus},
+                             data-created-date=${payment.createdDate},
+                             data-amount=${displayStatus == 'Refunded' ? payment.amount : payment.booking?.totalAmount},
+                             data-search-info=${searchInfoBase.toLowerCase()}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${payment.booking?.bookingCode}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div>
+                            <div class="text-sm font-medium text-gray-900" th:text="${payment.booking?.user?.firstName + ' ' + payment.booking?.user?.lastName}"></div>
+                            <div class="text-sm text-gray-500">
+                                <span th:text="${payment.booking?.vehicle?.vehicleModel}"></span>
+                                <br>
+                                <span th:text="${payment.booking?.vehicle?.licensePlate}"></span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 max-w-xs truncate" th:text="${payment.booking?.pickupLocation}"></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        <span th:text="${#temporals.format(payment.booking?.pickupDateTime, 'dd/MM/yy HH:mm')}"></span>
+                        <br>
+                        <span th:text="${#temporals.format(payment.booking?.returnDateTime, 'dd/MM/yy HH:mm')}"></span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span th:switch="${displayStatus}"
+                              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                              th:classappend="${displayStatus == 'Completed' ? 'bg-green-100 text-green-800' :
+                                                 displayStatus == 'Refunded' ? 'bg-yellow-100 text-yellow-800' :
+                                                 displayStatus == 'NoShow' ? 'bg-red-100 text-red-800' :
+                                                 displayStatus == 'Cancelled' ? 'bg-gray-200 text-gray-800' :
+                                                 'bg-blue-100 text-blue-800'}">
+                            <span th:case="'Completed'">Hoàn thành</span>
+                            <span th:case="'Refunded'">Đã hoàn tiền</span>
+                            <span th:case="'NoShow'">Không đến</span>
+                            <span th:case="'Cancelled'">Đã hủy</span>
+                            <span th:case="'Pending'">Chờ duyệt</span>
+                            <span th:case="'AwaitingDeposit'">Chờ cọc</span>
+                            <span th:case="*">[[${displayStatus}]]</span>
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-800"
+                        th:text="${#numbers.formatDecimal(displayStatus == 'Refunded' ? payment.amount : payment.booking?.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" th:text="${#temporals.format(payment.createdDate, 'dd/MM/yyyy HH:mm')}"></td>
+                </tr>
+                <tr id="no-payments-row" style="display: none;">
+                    <td colspan="7" class="text-center py-12">
+                        <div class="text-center text-gray-500">
+                            <i class="fas fa-file-invoice-dollar text-6xl text-gray-300 mb-4"></i>
+                            <p class="text-lg">Không có dữ liệu thanh toán.</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function () {
+        filterAndSortPayments();
+    });
+
+    function changeStatusTab(tabElement) {
+        document.querySelectorAll('.status-tab').forEach(tab => tab.classList.remove('active'));
+        tabElement.classList.add('active');
+        filterAndSortPayments();
+    }
+
+    function filterAndSortPayments() {
+        const statusFilter = document.querySelector('.status-tab.active').dataset.status;
+        const searchInput = document.getElementById('search-input').value.toLowerCase();
+        const sortValue = document.getElementById('sort-select').value;
+        const paymentListBody = document.getElementById('payment-list-body');
+        const rows = Array.from(paymentListBody.querySelectorAll('tr[data-display-status]'));
+        const noPaymentsRow = document.getElementById('no-payments-row');
+
+        let visibleRows = 0;
+
+        rows.forEach(row => {
+            const displayStatus = row.dataset.displayStatus;
+            const searchInfo = row.dataset.searchInfo;
+
+            const statusMatch = !statusFilter || statusFilter.split(',').includes(displayStatus);
+            const searchMatch = searchInfo.includes(searchInput);
+
+            if (statusMatch && searchMatch) {
+                row.style.display = '';
+                visibleRows++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        rows.sort((a, b) => {
+            const aDate = new Date(a.dataset.createdDate);
+            const bDate = new Date(b.dataset.createdDate);
+            const aAmount = parseFloat(a.dataset.amount);
+            const bAmount = parseFloat(b.dataset.amount);
+
+            switch (sortValue) {
+                case 'newest':
+                    return bDate - aDate;
+                case 'oldest':
+                    return aDate - bDate;
+                case 'amount-high':
+                    return bAmount - aAmount;
+                case 'amount-low':
+                    return aAmount - bAmount;
+                default:
+                    return 0;
+            }
+        });
+
+        rows.forEach(row => paymentListBody.appendChild(row));
+
+        if (visibleRows === 0) {
+            noPaymentsRow.style.display = '';
+        } else {
+            noPaymentsRow.style.display = 'none';
+        }
+    }
+    /*]]>*/
+</script>
+</html>

@@ -1,0 +1,168 @@
+/* src/main/resources/static/css/sidebar-common.css */
+
+/* ----- Cấu trúc Sidebar chính ----- */
+#sidebar {
+    background: linear-gradient(180deg, #1f2937 0%, #111827 100%); /* Nền tối màu gradient */
+    color: #d1d5db; /* Màu chữ mặc định (màu xám nhạt) */
+    border-right: 1px solid #374151; /* Đường viền phải */
+
+    /* Giữ các thuộc tính layout và transition */
+    position: fixed;
+    inset-y: 0; left: 0; z-index: 50;
+    width: 16rem; /* w-64 */
+    transform: translateX(-100%);
+    transition: transform 300ms ease-in-out;
+}
+
+/* Hiển thị trên desktop */
+@media (min-width: 1024px) { /* lg: */
+    #sidebar {
+        transform: translateX(0);
+        position: static; /* Hoặc relative tùy layout */
+        inset: auto;
+    }
+    /* Class này sẽ được thêm vào div content chính để đẩy nó sang phải */
+    .lg\\:ml-64 {
+        margin-left: 16rem; /* w-64 */
+    }
+}
+
+
+#sidebar.sidebar-open {
+    transform: translateX(0);
+}
+
+/* ----- Header của Sidebar ----- */
+.sidebar-header {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 4rem; /* h-16 */
+    padding-left: 1.5rem; /* px-6 */
+    padding-right: 1.5rem; /* px-6 */
+}
+
+.sidebar-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="white" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+
+/* ----- Style chung cho các mục menu (quan trọng) ----- */
+.sidebar-item {
+    color: #d1d5db; /* Màu chữ mặc định cho item (xám nhạt) */
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.75rem; /* px-3 py-3 */
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 500; /* font-medium */
+    border-radius: 0.5rem; /* rounded-lg */
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-align: left;
+    text-decoration: none; /* Đảm bảo link không có gạch chân */
+}
+
+.sidebar-item:hover {
+    background-color: rgba(255, 255, 255, 0.08); /* Nền hơi sáng khi hover */
+    color: #ffffff; /* Chữ trắng khi hover */
+    transform: translateX(4px);
+}
+
+/* Trạng thái Active */
+.sidebar-item.active {
+    background: #3b82f6 !important; /* Màu xanh dương cho trạng thái active */
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    transform: translateX(0);
+}
+
+
+.sidebar-item i {
+    margin-right: 0.75rem; /* mr-3 */
+    font-size: 1.125rem; /* text-lg */
+    width: 1.25rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    color: #9ca3af; /* Màu icon mặc định (xám) */
+}
+
+/* Icon màu trắng khi hover hoặc active */
+.sidebar-item:hover i, .sidebar-item.active i {
+    color: white;
+}
+
+/* ----- Sidebar Overlay ----- */
+#sidebar-overlay {
+    backdrop-filter: blur(4px);
+    transition: opacity 0.3s ease-in-out;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+}
+
+/* ----- Style cho nút Logout trong Footer (nếu có) ----- */
+.sidebar-footer-btn {
+    color: #d1d5db; /* Màu chữ mặc định giống item */
+    /* ... các style khác nếu bạn thêm footer ... */
+}
+.sidebar-footer-btn:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+.sidebar-footer-btn i {
+    color: #9ca3af; /* Màu icon mặc định giống item */
+}
+.sidebar-footer-btn:hover i {
+    color: white;
+}
+/* Style riêng cho nút logout nếu cần */
+.logout-btn { /* Class này có thể thêm vào nút logout nếu muốn style khác */
+    color: #fca5a5; /* Màu đỏ nhạt */
+}
+.logout-btn:hover {
+    background-color: rgba(239, 68, 68, 0.1); /* Nền đỏ nhạt hơn khi hover */
+    color: #fecaca; /* Chữ đỏ sáng hơn */
+}
+.logout-btn i {
+    color: #f87171; /* Icon đỏ */
+}
+.logout-btn:hover i {
+    color: #fecaca;
+}
+
+/* ----- Responsive cơ bản ----- */
+@media (max-width: 1023px) { /* lg:hidden tương ứng */
+    .lg\\:hidden { display: block !important; } /* Đảm bảo nút toggle hiện */
+    .lg\\:ml-64 { margin-left: 0; } /* Bỏ margin trái trên mobile */
+    #sidebar { transform: translateX(-100%); } /* Ẩn sidebar mặc định */
+    #sidebar.sidebar-open { transform: translateX(0); } /* Hiện sidebar khi có class */
+}
+
+/* Thêm style để đảm bảo nút logout luôn ở dưới cùng */
+#sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Đảm bảo sidebar chiếm toàn bộ chiều cao */
+}
+
+#sidebar nav {
+    flex-grow: 1; /* Cho phép nav chiếm hết không gian còn lại */
+    overflow-y: auto; /* Thêm cuộn nếu menu quá dài */
+}
+
+.sidebar-footer {
+    padding: 0.75rem; /* px-3 */
+    border-top: 1px solid #374151; /* Thêm đường kẻ trên */
+    margin-top: auto; /* Đẩy footer xuống dưới */
+}

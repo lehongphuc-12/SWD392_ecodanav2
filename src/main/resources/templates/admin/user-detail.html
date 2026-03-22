@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${user.username} + ' - Chi Tiết User'">Chi Tiết User</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 150px;
+        }
+        .info-value {
+            color: #6b7280;
+            flex: 1;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-inactive {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-banned {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a th:href="@{/admin/users}" class="text-green-600 hover:text-green-700">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                        <span class="ml-2">Quay Lại</span>
+                    </a>
+                    <div class="h-6 w-px bg-gray-300"></div>
+                    <h1 class="text-2xl font-bold text-gray-900" th:text="${user.username}">Username</h1>
+                    <span class="text-sm text-gray-500">Thông tin chi tiết về user</span>
+                </div>
+                <div class="flex space-x-2">
+                    <a th:href="@{'/admin/users/edit/' + ${user.id}}" 
+                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-edit mr-2"></i>
+                        Chỉnh Sửa
+                    </a>
+                    <button onclick="confirmDelete()" 
+                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                        <i class="fas fa-trash mr-2"></i>
+                        Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Main Info Card -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                        <h2 class="text-xl font-semibold text-white flex items-center">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            Thông Tin Cơ Bản
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="info-row">
+                            <div class="info-label">Username:</div>
+                            <div class="info-value" th:text="${user.username}">-</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Họ và Tên:</div>
+                            <div class="info-value" th:text="${user.firstName + ' ' + user.lastName}">-</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Email:</div>
+                            <div class="info-value">
+                                <a th:href="'mailto:' + ${user.email}" 
+                                   class="text-blue-600 hover:underline" 
+                                   th:text="${user.email}">-</a>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Số Điện Thoại:</div>
+                            <div class="info-value">
+                                <a th:href="'tel:' + ${user.phoneNumber}" 
+                                   class="text-blue-600 hover:underline" 
+                                   th:text="${user.phoneNumber ?: 'Chưa cập nhật'}">-</a>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Ngày Sinh:</div>
+                            <div class="info-value" th:text="${user.userDOB != null ? #temporals.format(user.userDOB, 'dd/MM/yyyy') : 'Chưa cập nhật'}">-</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Giới Tính:</div>
+                            <div class="info-value" th:text="${user.gender ?: 'Chưa cập nhật'}">-</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Vai Trò:</div>
+                            <div class="info-value">
+                                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                                      th:text="${user.role?.roleName ?: 'Customer'}">-</span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Ngày Tạo:</div>
+                            <div class="info-value" th:text="${#temporals.format(user.createdDate, 'dd/MM/yyyy HH:mm')}">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Security -->
+                <div class="bg-white rounded-lg shadow overflow-hidden mt-6">
+                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+                        <h2 class="text-xl font-semibold text-white flex items-center">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Bảo Mật Tài Khoản
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="info-row">
+                            <div class="info-label">Email Xác Thực:</div>
+                            <div class="info-value">
+                                <span th:if="${user.emailVerifed}" class="text-green-600">
+                                    <i class="fas fa-check-circle mr-1"></i>Đã xác thực
+                                </span>
+                                <span th:unless="${user.emailVerifed}" class="text-red-600">
+                                    <i class="fas fa-times-circle mr-1"></i>Chưa xác thực
+                                </span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Xác Thực 2 Yếu Tố:</div>
+                            <div class="info-value">
+                                <span th:if="${user.twoFactorEnabled}" class="text-green-600">
+                                    <i class="fas fa-check-circle mr-1"></i>Đã bật
+                                </span>
+                                <span th:unless="${user.twoFactorEnabled}" class="text-gray-600">
+                                    <i class="fas fa-times-circle mr-1"></i>Chưa bật
+                                </span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Khóa Tài Khoản:</div>
+                            <div class="info-value">
+                                <span th:if="${user.lockoutEnabled}" class="text-red-600">
+                                    <i class="fas fa-lock mr-1"></i>Đã bật
+                                </span>
+                                <span th:unless="${user.lockoutEnabled}" class="text-green-600">
+                                    <i class="fas fa-unlock mr-1"></i>Không
+                                </span>
+                            </div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Số Lần Đăng Nhập Thất Bại:</div>
+                            <div class="info-value" th:text="${user.accessFailedCount}">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <!-- Status Card -->
+                <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Trạng Thái</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex items-center justify-center py-4">
+                            <span th:classappend="${user.status == 'Active' ? 'status-active' : (user.status == 'Inactive' ? 'status-inactive' : 'status-banned')}"
+                                  class="status-badge text-lg"
+                                  th:text="${user.status}">Active</span>
+                        </div>
+                        <div class="mt-4 text-center text-sm text-gray-600">
+                            <i class="fas fa-circle mr-1" 
+                               th:classappend="${user.status == 'Active' ? 'text-green-500' : (user.status == 'Inactive' ? 'text-yellow-500' : 'text-red-500')}"></i>
+                            <span th:if="${user.status == 'Active'}">Tài khoản đang hoạt động</span>
+                            <span th:if="${user.status == 'Inactive'}">Tài khoản tạm ngưng</span>
+                            <span th:if="${user.status == 'Banned'}">Tài khoản bị cấm</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Avatar Card -->
+                <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Ảnh Đại Diện</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-center">
+                            <div th:if="${user.avatarUrl}" class="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
+                                <img th:src="${user.avatarUrl}" th:alt="${user.username}" class="w-full h-full object-cover">
+                            </div>
+                            <div th:unless="${user.avatarUrl}" 
+                                 class="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+                                <span th:text="${#strings.substring(user.firstName, 0, 1) + #strings.substring(user.lastName, 0, 1)}">AB</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Thao Tác Nhanh</h3>
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <button onclick="resetPassword()" 
+                                class="w-full px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors">
+                            <i class="fas fa-key mr-2"></i>
+                            Đặt Lại Mật Khẩu
+                        </button>
+                        <button th:if="${user.status == 'Active'}" 
+                                onclick="suspendUser()" 
+                                class="w-full px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors">
+                            <i class="fas fa-pause-circle mr-2"></i>
+                            Tạm Ngưng Tài Khoản
+                        </button>
+                        <button th:if="${user.status != 'Active'}" 
+                                onclick="activateUser()" 
+                                class="w-full px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors">
+                            <i class="fas fa-play-circle mr-2"></i>
+                            Kích Hoạt Tài Khoản
+                        </button>
+                        <button onclick="viewActivity()" 
+                                class="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+                            <i class="fas fa-history mr-2"></i>
+                            Xem Lịch Sử Hoạt Động
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var userId = /*[[${user.id}]]*/ '';
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        function confirmDelete() {
+            if (confirm('Bạn có chắc chắn muốn xóa user này? Hành động này không thể hoàn tác!')) {
+                var headers = {};
+                headers[csrfHeader] = csrfToken;
+                
+                fetch('/admin/users/api/delete/' + userId, {
+                    method: 'DELETE',
+                    headers: headers
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        alert('Xóa user thành công!');
+                        window.location.href = '/admin/users';
+                    } else {
+                        alert('Lỗi: ' + data.message);
+                    }
+                })
+                .catch(function(error) {
+                    alert('Có lỗi xảy ra: ' + error.message);
+                });
+            }
+        }
+
+        function resetPassword() {
+            alert('Tính năng đặt lại mật khẩu đang được phát triển');
+        }
+
+        function suspendUser() {
+            if (confirm('Bạn có chắc muốn tạm ngưng tài khoản này?')) {
+                updateStatus('Inactive');
+            }
+        }
+
+        function activateUser() {
+            if (confirm('Bạn có chắc muốn kích hoạt tài khoản này?')) {
+                updateStatus('Active');
+            }
+        }
+
+        function updateStatus(status) {
+            var headers = {};
+            headers[csrfHeader] = csrfToken;
+            
+            fetch('/admin/users/api/status/' + userId + '?status=' + status, {
+                method: 'PATCH',
+                headers: headers
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    alert('Cập nhật trạng thái thành công!');
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            })
+            .catch(function(error) {
+                alert('Có lỗi xảy ra: ' + error.message);
+            });
+        }
+
+        function viewActivity() {
+            alert('Tính năng xem lịch sử hoạt động đang được phát triển');
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>

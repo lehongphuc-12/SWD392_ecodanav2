@@ -1,0 +1,53 @@
+<!-- Insurance Tab Content -->
+<div th:fragment="insurance-tab">
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">Insurance Management</h3>
+                <div class="flex space-x-2">
+                    <button class="px-4 py-2 bg-green-600 text-white rounded-md text-sm hover:bg-green-700" onclick="showAddInsuranceModal()">
+                        <i class="fas fa-plus mr-1"></i>Add Insurance
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Insurance Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Base Rate/Day</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coverage Amount</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vehicle Seats</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr th:each="insurance : ${insuranceList}" th:if="${insuranceList != null and !insuranceList.empty}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900" th:text="${insurance.insuranceName}">-</div>
+                            <div class="text-sm text-gray-500" th:text="${insurance.description}">-</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${insurance.insuranceType}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${#numbers.formatDecimal(insurance.baseRatePerDay, 0, 'COMMA', 0, 'POINT')} VND">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${#numbers.formatDecimal(insurance.coverageAmount, 0, 'COMMA', 0, 'POINT')} VND">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${insurance.applicableVehicleSeats}">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span th:if="${insurance.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                            <span th:if="${!insurance.isActive}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Inactive</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <button class="text-indigo-600 hover:text-indigo-900 mr-3" data-action="edit-insurance" th:data-insurance-id="${insurance.insuranceId}">Edit</button>
+                            <button class="text-red-600 hover:text-red-900" data-action="delete-insurance" th:data-insurance-id="${insurance.insuranceId}">Delete</button>
+                        </td>
+                    </tr>
+                    <tr th:if="${insuranceList == null or insuranceList.empty}">
+                        <td colspan="7" class="px-6 py-4 text-center text-gray-500">No insurance policies found</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

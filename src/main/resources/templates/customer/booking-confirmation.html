@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Xác nhận đặt xe - EcoDana</title>
+    <style>
+        * { font-family: 'Poppins', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- Navigation -->
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<!-- Main Content -->
+<main class="pt-20 pb-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Vehicle Details with Image -->
+        <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2">
+                <!-- Vehicle Image -->
+                <div class="relative h-64 md:h-auto">
+                    <img th:src="${vehicle.mainImageUrl ?: 'https://via.placeholder.com/600x400?text=No+Image'}" 
+                         th:alt="${vehicle.vehicleModel}"
+                         class="w-full h-full object-cover">
+                    <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        <span th:text="${vehicle.status}">Available</span>
+                    </div>
+                </div>
+                
+                <!-- Vehicle Info -->
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2" th:text="${vehicle.vehicleModel}">VinFast VF 5 Plus</h2>
+                    <p class="text-gray-600 mb-4" th:text="${vehicle.licensePlate}">43A-302.22</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-chair text-green-500 mr-2"></i>
+                            <span class="text-sm text-gray-700" th:text="${vehicle.seats} + ' chỗ'">5 chỗ</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-cog text-green-500 mr-2"></i>
+                            <span class="text-sm text-gray-700" th:text="${vehicle.transmissionType?.transmissionTypeName ?: 'N/A'}">Tự động</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-tag text-green-500 mr-2"></i>
+                            <span class="text-sm text-gray-700" th:text="${vehicle.category?.categoryName ?: 'N/A'}">SUV</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-id-card text-green-500 mr-2"></i>
+                            <span class="text-sm text-gray-700" th:text="${vehicle.licensePlate}">43A-302.22</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <p class="text-sm text-gray-600 mb-2"><strong>Mã đặt xe:</strong> <span class="text-green-600 font-semibold" th:text="${booking.bookingCode}">BK123</span></p>
+                        <p class="text-sm text-gray-600"><strong>Ngày đặt:</strong> <span th:text="${#temporals.format(booking.createdDate, 'dd/MM/yyyy HH:mm')}">19/10/2025 11:42</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Details -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-info-circle text-green-500 mr-2"></i>
+                Thông tin đặt xe
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Rental Period -->
+                <div>
+                    <h3 class="font-semibold text-gray-700 mb-3">Thời gian thuê</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar-check text-gray-400 w-5 mr-2"></i>
+                            <span class="text-gray-600">Nhận xe:</span>
+                            <span class="ml-auto font-semibold" th:text="${#temporals.format(booking.pickupDateTime, 'dd/MM/yyyy HH:mm')}">01/01/2025 21:00</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar-times text-gray-400 w-5 mr-2"></i>
+                            <span class="text-gray-600">Trả xe:</span>
+                            <span class="ml-auto font-semibold" th:text="${#temporals.format(booking.returnDateTime, 'dd/MM/yyyy HH:mm')}">05/01/2025 20:00</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock text-gray-400 w-5 mr-2"></i>
+                            <span class="text-gray-600">Thời gian:</span>
+                            <span class="ml-auto font-semibold" th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(booking.pickupDateTime, booking.returnDateTime) + 1} + ' ngày'">5 ngày</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Owner Information -->
+                <div th:if="${vehicleOwner != null}">
+                    <h3 class="font-semibold text-gray-700 mb-3">Chủ xe</h3>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-lg font-bold flex-shrink-0">
+                                <span th:text="${vehicleOwner.firstName != null ? vehicleOwner.firstName.substring(0,1).toUpperCase() : 'O'}">O</span>
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-semibold text-gray-900" th:text="${vehicleOwner.firstName != null ? (vehicleOwner.firstName + ' ' + vehicleOwner.lastName) : vehicleOwner.username}">Chủ xe</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div th:if="${vehicleOwner.phoneNumber != null}" class="flex items-center gap-2 text-gray-700">
+                                <i class="fas fa-phone text-green-500 w-4"></i>
+                                <span th:text="${vehicleOwner.phoneNumber}">0236 123 456</span>
+                            </div>
+                            <div th:if="${vehicleOwner.email != null}" class="flex items-center gap-2 text-gray-700">
+                                <i class="fas fa-envelope text-green-500 w-4"></i>
+                                <span th:text="${vehicleOwner.email}">owner@example.com</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Price -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <!-- Discount Info (if applied) -->
+                <div th:if="${booking.discount != null}" class="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center">
+                            <i class="fas fa-tag text-green-500 mr-2"></i>
+                            <span class="text-gray-700">Mã giảm giá:</span>
+                            <span class="ml-2 font-semibold text-green-600" th:text="${booking.discount.voucherCode}">SUMMER2025</span>
+                        </div>
+                        <span class="text-green-600 font-semibold">Đã áp dụng</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-semibold text-gray-700">Tổng tiền:</span>
+                        <span class="text-2xl font-bold text-gray-700" th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">1.231.937 ₫</span>
+                    </div>
+                    <div th:if="${paidAmount != null && paidAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}" class="flex justify-between items-center pt-2 border-t">
+                        <span class="text-sm font-medium text-green-700">Đã thanh toán:</span>
+                        <span class="text-lg font-bold text-green-600" th:text="${#numbers.formatDecimal(paidAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">220.000 ₫</span>
+                    </div>
+                    <div th:if="${remainingAmount != null && remainingAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}" class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-orange-700">Còn lại (thanh toán khi nhận xe):</span>
+                        <span class="text-lg font-bold text-orange-600" th:text="${#numbers.formatDecimal(remainingAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">880.000 ₫</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="mt-4">
+                <!-- Pending Status -->
+                <div th:if="${booking.status.name() == 'Pending'}" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-hourglass-half text-yellow-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold text-yellow-800">Trạng thái: Đang chờ duyệt</p>
+                            <p class="text-sm text-yellow-700">Chủ xe sẽ xác nhận đơn đặt xe của bạn trong vòng 2 giờ</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AwaitingDeposit Status -->
+                <div th:if="${booking.status.name() == 'AwaitingDeposit' || booking.status.name() == 'Approved'}" class="bg-blue-50 border-2 border-blue-300 rounded-xl p-6">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
+                            <i class="fas fa-check-circle text-white text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-lg font-bold text-blue-800 mb-1">Trạng thái: Đã duyệt - Vui lòng thanh toán</p>
+                            <p class="text-sm text-blue-700">Chủ xe đã chấp nhận đơn đặt xe của bạn. Vui lòng thanh toán để hoàn tất.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Confirmed Status -->
+                <div th:if="${booking.status.name() == 'Confirmed'}" class="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-check-double text-green-500 mr-3"></i>
+                        <div class="flex-1">
+                            <p class="font-semibold text-green-800">Trạng thái: Đã thanh toán</p>
+                            <p class="text-sm text-green-700" th:if="${paidAmount != null && paidAmount.compareTo(booking.totalAmount) >= 0}">
+                                Đơn đặt xe đã được xác nhận. Chúc bạn có chuyến đi vui vẻ!
+                            </p>
+                            <p class="text-sm text-green-700" th:if="${paidAmount != null && paidAmount.compareTo(booking.totalAmount) < 0}">
+                                Bạn đã thanh toán <strong th:text="${#numbers.formatDecimal(paidAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">220.000 ₫</strong> (cọc 20%).<br/>
+                                Vui lòng thanh toán số tiền còn lại <strong class="text-orange-600" th:text="${#numbers.formatDecimal(remainingAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">880.000 ₫</strong> khi nhận xe.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Rejected Status -->
+                <div th:if="${booking.status.name() == 'Rejected' or booking.status.name() == 'Cancelled'}" class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-times-circle text-red-500 mr-3"></i>
+                        <div>
+                            <p class="font-semibold text-red-800"
+                               th:text="${booking.status.name() == 'Rejected'} ? 'Trạng thái: Đã bị từ chối' : 'Trạng thái: Đã bị hủy'">
+                                Trạng thái: Đã bị hủy
+                            </p>
+                            <p class="text-sm text-red-700"
+                               th:text="${booking.cancelReason ?: 'Đơn hàng đã bị hủy/từ chối mà không có lý do cụ thể.'}">
+                                Lý do từ chối sẽ hiển thị ở đây.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-list-check text-green-500 mr-2"></i>
+                Các bước tiếp theo
+            </h2>
+
+            <div class="space-y-4">
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">1</div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Chờ xác nhận</p>
+                        <p class="text-sm text-gray-600">Chúng tôi sẽ kiểm tra và xác nhận đơn đặt xe của bạn</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">2</div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Nhận thông báo</p>
+                        <p class="text-sm text-gray-600">Bạn sẽ nhận được email/SMS xác nhận khi đơn được duyệt</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center font-bold mr-3 flex-shrink-0">3</div>
+                    <div>
+                        <p class="font-semibold text-gray-800">Nhận xe</p>
+                        <p class="text-sm text-gray-600">Đến địa điểm nhận xe vào thời gian đã chọn</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancel Booking Button (Only for Pending, Approved, AwaitingDeposit - chưa thanh toán) -->
+        <div th:if="${booking.status.name() == 'Pending' || booking.status.name() == 'Approved' || booking.status.name() == 'AwaitingDeposit'}" class="mb-6">
+            <button onclick="showCancelModal()" 
+                    class="w-full bg-red-50 border-2 border-red-500 text-red-600 text-center font-semibold py-4 px-6 rounded-lg hover:bg-red-100 transition-all">
+                <i class="fas fa-times-circle mr-2"></i>
+                Hủy chuyến
+            </button>
+        </div>
+
+        <!-- Cancel Car Button (Only for Confirmed bookings - đã thanh toán) -->
+        <div th:if="${booking.status.name() == 'Confirmed'}" class="mb-6">
+            <button onclick="showCancelCarModal()" 
+                    class="w-full bg-orange-50 border-2 border-orange-500 text-orange-600 text-center font-semibold py-4 px-6 rounded-lg hover:bg-orange-100 transition-all">
+                <i class="fas fa-ban mr-2"></i>
+                Hủy xe (Đã thanh toán)
+            </button>
+        </div>
+
+        <!-- Payment Button (Only show when AwaitingDeposit or Approved - chưa thanh toán) -->
+        <div th:if="${booking.status.name() == 'AwaitingDeposit' || booking.status.name() == 'Approved'}" class="mb-6">
+            <a th:href="@{'/booking/payment/' + ${booking.bookingId}}" 
+               class="block w-full bg-gradient-to-r from-green-500 to-green-600 text-white text-center font-bold py-4 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all shadow-lg transform hover:scale-105">
+                <i class="fas fa-credit-card mr-2"></i>
+                Thanh toán ngay
+            </a>
+        </div>
+
+    </div>
+</main>
+
+<!-- Cancel Car Modal (for confirmed bookings) -->
+<div id="cancelCarModal"
+     class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+
+     th:data-payment-confirmed-at="${booking.paymentConfirmedAt}"
+     th:data-pickup-date-time="${booking.pickupDateTime}"
+     th:data-total-amount="${booking.totalAmount}"
+     th:data-total-paid="${booking.depositAmountRequired}"
+>
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Xác nhận hủy xe</h3>
+                <button onclick="closeCancelCarModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <div class="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <div class="flex items-center mb-2">
+                    <i class="fas fa-clock text-orange-500 mr-2"></i>
+                    <span class="font-semibold text-orange-800">Thời gian thanh toán:</span>
+                    <span class="ml-auto text-orange-700"
+                          th:text="${booking.paymentConfirmedAt != null ? #temporals.format(booking.paymentConfirmedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">
+                        19/10/2025 14:30
+                    </span>
+                </div>
+                <p class="text-sm text-orange-700">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    <span id="refundPolicyText">Đang tính toán chính sách...</span>
+                </p>
+            </div>
+
+            <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p class="text-sm text-green-800">
+                    <i class="fas fa-dollar-sign mr-2"></i>
+                    <strong>Số tiền hoàn lại (dự kiến):</strong>
+                    <span id="refundAmount" class="font-bold text-green-600">...</span>
+                </p>
+            </div>
+
+            <form th:action="@{'/booking/cancel-car/' + ${booking.bookingId}}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Lý do hủy</label>
+                    <textarea name="cancelReason" rows="3"
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                              placeholder="Nhập lý do hủy xe..."></textarea>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeCancelCarModal()"
+                            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">
+                        Đóng
+                    </button>
+                    <button type="submit"
+                            class="flex-1 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-semibold">
+                        Xác nhận hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div id="cancelModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Xác nhận hủy chuyến</h3>
+                <button onclick="closeCancelModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p class="text-sm text-yellow-800">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <strong>Lưu ý:</strong> Vui lòng kiểm tra chính sách hủy xe trước khi hủy.
+                </p>
+            </div>
+            
+            <form th:action="@{/booking/cancel-pending/{id}(id=${booking.bookingId})}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Lý do hủy</label>
+                    <textarea name="cancelReason" rows="3" 
+                              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                              placeholder="Nhập lý do hủy chuyến..."></textarea>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeCancelModal()" 
+                            class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-semibold">
+                        Đóng
+                    </button>
+                    <button type="submit" 
+                            class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-semibold">
+                        Xác nhận hủy
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+    /*<![CDATA[*/
+    // --- KHÔNG SỬ DỤNG th:inline="javascript" ---
+
+    /**
+     * Lấy dữ liệu từ các thuộc tính data-* trên modal
+     * Hàm này sẽ được gọi khi mở modal Hủy Xe.
+     */
+    function getBookingDataFromModal() {
+        const modal = document.getElementById('cancelCarModal');
+        if (!modal) {
+            console.error("Modal 'cancelCarModal' not found.");
+            return null;
+        }
+
+        const paymentTimeStr = modal.getAttribute('data-payment-confirmed-at');
+        const pickupTimeStr = modal.getAttribute('data-pickup-date-time');
+        const totalAmountStr = modal.getAttribute('data-total-amount');
+        const totalPaidStr = modal.getAttribute('data-total-paid');
+
+        // Kiểm tra dữ liệu quan trọng
+        if (!paymentTimeStr || paymentTimeStr === "null" || !pickupTimeStr || pickupTimeStr === "null") {
+            console.error("Missing data attributes on modal: paymentConfirmedAt or pickupDateTime is null.");
+            return null;
+        }
+
+        return {
+            paymentConfirmedAt: new Date(paymentTimeStr),
+            pickupDateTime: new Date(pickupTimeStr),
+            totalAmount: parseFloat(totalAmountStr || '0'),
+            totalPaid: parseFloat(totalPaidStr || '0')
+        };
+    }
+
+    /**
+     * Hàm mở modal Hủy (Pending)
+     */
+    function showCancelModal() {
+        document.getElementById('cancelModal').classList.remove('hidden');
+    }
+
+    /**
+     * Hàm đóng modal Hủy (Pending)
+     */
+    function closeCancelModal() {
+        document.getElementById('cancelModal').classList.add('hidden');
+    }
+
+    /**
+     * Hàm mở modal Hủy Xe (Đã thanh toán)
+     */
+    function showCancelCarModal() {
+        document.getElementById('cancelCarModal').classList.remove('hidden');
+        calculateRefund(); // Gọi hàm tính toán khi mở modal
+    }
+
+    /**
+     * Hàm đóng modal Hủy Xe (Đã thanh toán)
+     */
+    function closeCancelCarModal() {
+        document.getElementById('cancelCarModal').classList.add('hidden');
+    }
+
+    // Đóng modal khi click ra ngoài
+    document.getElementById('cancelCarModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCancelCarModal();
+        }
+    });
+
+    document.getElementById('cancelModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCancelModal();
+        }
+    });
+
+    /**
+     * HÀM TÍNH TOÁN HOÀN TIỀN
+     * Đọc dữ liệu từ modal data attributes
+     */
+    function calculateRefund() {
+        const policyTextEl = document.getElementById('refundPolicyText');
+        const refundAmountEl = document.getElementById('refundAmount');
+        const bookingData = getBookingDataFromModal(); // Lấy dữ liệu khi cần
+
+        if (!bookingData) {
+            policyTextEl.textContent = "Lỗi: Không thể xác định thời gian thanh toán hoặc thời gian nhận xe.";
+            refundAmountEl.textContent = "0 ₫";
+            return;
+        }
+
+        const now = new Date();
+        const paymentTime = bookingData.paymentConfirmedAt;
+        const tripStartTime = bookingData.pickupDateTime;
+
+        const totalPaid = bookingData.totalPaid;
+        const tripValue = bookingData.totalAmount; // Tổng giá trị chuyến đi
+
+        let refundAmount = 0;
+        let policyText = "";
+
+        const hoursSincePayment = (now.getTime() - paymentTime.getTime()) / (1000 * 60 * 60);
+        const daysBeforeTrip = (tripStartTime.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
+        if (hoursSincePayment < 2) {
+            // 1. Hoàn 100% số tiền đã thanh toán
+            refundAmount = totalPaid;
+            policyText = "Hủy trong 2 giờ sau khi thanh toán: Hoàn 100% số tiền đã thanh toán.";
+
+        } else if (daysBeforeTrip >= 7) {
+            // 2. Mất 10% số tiền đã thanh toán
+            const penalty = totalPaid * 0.10;
+            refundAmount = totalPaid - penalty;
+            policyText = `Hủy trước 7 ngày: Mất 10% số tiền đã thanh toán (${formatCurrency(penalty)}).`;
+
+        } else {
+            // 3. Mất 40% số tiền đã thanh toán
+            const penalty = totalPaid * 0.40;
+            refundAmount = totalPaid - penalty;
+            policyText = `Hủy trong 7 ngày: Mất 40% số tiền đã thanh toán (${formatCurrency(penalty)}).`;
+        }
+
+        // Đảm bảo không hoàn tiền âm
+        if (refundAmount < 0) {
+            refundAmount = 0;
+        }
+
+        // Hiển thị kết quả
+        policyTextEl.textContent = policyText;
+        refundAmountEl.textContent = formatCurrency(refundAmount);
+    }
+
+    function formatCurrency(amount) {
+        return new Intl.NumberFormat('vi-VN').format(Math.round(amount)) + ' ₫';
+    }
+
+    /*]]>*/
+</script>
+</body>
+</html>

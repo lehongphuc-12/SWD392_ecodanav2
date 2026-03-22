@@ -1,0 +1,17 @@
+<!-- Reports Tab Content -->
+<div th:fragment="reports-tab">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white shadow rounded-lg p-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Booking Trends</h3>
+            <div class="relative" style="height: 250px;">
+                <canvas id="bookingTrendsChart"></canvas>
+            </div>
+        </div>
+        <div class="bg-white shadow rounded-lg p-4">
+            <h3 class="text-lg font-medium text-gray-900 mb-3">Vehicle Status Distribution</h3>
+            <div class="relative" style="height: 250px;">
+                <canvas id="vehicleStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>

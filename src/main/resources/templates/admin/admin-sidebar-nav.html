@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="nav">
+    <div class="space-y-1">
+        <a
+                th:href="@{/admin(tab='overview')}"
+                th:classappend="${tab == null or tab == 'overview'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-chart-pie mr-3 text-lg"></i>
+            <span>Dashboard</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='users')}"
+                th:classappend="${tab == 'users'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-users mr-3 text-lg"></i>
+            <span>User Management</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='vehicles')}"
+                th:classappend="${tab == 'vehicles'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-car mr-3 text-lg"></i>
+            <span>Vehicle Management</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='bookings')}"
+                th:classappend="${tab == 'bookings'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-calendar-check mr-3 text-lg"></i>
+            <span>Booking Management</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='contracts')}"
+                th:classappend="${tab == 'contracts'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-file-contract mr-3 text-lg"></i>
+            <span>Contract Management</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='payments')}"
+                th:classappend="${tab == 'payments'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-credit-card mr-3 text-lg"></i>
+            <span>Payment Management</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='refund-requests')}"
+                th:classappend="${tab == 'refund-requests'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-undo-alt mr-3 text-lg"></i>
+            <span>Refund Requests</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='discounts')}"
+                th:classappend="${tab == 'discounts'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-tags mr-3 text-lg"></i>
+            <span>Discount Management</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='insurance')}"
+                th:classappend="${tab == 'insurance'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-shield-alt mr-3 text-lg"></i>
+            <span>Insurance Management</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='notifications')}"
+                th:classappend="${tab == 'notifications'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-bell mr-3 text-lg"></i>
+            <span>Notifications</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='feedback')}"
+                th:classappend="${tab == 'feedback'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-comments mr-3 text-lg"></i>
+            <span>Feedback Management</span>
+        </a>
+        <a
+                th:href="@{/admin(tab='inappropriateWords')}"
+                th:classappend="${tab == 'inappropriateWords'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-ban mr-3 text-lg"></i>
+            <span>Offensive Words</span>
+        </a>
+
+
+
+        <a
+                th:href="@{/admin(tab='reports')}"
+                th:classappend="${tab == 'reports'} ? 'active' : ''"
+                class="sidebar-item w-full flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all duration-200 group"
+        >
+            <i class="fas fa-chart-bar mr-3 text-lg"></i>
+            <span>Reports & Analytics</span>
+        </a>
+    </div>
+</div>
+</body>
+</html>

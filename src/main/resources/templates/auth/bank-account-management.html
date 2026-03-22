@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="bank-account-fragment(saveActionUrl)">
+
+    <div class="content-header">
+        <div>
+            <h2>Quản lý tài khoản ngân hàng</h2>
+            <p style="color: #666; font-size: 14px; margin-top: 8px">
+                Thêm tài khoản ngân hàng để nhận thanh toán hoặc hoàn tiền.
+            </p>
+        </div>
+        <button type="button" id="add-bank-btn" class="edit-link">
+            <i class="fa-solid fa-plus"></i> Thêm tài khoản mới
+        </button>
+    </div>
+
+    <div th:if="${bank_success}" class="alert alert-success" th:text="${bank_success}"></div>
+    <div th:if="${bank_error}" class="alert alert-danger" th:text="${bank_error}"></div>
+
+    <div class="document-card" id="bank-account-form-container" style="display: none; margin-bottom: 24px;">
+        <h3><i class="fa-solid fa-plus text-primary"></i> Thêm tài khoản ngân hàng mới</h3>
+
+        <form th:action="${saveActionUrl}" method="post" enctype="multipart/form-data" id="bank-account-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+
+                <div class="info-item">
+                    <label class="info-label" for="bankName">Ngân hàng <span class="text-red-500">*</span></label>
+                    <input type="text" name="bankName" id="bankName" class="info-value" placeholder="VD: Vietcombank, Techcombank..." required />
+                </div>
+
+                <div class="info-item">
+                    <label class="info-label" for="bankCode">Mã ngân hàng (Tùy chọn)</label>
+                    <input type="text" name="bankCode" id="bankCode" class="info-value" placeholder="VD: VCB, TCB..." />
+                </div>
+
+                <div class="info-item">
+                    <label class="info-label" for="accountNumber">Số tài khoản <span class="text-red-500">*</span></label>
+                    <input type="text" name="accountNumber" id="accountNumber" class="info-value" placeholder="Nhập số tài khoản" required />
+                </div>
+
+                <div class="info-item">
+                    <label class="info-label" for="accountHolderName">Tên chủ tài khoản <span class="text-red-500">*</span></label>
+                    <input type="text" name="accountHolderName" id="accountHolderName" class="info-value" placeholder="Nhập tên chủ tài khoản (viết hoa không dấu)" required />
+                </div>
+            </div>
+
+            <div class="upload-item" style="margin-top: 1rem;">
+                <label class="upload-label">Mã QR thanh toán (Tùy chọn)</label>
+                <div class="upload-box" id="qr-code-box">
+                    <input type="file" name="qrCodeFile" id="qrCodeFile" accept="image/*" style="display: none" />
+                    <label for="qrCodeFile" class="upload-placeholder">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p>Chọn ảnh QR hoặc kéo thả</p>
+                        <span>JPG, PNG (tối đa 10MB)</span>
+                    </label>
+                    <img id="qr-preview" class="image-preview" style="display: none" />
+                </div>
+            </div>
+
+            <div class="doc-actions" style="border-top: none; padding-top: 1rem;">
+                <button type="submit" class="save-button">
+                    <i class="fa-solid fa-save"></i> Thêm tài khoản
+                </button>
+                <button type="button" id="cancel-bank-btn" class="cancel-button">
+                    <i class="fa-solid fa-times"></i> Hủy
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div id="bank-accounts-list">
+        <h3 style="font-size: 1.125rem; font-weight: 600; color: #1f2937; margin-bottom: 16px;">
+            <i class="fa-solid fa-list text-primary"></i> Tài khoản ngân hàng của bạn
+        </h3>
+        <div id="accounts-container" class="space-y-4">
+            <p class="no-doc-message">Đang tải danh sách tài khoản...</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

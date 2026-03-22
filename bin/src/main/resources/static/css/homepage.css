@@ -1,0 +1,459 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #484848;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Styles */
+header {
+    background-color: #fff;
+    padding: 20px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.logo-icon {
+    width: 24px;
+    height: 25.72px;
+    background: #2F855A;
+    position: relative;
+    border-radius: 4px;
+}
+
+.logo-icon::before,
+.logo-icon::after {
+    content: '';
+    position: absolute;
+    background: #2F855A;
+}
+
+.logo-text {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2F855A;
+}
+
+nav ul {
+    display: flex;
+    gap: 20px;
+    list-style: none;
+}
+
+nav a {
+    text-decoration: none;
+    color: #484848;
+    font-weight: 500;
+}
+
+/* Hero Section Styles */
+.hero {
+    position: relative;
+    background-color: #F7FAFC;
+}
+
+.search-box {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    position: relative;
+    z-index: 10;
+    margin-top: -80px;
+}
+
+.search-field {
+    border: 1px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+}
+
+.search-field:hover {
+    border-color: #2F855A;
+}
+
+.search-icon {
+    color: #2F855A;
+    font-size: 24px;
+}
+
+.search-details h4 {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.search-details p {
+    color: #718096;
+    font-size: 14px;
+}
+
+.search-btn {
+    background-color: #2F855A;
+    color: #fff;
+    border-radius: 8px;
+    padding: 16px 24px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+    background-color: #0E56A0;
+}
+
+/* How It Works Section */
+.section-badge {
+    background-color: #EBF8FF;
+    color: #2F855A;
+    padding: 4px 16px;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.section-title {
+    font-weight: 800;
+    font-size: 36px;
+    color: #1A202C;
+}
+
+.step-icon {
+    background-color: #EBF8FF;
+    color: #2F855A;
+    width: 64px;
+    height: 64px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    font-size: 24px;
+}
+
+.step-title {
+    font-weight: 700;
+    font-size: 20px;
+    color: #1A202C;
+}
+
+.step-description {
+    color: #718096;
+}
+
+/* Why Choose Us Section */
+.feature-icon {
+    background-color: #D1F0E7;
+    color: #2F855A;
+    width: 48px;
+    height: 48px;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.feature-text h4 {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.feature-text p {
+    color: #718096;
+}
+
+/* Popular Deals Section */
+.car-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.car-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.car-image {
+    height: 160px;
+    background-color: #E2E8F0;
+}
+
+.car-specs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.car-specs .spec {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price {
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.rent-btn {
+    background-color: #2F855A;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.rent-btn:hover {
+    background-color: #0E56A0;
+}
+
+.view-all-btn {
+    border: 1px solid #2F855A;
+    color: #2F855A;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.view-all-btn:hover {
+    background-color: #2F855A;
+    color: #fff;
+}
+
+/* Testimonials Section */
+.testimonial-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-rating {
+    font-weight: 700;
+    font-size: 24px;
+}
+
+.testimonial-stars {
+    color: #FFC107;
+}
+
+/* Footer Styles */
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-nav ul {
+    list-style: none;
+    display: flex;
+    gap: 24px;
+}
+
+.social-media {
+    display: flex;
+    gap: 16px;
+}
+
+.social-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.copyright {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid #575757;
+    font-size: 12px;
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .hero-content,
+    .why-choose-content,
+    .download-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-text,
+    .why-choose-text,
+    .download-text {
+        max-width: 100%;
+        margin-bottom: 40px;
+    }
+
+    .steps {
+        gap: 40px;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex-direction: column;
+    }
+
+    .search-field {
+        border-right: none;
+        border-bottom: 1px solid #ACACAC;
+        padding-right: 0;
+        padding-bottom: 20px;
+    }
+
+    .testimonial-card {
+        flex-direction: column;
+    }
+
+    .testimonial-image,
+    .testimonial-content {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .hero-text,
+    .why-choose-text,
+    .download-text {
+        text-align: center;
+    }
+}
+
+/* Hiệu ứng sáng lên khi được chọn */
+.tag-btn.selected,
+.location-option.selected,
+.airport-btn.selected {
+    background-color: #2F855A !important;
+    color: #fff !important;
+    border-color: #2F855A !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(47, 133, 90, 0.3);
+}
+
+/* Hiệu ứng pulse animation */
+.pulse-animation {
+    animation: pulse 0.3s ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        /* Dùng màu #2F855A cho pulse animation */
+        box-shadow: 0 0 0 0 rgba(47, 133, 90, 0.7);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(47, 133, 90, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(47, 133, 90, 0);
+    }
+}
+
+/* Hiệu ứng hover cải tiến */
+.tag-btn:hover,
+.location-option:hover,
+.airport-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease-in-out;
+}
+
+/* Style cơ bản cho các nút tag và sân bay */
+.tag-btn,
+.airport-btn {
+    transition: all 0.3s ease;
+    /* Border mặc định màu xám, nền được xử lý bằng Tailwind: bg-gray-200 */
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+}
+
+
+/* Style cơ bản cho tùy chọn địa điểm (nền trắng, có border) */
+.location-option {
+    transition: all 0.3s ease;
+    /* Nền trắng được ưu tiên bằng Tailwind (mặc định không có class nền) */
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+}
+
+.airport-btn {
+    /* Đảm bảo trạng thái mặc định: sử dụng màu nền từ Tailwind (bg-gray-200) được ưu tiên */
+    border: 1px solid #e2e8f0;
+    color: #484848;
+    /* Màu chữ mặc định */
+}
+
+/* Custom Styles for Interactive Elements */
+.search-field,
+.location-option,
+.tag-btn,
+.airport-btn {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.search-field:hover,
+.location-option:hover,
+.tag-btn:hover,
+.airport-btn:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.search-field:active,
+.location-option:active,
+.tag-btn:active,
+.airport-btn:active {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom Styles for Popup Z-Index */
+#location-popup {
+    z-index: 70 !important;
+    /* Đảm bảo nằm trên cùng */
+}
+
+#search-popup {
+    z-index: 55 !important;
+    /* Đặt cao hơn Header, thấp hơn location-popup */
+}

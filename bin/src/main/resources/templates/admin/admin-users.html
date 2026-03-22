@@ -1,0 +1,316 @@
+<div th:fragment="users-tab">
+    <!-- CSS for role filtering and modal -->
+    <style>
+        /* Active state for filter cards */
+        .filter-card.active {
+            border-color: currentColor !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Action buttons styling */
+        .users-table-wrapper button,
+        .users-table-wrapper form {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        .users-table-wrapper button i {
+            font-size: 1rem;
+            display: inline-block !important;
+        }
+        
+        /* Banned user styling */
+        .banned-user {
+            opacity: 0.5 !important;
+            background-color: #fee2e2 !important;
+            transition: all 0.3s ease-in-out;
+        }
+        
+        .banned-badge {
+            margin-left: 0.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+        
+        /* Modal animation */
+        #userDetailModal,
+        #banConfirmModal {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        #userDetailModal > div,
+        #banConfirmModal > div {
+            animation: slideDown 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+    
+    <!-- User Management Section -->
+    <div class="bg-white shadow-md rounded-lg mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">User Management</h3>
+                    <p class="text-sm text-gray-500 mt-1">
+                        <span th:if="${roleFilter != null and roleFilter != ''}">
+                            Showing <strong th:text="${#lists.size(users)}">0</strong> users with role: <strong th:text="${roleFilter}">-</strong>
+                        </span>
+                        <span th:unless="${roleFilter != null and roleFilter != ''}">
+                            Showing all <strong th:text="${#lists.size(users)}">0</strong> users
+                        </span>
+                    </p>
+                </div>
+                <div class="flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+                    <input type="text" id="userSearchInput" placeholder="Search users..."
+                           class="px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Role Filter Cards -->
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <a th:href="@{/admin(tab='users')}" 
+                   th:classappend="${roleFilter == null or roleFilter == ''} ? 'active' : ''"
+                   class="filter-card bg-gray-50 rounded-lg p-4 cursor-pointer hover:bg-gray-100 transition-all border-2 border-transparent hover:border-gray-400 no-underline">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">All Roles</p>
+                            <p class="text-xl font-bold text-gray-800" th:text="${totalUsers ?: 0}">5</p>
+                        </div>
+                        <i class="fas fa-users text-3xl text-gray-400"></i>
+                    </div>
+                </a>
+                
+                <a th:href="@{/admin(tab='users', roleFilter='Admin')}" 
+                   th:classappend="${roleFilter == 'Admin'} ? 'active' : ''"
+                   class="filter-card bg-purple-50 rounded-lg p-4 cursor-pointer hover:bg-purple-100 transition-all border-2 border-transparent hover:border-purple-400 no-underline">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Admin</p>
+                            <p class="text-xl font-bold text-purple-600" th:text="${adminCount ?: 0}">1</p>
+                        </div>
+                        <i class="fas fa-user-shield text-3xl text-purple-400"></i>
+                    </div>
+                </a>
+                
+                <a th:href="@{/admin(tab='users', roleFilter='Owner')}" 
+                   th:classappend="${roleFilter == 'Owner'} ? 'active' : ''"
+                   class="filter-card bg-blue-50 rounded-lg p-4 cursor-pointer hover:bg-blue-100 transition-all border-2 border-transparent hover:border-blue-400 no-underline">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Owner</p>
+                            <p class="text-xl font-bold text-blue-600" th:text="${ownerCount ?: 0}">2</p>
+                        </div>
+                        <i class="fas fa-user-tie text-3xl text-blue-400"></i>
+                    </div>
+                </a>
+                
+                <a th:href="@{/admin(tab='users', roleFilter='Customer')}" 
+                   th:classappend="${roleFilter == 'Customer'} ? 'active' : ''"
+                   class="filter-card bg-green-50 rounded-lg p-4 cursor-pointer hover:bg-green-100 transition-all border-2 border-transparent hover:border-green-400 no-underline">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Customer</p>
+                            <p class="text-xl font-bold text-green-600" th:text="${customerCount ?: 0}">2</p>
+                        </div>
+                        <i class="fas fa-user text-3xl text-green-400"></i>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="users-table-wrapper bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created Date</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
+                <tr th:each="user, iterStat : ${users}"
+                    th:classappend="${user.status != null and user.status.name() == 'Banned'} ? 'banned-user' : ''"
+                    th:style="${user.status != null and user.status.name() == 'Banned'} ? 'opacity: 0.5; background-color: #fee2e2;' : ''">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <div th:if="${user.avatarUrl != null and !user.avatarUrl.isEmpty()}" 
+                                     class="h-10 w-10 rounded-full overflow-hidden">
+                                    <img th:src="${user.avatarUrl}" th:alt="${user.username}" class="h-full w-full object-cover">
+                                </div>
+                                <div th:unless="${user.avatarUrl != null and !user.avatarUrl.isEmpty()}" 
+                                     class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <i class="fas fa-user text-gray-500"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900" th:text="${user.username}">-</div>
+                                <div class="text-sm text-gray-500" th:text="${user.firstName + ' ' + user.lastName}">-</div>
+                            </div>
+                            <!-- Banned Badge -->
+                            <div th:if="${user.status != null and user.status.name() == 'Banned'}" class="banned-badge ml-2">
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-bold text-white bg-red-600 rounded-full">
+                                    <i class="fas fa-ban mr-1"></i> BANNED
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900" th:text="${user.email}">-</div>
+                        <div class="text-sm text-gray-500" th:text="${user.phoneNumber ?: 'N/A'}">-</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span th:classappend="${user.role?.roleName == 'Admin' ? 'bg-purple-100 text-purple-800' : (user.role?.roleName == 'Owner' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800')}"
+                              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                              th:text="${user.role?.roleName ?: 'Customer'}">-</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span th:classappend="${user.status != null and user.status.name() == 'Active' ? 'bg-green-100 text-green-800' : (user.status != null and user.status.name() == 'Banned' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800')}"
+                              class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full"
+                              th:text="${user.status != null ? user.status.name() : 'Unknown'}">-</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" 
+                        th:text="${user.createdDate != null ? #temporals.format(user.createdDate, 'dd/MM/yyyy') : 'N/A'}">-</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end space-x-2">
+                            <button type="button"
+                                    th:attr="onclick=|viewUserDetail('${user.id}')|"
+                                    class="action-btn action-btn-view p-2 rounded-md transition-colors" 
+                                    title="View Details">
+                                <i class="fas fa-eye text-lg"></i>
+                            </button>
+                            
+                            <!-- Ban/Unban button based on status -->
+                            <button type="button"
+                                    th:if="${user.status != null and user.status.name() != 'Banned'}"
+                                    th:attr="onclick=|banUser('${user.id}', '${user.username}')|"
+                                    class="action-btn action-btn-delete p-2 rounded-md transition-colors" 
+                                    title="Ban User">
+                                <i class="fas fa-ban text-lg"></i>
+                            </button>
+                            
+                            <button type="button"
+                                    th:if="${user.status != null and user.status.name() == 'Banned'}"
+                                    th:attr="onclick=|unbanUser('${user.id}', '${user.username}')|"
+                                    class="action-btn action-btn-edit p-2 rounded-md transition-colors text-green-600 hover:bg-green-50" 
+                                    title="Unban User">
+                                <i class="fas fa-user-check text-lg"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${users == null or #lists.isEmpty(users)}">
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <div class="flex flex-col items-center">
+                            <i class="fas fa-users text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-lg font-medium">No users found</p>
+                            <p class="text-sm text-gray-400 mt-1">Users will appear here once added to the system</p>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- User Detail Modal -->
+    <div id="userDetailModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50" style="display: none;">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-3 border-b">
+                <h3 class="text-xl font-semibold text-gray-900">User Details</h3>
+                <button onclick="closeUserDetailModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div id="userDetailContent" class="mt-4">
+                <div class="flex items-center justify-center py-8">
+                    <i class="fas fa-spinner fa-spin text-3xl text-gray-400"></i>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end pt-4 border-t mt-4 space-x-2">
+                <button onclick="closeUserDetailModal()" 
+                        class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ban/Unban Confirmation Modal -->
+    <div id="banConfirmModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50" style="display: none;">
+        <div class="relative top-1/3 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between pb-3 border-b">
+                <h3 id="banModalTitle" class="text-xl font-semibold text-gray-900">Confirm Action</h3>
+                <button onclick="closeBanModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="mt-4 py-4">
+                <div class="flex items-center mb-4">
+                    <div id="banModalIcon" class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center">
+                        <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p id="banModalMessage" class="text-gray-700">Are you sure?</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="flex items-center justify-end pt-4 border-t space-x-2">
+                <button onclick="closeBanModal()" 
+                        class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors">
+                    Cancel
+                </button>
+                <button id="banConfirmBtn" onclick="confirmBanAction()" 
+                        class="px-4 py-2 text-white rounded-md transition-colors">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

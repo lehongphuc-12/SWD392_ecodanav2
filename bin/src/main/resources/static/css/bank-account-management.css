@@ -1,0 +1,343 @@
+/* src/main/resources/static/css/bank-account-management.css */
+/* * BẢN SỬA LỖI TRIỆT ĐỂ
+ * Thêm ID của tab (#bank-accounts-content) và !important
+ * để "thắng" các style từ owner-management.css
+*/
+
+/* ================= BẮT ĐẦU SỬA ================= */
+/* * GHI ĐÈ TRIỆT ĐỂ: Buộc toàn bộ tab này
+ * và các phần tử con của nó phải căn lề trái.
+*/
+#bank-accounts-content,
+#bank-accounts-content h2,
+#bank-accounts-content h3,
+#bank-accounts-content p,
+#bank-accounts-content .info-label,
+#bank-accounts-content .upload-label,
+#bank-accounts-content .document-card,
+#bank-accounts-content .doc-details,
+#bank-accounts-content .alert {
+    text-align: left !important;
+}
+/* ================= KẾT THÚC SỬA ================= */
+
+
+/* === Bố cục chung === */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+}
+
+.content-header h2 {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.document-card {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+}
+
+.document-card h3 {
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.document-card h3 i {
+    margin-right: 0.5rem;
+    color: #6b7280; /* gray-500 */
+}
+
+/* === Nút Bấm === */
+.edit-link, .save-button, .cancel-button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 1.25rem;
+}
+.edit-link i, .save-button i, .cancel-button i {
+    margin-right: 0.25rem;
+}
+
+.edit-link {
+    color: #2563EB;
+    background-color: transparent;
+    border-color: #93C5FD;
+}
+.edit-link:hover {
+    background-color: #EFF6FF; /* blue-50 */
+}
+
+.save-button {
+    color: #ffffff;
+    background-color: #16A34A; /* green-600 */
+    border-color: #16A34A;
+}
+.save-button:hover {
+    background-color: #15803D; /* green-700 */
+}
+
+.cancel-button {
+    color: #374151; /* gray-700 */
+    background-color: #F3F4F6; /* gray-100 */
+    border-color: #D1D5DB; /* gray-300 */
+    margin-left: 0.5rem;
+}
+.cancel-button:hover {
+    background-color: #E5E7EB; /* gray-200 */
+}
+
+/* === Thông báo (Alert) === */
+.alert {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+.alert-success {
+    background-color: #D1FAE5; /* green-100 */
+    color: #065F46; /* green-800 */
+    border: 1px solid #6EE7B7; /* green-300 */
+}
+.alert-danger {
+    background-color: #FEE2E2; /* red-100 */
+    color: #991B1B; /* red-800 */
+    border: 1px solid #FCA5A5; /* red-300 */
+}
+
+/* === Lưới Form === */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 1.5rem;
+}
+@media (min-width: 768px) {
+    .info-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+.info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-label {
+    font-size: 0.875rem; /* 14px */
+    font-weight: 500;
+    color: #374151; /* gray-700 */
+    margin-bottom: 0.25rem;
+}
+
+.info-label .text-red-500 {
+    color: #ef4444;
+    vertical-align: super;
+    font-size: 0.75em;
+    margin-left: 2px;
+}
+.info-value {
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    color: #1f2937;
+    background-color: #F9FAFB; /* gray-50 */
+    border: 1px solid #D1D5DB; /* gray-300 */
+    border-radius: 0.375rem;
+    box-shadow: inset 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.info-value:read-only, .info-value:disabled {
+    background-color: #F3F4F6; /* gray-100 */
+    color: #6B7280; /* gray-500 */
+    cursor: not-allowed;
+}
+
+/* === Hộp Upload === */
+.upload-item {
+    margin-top: 1rem;
+}
+.upload-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+.upload-box {
+    position: relative;
+    border: 2px dashed #D1D5DB; /* gray-300 */
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    background-color: #F9FAFB; /* gray-50 */
+    text-align: center;
+    cursor: pointer;
+    min-height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.upload-box:hover {
+    border-color: #9CA3AF; /* gray-400 */
+    background-color: #F3F4F6; /* gray-100 */
+}
+.upload-placeholder {
+    color: #6B7280; /* gray-500 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* KHÔNG ghi đè text-align ở đây, để nó tự căn giữa */
+}
+.upload-placeholder i {
+    font-size: 2rem;
+    color: #9CA3AF; /* gray-400 */
+    margin-bottom: 0.5rem;
+}
+.upload-placeholder p {
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+.upload-placeholder span {
+    font-size: 0.75rem; /* 12px */
+    color: #9CA3AF;
+}
+.image-preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 0.5rem;
+    background-color: #fff;
+    border-radius: 0.375rem;
+}
+
+/* === Danh sách tài khoản (JS) === */
+.no-doc-message {
+    text-align: center;
+    color: #6b7280;
+    padding: 2rem;
+    font-size: 0.875rem;
+    border: 2px dashed #e5e7eb;
+    border-radius: 0.5rem;
+    background-color: #f9fafb;
+}
+
+#bank-accounts-list .document-info {
+    background-color: #ffffff;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1.5rem;
+    padding: 1.25rem;
+    position: relative;
+}
+.doc-status-badge {
+    position: absolute;
+    top: -1px;
+    right: -1px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-top-right-radius: 0.375rem;
+    border-bottom-left-radius: 0.5rem;
+}
+.document-info.verified .doc-status-badge {
+    background-color: #D1FAE5; /* green-100 */
+    color: #065F46; /* green-800 */
+    border: 1px solid #A7F3D0;
+}
+.document-info.pending .doc-status-badge {
+    background-color: #FEF3C7; /* amber-100 */
+    color: #92400E; /* amber-800 */
+    border: 1px solid #FDE68A;
+}
+.doc-status-badge i {
+    margin-right: 0.25rem;
+}
+.doc-details {
+    margin-bottom: 1rem;
+}
+.doc-details p {
+    font-size: 0.875rem;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+.doc-details p strong {
+    color: #1f2937;
+}
+.doc-images {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.doc-images img {
+    width: 100px;
+    height: 100px;
+    border-radius: 0.375rem;
+    border: 1px solid #e5e7eb;
+    object-fit: cover;
+    cursor: pointer;
+}
+.doc-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f3f4f6;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.doc-actions .btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+/* === Style cho Nút (nếu chưa có) === */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    border: 1px solid transparent;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.btn-primary {
+    color: #ffffff;
+    background-color: #2563EB; /* blue-600 */
+    border-color: #2563EB;
+}
+.btn-primary:hover {
+    background-color: #1D4ED8; /* blue-700 */
+}
+.btn-danger {
+    color: #ffffff;
+    background-color: #DC2626; /* red-600 */
+    border-color: #DC2626;
+}
+.btn-danger:hover {
+    background-color: #B91C1C; /* red-700 */
+}
+
+#bank-account-form-container .info-item .info-label {
+    text-align: left !important;
+}

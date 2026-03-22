@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="cars-content">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">My Cars</h2>
+        <button onclick="toggleModal('add-car-modal')" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-accent transition-colors flex items-center text-sm font-medium">
+            <i class="fas fa-plus mr-2"></i>Add New Car
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div onclick="showAllVehicles()" class="bg-white p-4 rounded-lg shadow-md border-l-4 border-gray-500 cursor-pointer hover:shadow-lg transition-all transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">All Cars</p>
+                    <p class="text-2xl font-bold text-gray-800" th:text="${vehicles != null ? #lists.size(vehicles) : 0}">0</p>
+                    <p class="text-xs text-gray-500 mt-1">Tổng số xe</p>
+                </div>
+                <i class="fas fa-car-side text-4xl text-gray-400 opacity-60"></i>
+            </div>
+        </div>
+        <div onclick="quickFilterStatus('Available')" class="bg-white p-4 rounded-lg shadow-md border-l-4 border-green-500 cursor-pointer hover:shadow-lg transition-all transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Available</p>
+                    <p class="text-2xl font-bold text-green-600" th:text="${availableCount ?: 0}">0</p>
+                    <p class="text-xs text-gray-500 mt-1">Sẵn sàng</p>
+                </div>
+                <i class="fas fa-check-circle text-4xl text-green-500 opacity-60"></i>
+            </div>
+        </div>
+        <div onclick="quickFilterStatus('Rented')" class="bg-white p-4 rounded-lg shadow-md border-l-4 border-yellow-500 cursor-pointer hover:shadow-lg transition-all transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Rented</p>
+                    <p class="text-2xl font-bold text-yellow-600" th:text="${rentedCount ?: 0}">0</p>
+                    <p class="text-xs text-gray-500 mt-1">Đang cho thuê</p>
+                </div>
+                <i class="fas fa-key text-4xl text-yellow-500 opacity-60"></i>
+            </div>
+        </div>
+        <div onclick="quickFilterStatus('Maintenance')" class="bg-white p-4 rounded-lg shadow-md border-l-4 border-red-500 cursor-pointer hover:shadow-lg transition-all transform hover:-translate-y-1">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-gray-600 text-sm font-medium">Maintenance</p>
+                    <p class="text-2xl font-bold text-red-600" th:text="${maintenanceCount ?: 0}">0</p>
+                    <p class="text-xs text-gray-500 mt-1">Bảo trì</p>
+                </div>
+                <i class="fas fa-wrench text-4xl text-red-500 opacity-60"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Model</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plate</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                <tr th:each="v : ${vehicles}" class="vehicle-row hover:bg-gray-50" th:data-status="${v.status.name()}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <img th:src="${v.mainImageUrl ?: 'https://via.placeholder.com/80x50?text=No+Image'}" class="w-20 h-12 object-cover rounded" th:alt="${v.vehicleModel ?: 'Vehicle'}"/>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <p class="text-sm font-medium text-gray-900" th:text="${v.vehicleModel ?: 'N/A'}">Model</p>
+                        <p class="text-xs text-gray-500" th:text="${v.category?.categoryName ?: 'No Category'}">Category</p>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600" th:text="${v.licensePlate ?: 'N/A'}">Plate</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span th:class="'status-badge status-' + ${v.status.name()}" th:text="${v.status ?: 'Unknown'}"></span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
+                        <button class="text-indigo-600 hover:text-indigo-900" title="Edit" th:attr="onclick=|openEditCarModal('${v.vehicleId}')|">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <!-- Chỉ hiển thị nút Xóa khi trạng thái của xe không phải là 'Rented' -->
+                        <th:block th:if="${v.status.name() != 'Rented'}">
+                            <button class="text-red-600 hover:text-red-900" title="Delete" th:attr="onclick=|deleteCar('${v.vehicleId}')|">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </th:block>
+                    </td>
+                </tr>
+                <tr th:if="${vehicles == null or #lists.isEmpty(vehicles)}">
+                    <td colspan="5" class="text-center py-10 text-gray-500">
+                        <i class="fas fa-car-side text-4xl text-gray-300 mb-2"></i>
+                        <p>No vehicles found.</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="car-modals">
+    <div id="add-car-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('add-car-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold text-gray-800">Add New Vehicle</h3>
+                <button onclick="closeModal('add-car-modal')" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <form th:action="@{/owner/cars}" method="post" enctype="multipart/form-data"
+                  class="flex flex-col flex-1 min-h-0">
+
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <input type="hidden" name="_sourceView" value="redirect:/owner/cars" />
+
+                <div class="modal-body">
+                    <div th:if="${param.openModal == 'add-car-modal' and error != null}" class="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                        <i class="fas fa-exclamation-circle mr-2"></i><span th:text="${error}"></span>
+                    </div>
+                    <div th:insert="~{owner/vehicle-form-fields :: form-fields(vehicle=${newVehicle})}"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal('add-car-modal')" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">Cancel</button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-accent text-sm">Save Vehicle</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="edit-car-modal" class="modal hidden">
+        <div class="modal-overlay" onclick="closeModal('edit-car-modal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-xl font-semibold text-gray-800">Edit Vehicle</h3>
+                <button onclick="closeModal('edit-car-modal')" class="text-gray-500 hover:text-gray-700"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="edit-car-form" method="post" enctype="multipart/form-data" class="flex flex-col flex-1 min-h-0">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <div class="modal-body">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <input type="hidden" id="edit-vehicleId" name="vehicleId"/>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Model *</label>
+                            <input id="edit-model" name="model" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">License Plate *</label>
+                            <input id="edit-licensePlate" name="licensePlate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Vehicle Type *</label>
+                            <select id="edit-type" name="type" onchange="updateEditFeatures()" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary">
+                                <option value="ElectricCar">Electric Car</option>
+                                <option value="ElectricMotorcycle">Electric Motorcycle</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Year Manufactured</label>
+                            <input id="edit-yearManufactured" type="number" name="yearManufactured" min="2000" th:max="${#dates.year(#dates.createNow())}" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Seats *</label>
+                            <input id="edit-seats" type="number" name="seats" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Odometer *</label>
+                            <input id="edit-odometer" type="number" name="odometer" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Hourly Rate (VND)</label>
+                            <input id="edit-hourlyRate" type="number" step="1000" name="hourlyRate" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Daily Rate (VND) *</label>
+                            <input id="edit-dailyRate" type="number" step="1000" name="dailyRate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Monthly Rate (VND)</label>
+                            <input id="edit-monthlyRate" type="number" step="1000" name="monthlyRate" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Transmission</label>
+                            <select id="edit-transmissionTypeId" name="transmissionTypeId" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary">
+                                <option value="">None</option> <option th:each="t : ${transmissions}" th:value="${t.transmissionTypeId}" th:text="${t.transmissionTypeName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select id="edit-categoryId" name="categoryId" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary">
+                                <option value="">None</option> <option th:each="c : ${categories}" th:value="${c.categoryId}" th:text="${c.categoryName}"></option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Battery Capacity (kWh)</label>
+                            <input id="edit-batteryCapacity" type="number" step="0.01" name="batteryCapacity" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary"/>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Features</label>
+                            <div id="edit-features-container" class="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
+                            </div>
+                            <input type="hidden" name="features" id="edit-selected-features" />
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea id="edit-description" name="description" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" rows="3"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Requires License</label>
+                            <select id="edit-requiresLicense" name="requiresLicense" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary">
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select id="edit-status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary">
+                                <option value="Available">Available</option>
+                                <option value="Rented">Rented</option>
+                                <option value="Unavailable">Unavailable</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label for="edit-mainImage" class="block text-sm font-medium text-gray-700 mb-2">Ảnh Chính Mới (Để trống nếu không đổi)</label>
+                            <input type="file" id="edit-mainImage" name="mainImage" accept="image/*"
+                                   class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                            <div id="edit-mainImagePreview" class="mt-2">
+                                <img src="" alt="Ảnh chính hiện tại" id="edit-currentMainImage" class="max-h-40 rounded border p-1 mb-2"/>
+                                <p class="text-xs text-gray-500">Ảnh xem trước (nếu chọn ảnh mới):</p>
+                                <img src="" alt="Ảnh chính mới xem trước" id="edit-newMainImagePreviewDisplay" class="hidden max-h-40 rounded border p-1"/>
+                            </div>
+                        </div>
+                        <div class="md:col-span-3">
+                            <label for="edit-auxiliaryImages" class="block text-sm font-medium text-gray-700 mb-2">Ảnh Phụ Mới (Sẽ thay thế toàn bộ ảnh phụ cũ - Tối đa 10 ảnh)</label>
+                            <input type="file" id="edit-auxiliaryImages" name="auxiliaryImages" accept="image/*" multiple
+                                   class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                            <p class="text-xs text-gray-500 mt-2">Ảnh phụ hiện tại:</p>
+                            <div id="edit-currentAuxiliaryImages" class="mt-1 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Ảnh phụ mới xem trước:</p>
+                            <div id="edit-auxiliaryImagesPreview" class="mt-1 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                            </div>
+                            <p id="edit-auxiliaryImagesError" class="text-red-500 text-xs mt-1 hidden">Chỉ được chọn tối đa 10 ảnh phụ.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="closeModal('edit-car-modal')" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 text-sm">Cancel</button>
+                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-accent text-sm">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</html>

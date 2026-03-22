@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${user.username} + ' - Chỉnh Sửa User'">Chỉnh Sửa User</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #374151;
+            min-width: 150px;
+        }
+        .info-value {
+            color: #6b7280;
+            flex: 1;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        .status-inactive {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        .status-banned {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <a th:href="@{/admin/users}" class="text-green-600 hover:text-green-700">
+                        <i class="fas fa-arrow-left text-xl"></i>
+                        <span class="ml-2">Quay Lại</span>
+                    </a>
+                    <div class="h-6 w-px bg-gray-300"></div>
+                    <h1 class="text-2xl font-bold text-gray-900" th:text="${user.username}">Username</h1>
+                    <span class="text-sm text-gray-500">Thông tin chi tiết về user</span>
+                </div>
+                <div class="flex space-x-2">
+                    <button type="submit" form="editUserForm"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-save mr-2"></i>
+                        Chỉnh Sửa
+                    </button>
+                    <button onclick="confirmDelete()" 
+                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                        <i class="fas fa-trash mr-2"></i>
+                        Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <form id="editUserForm" th:action="@{'/admin/users/api/update/' + ${user.id}}" method="post">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Main Info Card -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="bg-gradient-to-r from-green-500 to-green-600 px-6 py-4">
+                            <h2 class="text-xl font-semibold text-white flex items-center">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Thông Tin Cơ Bản
+                            </h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Username:</label>
+                                    <input type="text" name="username" th:value="${user.username}" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email:</label>
+                                    <input type="email" name="email" th:value="${user.email}" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Họ:</label>
+                                    <input type="text" name="firstName" th:value="${user.firstName}" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Tên:</label>
+                                    <input type="text" name="lastName" th:value="${user.lastName}" required
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Số Điện Thoại:</label>
+                                    <input type="tel" name="phoneNumber" th:value="${user.phoneNumber}"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ngày Sinh:</label>
+                                    <input type="date" name="userDOB" th:value="${user.userDOB != null ? #temporals.format(user.userDOB, 'yyyy-MM-dd') : ''}"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Giới Tính:</label>
+                                    <select name="gender" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Chưa cập nhật</option>
+                                        <option value="Male" th:selected="${user.gender == 'Male'}">Nam</option>
+                                        <option value="Female" th:selected="${user.gender == 'Female'}">Nữ</option>
+                                        <option value="Other" th:selected="${user.gender == 'Other'}">Khác</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Vai Trò:</label>
+                                    <select name="roleId" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option th:each="role : ${roles}" 
+                                                th:value="${role.roleId}" 
+                                                th:text="${role.roleName}"
+                                                th:selected="${user.roleId == role.roleId}"></option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Trạng Thái:</label>
+                                    <select name="status" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option value="Active" th:selected="${user.status == 'Active'}">Active</option>
+                                        <option value="Inactive" th:selected="${user.status == 'Inactive'}">Inactive</option>
+                                        <option value="Banned" th:selected="${user.status == 'Banned'}">Banned</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Avatar URL:</label>
+                                    <input type="url" name="avatarUrl" th:value="${user.avatarUrl}"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Mật Khẩu Mới:</label>
+                                    <input type="password" name="password" placeholder="Để trống nếu không đổi mật khẩu"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <p class="mt-1 text-xs text-gray-500">Để trống nếu không muốn thay đổi mật khẩu</p>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Ngày Tạo:</label>
+                                    <input type="text" th:value="${#temporals.format(user.createdDate, 'dd/MM/yyyy HH:mm')}" readonly
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 cursor-not-allowed">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Security -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden mt-6">
+                        <div class="bg-gradient-to-r from-purple-500 to-purple-600 px-6 py-4">
+                            <h2 class="text-xl font-semibold text-white flex items-center">
+                                <i class="fas fa-shield-alt mr-2"></i>
+                                Bảo Mật Tài Khoản
+                            </h2>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="emailVerified" th:checked="${user.emailVerifed}" 
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Email Đã Xác Thực</span>
+                                </label>
+                                
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="twoFactorEnabled" th:checked="${user.twoFactorEnabled}"
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Xác Thực 2 Yếu Tố</span>
+                                </label>
+                                
+                                <label class="flex items-center">
+                                    <input type="checkbox" name="lockoutEnabled" th:checked="${user.lockoutEnabled}"
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <span class="ml-2 text-sm text-gray-700">Khóa Tài Khoản</span>
+                                </label>
+                                
+                                <div class="pt-4 border-t border-gray-200">
+                                    <p class="text-sm text-gray-600">Số Lần Đăng Nhập Thất Bại: <span class="font-semibold" th:text="${user.accessFailedCount}">0</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <!-- Status Card -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Trạng Thái</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center justify-center py-4">
+                                <span th:classappend="${user.status == 'Active' ? 'status-active' : (user.status == 'Inactive' ? 'status-inactive' : 'status-banned')}"
+                                      class="status-badge text-lg"
+                                      th:text="${user.status}">Active</span>
+                            </div>
+                            <div class="mt-4 text-center text-sm text-gray-600">
+                                <i class="fas fa-circle mr-1" 
+                                   th:classappend="${user.status == 'Active' ? 'text-green-500' : (user.status == 'Inactive' ? 'text-yellow-500' : 'text-red-500')}"></i>
+                                <span th:if="${user.status == 'Active'}">Tài khoản đang hoạt động</span>
+                                <span th:if="${user.status == 'Inactive'}">Tài khoản tạm ngưng</span>
+                                <span th:if="${user.status == 'Banned'}">Tài khoản bị cấm</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Avatar Card -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden mb-6">
+                        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Ảnh Đại Diện</h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex justify-center">
+                                <div th:if="${user.avatarUrl}" class="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200">
+                                    <img th:src="${user.avatarUrl}" th:alt="${user.username}" class="w-full h-full object-cover">
+                                </div>
+                                <div th:unless="${user.avatarUrl}" 
+                                     class="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-4xl font-bold">
+                                    <span th:text="${#strings.substring(user.firstName, 0, 1) + #strings.substring(user.lastName, 0, 1)}">AB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
+                        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900">Thao Tác Nhanh</h3>
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <button type="button" onclick="resetPassword()" 
+                                    class="w-full px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors">
+                                <i class="fas fa-key mr-2"></i>
+                                Đặt Lại Mật Khẩu
+                            </button>
+                            <button type="button" onclick="viewActivity()" 
+                                    class="w-full px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-history mr-2"></i>
+                                Xem Lịch Sử Hoạt Động
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </main>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        var userId = /*[[${user.id}]]*/ '';
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        // Submit form via AJAX
+        document.getElementById('editUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            var form = this;
+            var data = {
+                username: form.querySelector('[name="username"]').value,
+                email: form.querySelector('[name="email"]').value,
+                firstName: form.querySelector('[name="firstName"]').value,
+                lastName: form.querySelector('[name="lastName"]').value,
+                phoneNumber: form.querySelector('[name="phoneNumber"]').value || null,
+                userDOB: form.querySelector('[name="userDOB"]').value || null,
+                gender: form.querySelector('[name="gender"]').value || null,
+                roleId: form.querySelector('[name="roleId"]').value,
+                status: form.querySelector('[name="status"]').value,
+                avatarUrl: form.querySelector('[name="avatarUrl"]').value || null,
+                password: form.querySelector('[name="password"]').value || null,
+                emailVerified: form.querySelector('[name="emailVerified"]').checked,
+                twoFactorEnabled: form.querySelector('[name="twoFactorEnabled"]').checked,
+                lockoutEnabled: form.querySelector('[name="lockoutEnabled"]').checked
+            };
+            
+            console.log('Submitting data:', data);
+            
+            var headers = {
+                'Content-Type': 'application/json'
+            };
+            headers[csrfHeader] = csrfToken;
+            
+            fetch('/admin/users/api/update/' + userId, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(data)
+            })
+            .then(function(response) { 
+                return response.json().then(function(data) {
+                    return {status: response.status, data: data};
+                });
+            })
+            .then(function(result) {
+                if (result.data.success) {
+                    alert('Cập nhật user thành công!');
+                    window.location.href = '/admin/users/detail/' + userId;
+                } else {
+                    var errorMsg = result.data.message;
+                    if (result.data.errors && result.data.errors.length > 0) {
+                        errorMsg += '\n' + result.data.errors.join('\n');
+                    }
+                    alert('Lỗi: ' + errorMsg);
+                }
+            })
+            .catch(function(error) {
+                alert('Có lỗi xảy ra: ' + error.message);
+            });
+        });
+
+        function confirmDelete() {
+            if (confirm('Bạn có chắc chắn muốn xóa user này? Hành động này không thể hoàn tác!')) {
+                var headers = {};
+                headers[csrfHeader] = csrfToken;
+                
+                fetch('/admin/users/api/delete/' + userId, {
+                    method: 'DELETE',
+                    headers: headers
+                })
+                .then(function(response) { return response.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        alert('Xóa user thành công!');
+                        window.location.href = '/admin/users';
+                    } else {
+                        alert('Lỗi: ' + data.message);
+                    }
+                })
+                .catch(function(error) {
+                    alert('Có lỗi xảy ra: ' + error.message);
+                });
+            }
+        }
+
+        function resetPassword() {
+            alert('Tính năng đặt lại mật khẩu đang được phát triển');
+        }
+
+        function viewActivity() {
+            alert('Tính năng xem lịch sử hoạt động đang được phát triển');
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>

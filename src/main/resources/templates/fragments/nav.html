@@ -1,0 +1,138 @@
+<div th:fragment="nav" id="main-nav" class="bg-white shadow-lg fixed w-full top-0 z-50 nav-font-poppins">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <div class="flex items-center lg:hidden">
+        <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-900 mr-4">
+          <i class="fas fa-bars text-xl"></i>
+        </button>
+      </div>
+
+      <div class="flex items-center flex-shrink-0">
+        <a th:href="@{/}" class="logo flex items-center">
+          <div class="logo-icon bg-primary w-8 h-8 rounded-lg mr-2 flex items-center justify-center">
+            <i class="fas fa-leaf text-white text-sm"></i>
+          </div>
+          <span class="logo-text font-bold text-xl text-primary">EcoDana</span>
+        </a>
+      </div>
+
+      <div class="hidden md:flex flex-grow justify-center space-x-8">
+        <a th:href="@{/}" class="text-gray-700 hover:text-primary transition-colors font-semibold">Home</a>
+        <a th:href="@{/vehicles}" class="text-gray-700 hover:text-primary transition-colors font-semibold">Vehicles</a>
+        <a
+          th:href="${currentUser == null ? '/login' : '/booking/my-bookings'}"
+          class="text-gray-700 hover:text-primary transition-colors font-semibold"
+          >My Bookings</a
+        >
+        <a
+          th:if="${currentUser != null}"
+          th:href="@{/favorites}"
+          class="text-gray-700 hover:text-primary transition-colors font-semibold"
+        >
+          Favorites
+        </a>
+        <a th:href="@{/register-car-info}" class="text-gray-700 hover:text-primary transition-colors font-semibold"
+          >Become a Car Owner</a
+        >
+      </div>
+      <div class="flex items-center">
+        <div class="flex items-center space-x-4" th:if="${currentUser == null}">
+          <a
+            th:href="@{/login}"
+            class="text-primary hover:text-accent transition-colors flex items-center font-semibold"
+          >
+            <i class="fas fa-sign-in-alt mr-1"></i>Sign In
+          </a>
+          <a
+            th:href="@{/register}"
+            class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-accent transition-colors flex items-center font-semibold"
+          >
+            <i class="fas fa-user-plus mr-1"></i>Sign Up
+          </a>
+        </div>
+        <div id="userMenu" class="flex items-center space-x-4" th:if="${currentUser != null}">
+          <div class="relative group">
+            <button class="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors">
+                <div
+                        class="w-8 h-8 bg-primary rounded-full flex items-center justify-center"
+                >
+                    <i class="fas fa-user text-white text-sm"></i>
+                </div>
+              <span
+                class="hidden md:inline font-semibold"
+                th:text="${currentUser.firstName != null ? currentUser.firstName : currentUser.username}"
+                >Username</span
+              >
+              <i class="fas fa-chevron-down text-xs"></i>
+            </button>
+
+            <div
+              class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
+            >
+              <div class="py-2">
+                <div class="px-4 py-2 border-b border-gray-100">
+                  <p
+                    class="text-sm font-medium text-gray-900 truncate"
+                    th:text="${currentUser.firstName != null ? currentUser.firstName + ' ' + currentUser.lastName : currentUser.username}"
+                  >
+                    Username
+                  </p>
+                  <p class="text-xs text-gray-500 truncate" th:text="${currentUser.email}">email@example.com</p>
+                </div>
+
+                <div th:if="${currentUser.role != null}" class="py-1">
+                  <a
+                    th:if="${currentUser.role.roleName == 'Admin'}"
+                    th:href="@{/admin}"
+                    class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-shield-alt w-5 mr-2 text-gray-500"></i>
+                    Admin Panel
+                  </a>
+                  <a
+                    th:if="${currentUser.role.roleName == 'Owner'}"
+                    th:href="@{/owner/dashboard}"
+                    class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-tachometer-alt w-5 mr-2 text-gray-500"></i>
+                    Owner Dashboard
+                  </a>
+                  <a
+                    th:if="${currentUser.role.roleName == 'Staff'}"
+                    th:href="@{/staff}"
+                    class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <i class="fas fa-clipboard-list w-5 mr-2 text-gray-500"></i>
+                    Staff Panel
+                  </a>
+                </div>
+
+                <div class="border-t border-gray-100 my-1"></div>
+
+                <a th:href="@{/profile}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                  <i class="fas fa-user-edit w-5 mr-2 text-gray-500"></i>
+                  My Profile
+                </a>
+
+                <a
+                  th:href="@{/booking/my-bookings}"
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  <i class="fas fa-history w-5 mr-2 text-gray-500"></i>
+                  My Bookings
+                </a>
+
+                <div class="border-t border-gray-100 my-1"></div>
+
+                <a th:href="@{/logout}" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                  <i class="fas fa-sign-out-alt w-5 mr-2"></i>
+                  Logout
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

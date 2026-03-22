@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Đăng Ký Xe Mới - EcoDana</title>
+    <link rel="stylesheet" th:href="@{/css/vehicle-add-page.css}">
+    <style>
+        /* (Copy style từ bước trước) */
+        .form-section {
+            background-color: white;
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-md */
+            margin-bottom: 1.5rem; /* mb-6 */
+        }
+        .form-header {
+            padding: 1rem 1.5rem; /* p-4 md:p-6 */
+            border-bottom: 1px solid #e5e7eb; /* border-b */
+        }
+        .form-body {
+            padding: 1.5rem; /* p-6 */
+        }
+        .form-footer {
+            padding: 1rem 1.5rem; /* p-4 md:p-6 */
+            background-color: #f9fafb; /* bg-gray-50 */
+            border-top: 1px solid #e5e7eb; /* border-t */
+            border-bottom-left-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem; /* space-x-3 */
+        }
+        .bg-primary { background-color: #4CAF50; }
+        .hover\:bg-accent:hover { background-color: #45a049; }
+        .focus\:ring-primary:focus { --tw-ring-color: #4CAF50; }
+        .focus\:border-primary:focus { border-color: #4CAF50; }
+        .text-primary { color: #4CAF50; }
+        .feature-checkbox { width: 1rem; height: 1rem; }
+    </style>
+</head>
+<body class="bg-gray-50 pt-16">
+
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<main class="py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Đăng ký xe của bạn</h1>
+            <p class="text-gray-600 mt-2">Cung cấp thông tin chi tiết về xe điện bạn muốn cho thuê.</p>
+        </div>
+
+        <div th:if="${error}" class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <i class="fas fa-exclamation-circle mr-2"></i><span th:text="${error}"></span>
+        </div>
+        <div th:if="${warning}" class="mb-4 p-4 bg-yellow-100 border border-yellow-400 text-yellow-700 rounded-lg">
+            <i class="fas fa-exclamation-triangle mr-2"></i><span th:text="${warning}"></span>
+        </div>
+
+        <form th:action="@{/owner/cars}" method="post" enctype="multipart/form-data">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <input type="hidden" name="_sourceView" value="owner/vehicle-add" />
+
+            <div th:insert="~{owner/vehicle-form-fields :: form-fields(vehicle=${vehicle})}"></div>
+
+            <div class="form-footer">
+                <a th:href="@{/owner/cars}" class="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-300 text-sm font-medium transition-colors">
+                    Quay lại
+                </a>
+                <button type="submit" class="bg-primary text-white px-5 py-2 rounded-lg hover:bg-accent transition-colors text-sm font-medium">
+                    <i class="fas fa-paper-plane mr-2"></i>Gửi Đăng Ký
+                </button>
+            </div>
+        </form>
+
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/vehicle-form-logic.js}"></script>
+<script th:inline="javascript">
+    // Gọi hàm updateFeatures khi trang đã tải xong để hiển thị các tính năng ban đầu.
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof updateFeatures === 'function') {
+            updateFeatures();
+        } else {
+            console.error("Hàm updateFeatures() không tồn tại. Hãy chắc chắn rằng tệp vehicle-form-logic.js đã được tải.");
+        }
+    });
+</script>
+
+</body>
+</html>

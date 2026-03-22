@@ -1,0 +1,124 @@
+<div th:fragment="form-fields (vehicle)">
+    <div class="form-section">
+        <div class="form-header">
+            <h3 class="text-lg font-semibold text-gray-800"><i class="fas fa-car-side mr-2 text-primary"></i>Thông tin cơ bản</h3>
+        </div>
+        <div class="form-body grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Hãng và Tên xe *</label>
+                <input name="model" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" placeholder="e.g., VinFast VF8" th:value="${vehicle?.vehicleModel}"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Biển số xe *</label>
+                <input name="licensePlate" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" placeholder="e.g., 43A-12345" th:value="${vehicle?.licensePlate}"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Loại xe *</label>
+                <select id="vehicle-type-select" name="type" onchange="if(typeof updateFeatures === 'function') updateFeatures();" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary">
+                    <option value="ElectricCar" th:selected="${vehicle?.vehicleType?.name() == 'ElectricCar'}">Xe Ô Tô Điện</option>
+                    <option value="ElectricMotorcycle" th:selected="${vehicle?.vehicleType?.name() == 'ElectricMotorcycle'}">Xe Máy Điện</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Năm sản xuất</label>
+                <input type="number" name="yearManufactured" min="2000" th:max="${#dates.year(#dates.createNow())}" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" placeholder="e.g., 2023" th:value="${vehicle?.yearManufactured}"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Số chỗ *</label>
+                <input type="number" name="seats" th:value="${vehicle?.seats ?: 4}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Số km đã đi (Odometer) *</label>
+                <input type="number" name="odometer" th:value="${vehicle?.odometer ?: 0}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Truyền động</label>
+                <select name="transmissionTypeId" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary">
+                    <option value="">Chọn loại truyền động</option>
+                    <option th:each="t : ${transmissions}" th:value="${t.transmissionTypeId}" th:text="${t.transmissionTypeName}" th:selected="${vehicle?.transmissionType?.transmissionTypeId == t.transmissionTypeId}"></option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Phân loại xe</label>
+                <select name="categoryId" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary">
+                    <option value="">Chọn phân loại</option>
+                    <option th:each="c : ${categories}" th:value="${c.categoryId}" th:text="${c.categoryName}" th:selected="${vehicle?.category?.categoryId == c.categoryId}"></option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Dung lượng Pin (kWh)</label>
+                <input type="number" step="0.01" name="batteryCapacity" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" placeholder="e.g., 87.7" th:value="${vehicle?.batteryCapacity}"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-header">
+            <h3 class="text-lg font-semibold text-gray-800"><i class="fas fa-dollar-sign mr-2 text-primary"></i>Giá thuê</h3>
+        </div>
+        <div class="form-body grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Giá theo giờ (VND)</label>
+                <input type="number" step="1000" name="hourlyRate" th:value="${vehicle?.getHourlyPriceFromJson() ?: 0}" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Giá theo ngày (VND) *</label>
+                <input type="number" step="1000" name="dailyRate" th:value="${vehicle?.getDailyPriceFromJson() ?: 0}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Giá theo tháng (VND)</label>
+                <input type="number" step="1000" name="monthlyRate" th:value="${vehicle?.getMonthlyPriceFromJson() ?: 0}" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-header">
+            <h3 class="text-lg font-semibold text-gray-800"><i class="fas fa-list-alt mr-2 text-primary"></i>Mô tả & Tính năng</h3>
+        </div>
+        <div class="form-body space-y-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Mô tả</label>
+                <textarea name="description" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary" rows="3" placeholder="Mô tả về chiếc xe của bạn..." th:text="${vehicle?.description}"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Tính năng</label>
+                <div id="features-container" class="grid grid-cols-2 md:grid-cols-3 gap-2 p-3 border border-gray-300 rounded-lg bg-gray-50">
+                </div>
+                <input type="hidden" name="features" id="selected-features" th:value="${vehicle?.features}" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Yêu cầu bằng lái</label>
+                <select name="requiresLicense" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-primary focus:border-primary max-w-xs">
+                    <option value="true" th:selected="${vehicle?.requiresLicense == true}">Có</option>
+                    <option value="false" th:selected="${vehicle?.requiresLicense == false}">Không</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-header">
+            <h3 class="text-lg font-semibold text-gray-800"><i class="fas fa-images mr-2 text-primary"></i>Hình ảnh</h3>
+        </div>
+        <div class="form-body space-y-6">
+            <div>
+                <label for="add-mainImage" class="block text-sm font-medium text-gray-700 mb-2">Ảnh Chính (Ảnh bìa) *</label>
+                <input type="file" id="add-mainImage" name="mainImage" accept="image/*" th:required="${vehicle?.mainImageUrl == null}"
+                       class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                <div id="add-mainImagePreview" class="mt-2">
+                    <img th:if="${vehicle?.mainImageUrl}" th:src="${vehicle.mainImageUrl}" alt="Ảnh chính hiện tại" class="max-h-40 rounded border p-1"/>
+                    <img th:unless="${vehicle?.mainImageUrl}" src="" alt="Ảnh chính xem trước" class="hidden max-h-40 rounded border p-1"/>
+                </div>
+            </div>
+            <div>
+                <label for="add-auxiliaryImages" class="block text-sm font-medium text-gray-700 mb-2">Ảnh Phụ (Tối đa 10 ảnh)</label>
+                <input type="file" id="add-auxiliaryImages" name="auxiliaryImages" accept="image/*" multiple
+                       class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+                <div id="add-auxiliaryImagesPreview" class="mt-2 grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                </div>
+                <p id="add-auxiliaryImagesError" class="text-red-500 text-xs mt-1 hidden">Chỉ được chọn tối đa 10 ảnh phụ.</p>
+            </div>
+        </div>
+    </div>
+</div>

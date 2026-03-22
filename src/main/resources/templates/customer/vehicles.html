@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <head th:replace="~{fragments/layout :: head}"></head>
+
+    <title>Danh sách xe - EvoDana</title>
+
+    <link rel="stylesheet" th:href="@{/css/vehicles.css}">
+</head>
+<body class="bg-gray-50">
+
+<!-- Navigation -->
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<!-- Main Content -->
+<main class="pt-20">
+    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Khám phá các dòng xe điện</h1>
+            <p class="mt-4 text-xl text-gray-600">Lựa chọn phương tiện hoàn hảo cho chuyến đi của bạn tại Đà Nẵng.</p>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="mb-8">
+            <!-- Filter Button -->
+            <button id="filter-toggle-btn" class="bg-white p-3 rounded-lg shadow-md text-gray-700 font-semibold flex items-center justify-between w-full md:w-auto">
+                <span><i class="fas fa-filter mr-2"></i> Bộ lọc</span>
+                <i id="filter-arrow-icon" class="fas fa-chevron-down ml-4 transition-transform"></i>
+            </button>
+
+            <!-- Filter Options -->
+            <div id="filter-options" class="hidden mt-4 bg-white p-6 rounded-lg shadow-md">
+                <form th:action="@{/vehicles}" method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Location -->
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-700">Địa điểm</label>
+                        <input type="text" name="location" id="location" th:value="${selectedLocation}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                    </div>
+
+                    <!-- Pickup Date -->
+                    <div>
+                        <label for="pickupDate" class="block text-sm font-medium text-gray-700">Ngày nhận</label>
+                        <input type="date" name="pickupDate" id="pickupDate" th:value="${selectedPickupDate}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                    </div>
+
+                    <!-- Return Date -->
+                    <div>
+                        <label for="returnDate" class="block text-sm font-medium text-gray-700">Ngày trả</label>
+                        <input type="date" name="returnDate" id="returnDate" th:value="${selectedReturnDate}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                    </div>
+
+                    <!-- Vehicle Type -->
+                    <div>
+                        <label for="vehicleType" class="block text-sm font-medium text-gray-700">Loại xe</label>
+                        <select name="vehicleType" id="vehicleType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                            <option value="">Tất cả</option>
+                            <option value="ElectricCar" th:selected="${selectedVehicleType == 'ElectricCar'}">Xe ô tô điện</option>
+                            <option value="ElectricMotorcycle" th:selected="${selectedVehicleType == 'ElectricMotorcycle'}">Xe máy điện</option>
+                        </select>
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700">Nhu cầu</label>
+                        <select name="category" id="category" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                            <option value="">Tất cả</option>
+                            <option value="Công việc, đi lại" th:selected="${selectedCategory == 'Công việc, đi lại'}">Công việc, đi lại</option>
+                            <option value="Gia đình" th:selected="${selectedCategory == 'Gia đình'}">Gia đình</option>
+                            <option value="Tiếp khách, dự tiệc" th:selected="${selectedCategory == 'Tiếp khách, dự tiệc'}">Tiếp khách, dự tiệc</option>
+                        </select>
+                    </div>
+
+                    <!-- Budget -->
+                    <div>
+                        <label for="budget" class="block text-sm font-medium text-gray-700">Ngân sách</label>
+                        <select name="budget" id="budget" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                            <option value="">Tất cả</option>
+                            <option value="under500k" th:selected="${selectedBudget == 'under500k'}">Dưới 500 nghìn</option>
+                            <option value="over500k" th:selected="${selectedBudget == 'over500k'}">Trên 500 nghìn</option>
+                        </select>
+                    </div>
+
+                    <!-- Seats -->
+                    <div>
+                        <label for="seats" class="block text-sm font-medium text-gray-700">Số chỗ</label>
+                        <select name="seats" id="seats" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                            <option value="">Tất cả</option>
+                            <option value="2" th:selected="${selectedSeats == 2}">2 chỗ</option>
+                            <option value="4" th:selected="${selectedSeats == 4}">4 chỗ</option>
+                            <option value="5" th:selected="${selectedSeats == 5}">5 chỗ</option>
+                            <option value="7" th:selected="${selectedSeats == 7}">7 chỗ</option>
+                        </select>
+                    </div>
+
+                    <!-- License Requirement -->
+                    <div>
+                        <label for="requiresLicense" class="block text-sm font-medium text-gray-700">Yêu cầu bằng lái</label>
+                        <select name="requiresLicense" id="requiresLicense" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm">
+                            <option value="">Tất cả</option>
+                            <option value="true" th:selected="${selectedRequiresLicense == true}">Có yêu cầu</option>
+                            <option value="false" th:selected="${selectedRequiresLicense == false}">Không yêu cầu</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="col-span-full flex justify-end space-x-2 mt-4">
+                        <a th:href="@{/vehicles}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300">Xóa bộ lọc</a>
+                        <button type="submit" class="bg-primary text-white px-4 py-2 rounded-md hover:bg-accent">Áp dụng</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Vehicle Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Vehicle Card -->
+            <div th:each="vehicle : ${vehicles}" class="bg-white rounded-lg shadow-md overflow-hidden card-hover">
+                <div class="relative">
+                    <img th:src="${vehicle.mainImageUrl ?: 'https://via.placeholder.com/400x224?text=No+Image'}"
+                         th:alt="${vehicle.vehicleModel}" class="w-full h-56 object-cover">
+                    <div class="absolute top-0 right-0 px-3 py-1 m-2 rounded-md text-sm font-medium"
+                         th:classappend="${vehicle.status.name() == 'Available' ? 'bg-green-500 text-white' :
+                                          vehicle.status.name() == 'Rented' ? 'bg-yellow-500 text-white' :
+                                          'bg-red-500 text-white'}"
+                         th:text="${vehicle.status.name() == 'Available' ? 'Sẵn sàng' :
+                                    vehicle.status.name() == 'Rented' ? 'Đã thuê' :
+                                    vehicle.status.name() == 'Maintenance' ? 'Bảo trì' : 'Không khả dụng'}">
+                        Trạng thái
+                    </div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-baseline mb-2">
+                        <span class="inline-block bg-gray-200 text-gray-800 text-xs px-2 rounded-full uppercase font-semibold tracking-wide"
+                              th:text="${vehicle.vehicleType == 'ElectricCar' ? 'Ô tô điện' : 'Xe máy điện'}">
+                            Ô tô điện
+                        </span>
+                    </div>
+                    <h4 class="text-xl font-semibold text-gray-900 leading-tight truncate" th:text="${vehicle.vehicleModel}">
+                        VinFast VF8 Eco
+                    </h4>
+                    <div class="mt-1 text-gray-600 text-sm">
+                        <i class="fas fa-chair mr-1"></i> <span th:text="${vehicle.seats}">5</span> chỗ
+                        <span class="mx-2">|</span>
+                        <i class="fas fa-cog mr-1"></i> Số tự động
+                    </div>
+                    
+                    <!-- Rating and Reviews -->
+                    <div class="mt-3 flex items-center gap-2" th:if="${vehicleRatings != null and vehicleRatings.containsKey(vehicle.vehicleId) and vehicleRatings.get(vehicle.vehicleId).feedbackCount > 0}">
+                        <div class="flex items-center">
+                            <div class="flex">
+                                <i class="fas fa-star text-sm" th:each="i : ${#numbers.sequence(1, 5)}"
+                                   th:class="${i <= vehicleRatings.get(vehicle.vehicleId).roundedRating} ? 'text-yellow-400' : 'text-gray-300'"></i>
+                            </div>
+                            <span class="ml-1 text-sm font-semibold text-gray-700" 
+                                  th:text="${#numbers.formatDecimal(vehicleRatings.get(vehicle.vehicleId).averageRating, 1, 'POINT', 1, 'POINT')}">
+                                4.5
+                            </span>
+                        </div>
+                        <span class="text-sm text-gray-500" 
+                              th:text="'(' + ${vehicleRatings.get(vehicle.vehicleId).feedbackCount} + ' đánh giá)'">
+                            (12 đánh giá)
+                        </span>
+                    </div>
+                    <div class="mt-3 text-sm text-gray-500" th:if="${vehicleRatings == null or !vehicleRatings.containsKey(vehicle.vehicleId) or vehicleRatings.get(vehicle.vehicleId).feedbackCount == 0}">
+                        <i class="fas fa-star text-gray-300 mr-1"></i>
+                        <span>Chưa có đánh giá</span>
+                    </div>
+
+                    <div class="mt-4">
+                        <span class="text-2xl font-bold text-primary" th:text="${#numbers.formatDecimal(vehicle.getDailyPriceFromJson(), 0, 'COMMA', 0, 'POINT')}">1,200,000</span>
+                        <span class="text-sm text-gray-600">/ ngày</span>
+                    </div>
+
+                    <div class="mt-6">
+                        <a th:href="@{/vehicles/{id}(id=${vehicle.vehicleId})}"
+                           class="w-full text-center block bg-primary text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md">
+                            Xem chi tiết
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${vehicles == null or vehicles.isEmpty()}" class="col-span-1 sm:col-span-2 lg:col-span-3 text-center py-12">
+                <i class="fas fa-car-side text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-medium text-gray-700">Không tìm thấy xe nào</h3>
+                <p class="text-gray-500 mt-2">Vui lòng thử lại với bộ lọc khác.</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div th:replace="~{fragments/chatbot :: chatbot}"></div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterBtn = document.getElementById('filter-toggle-btn');
+        const filterOptions = document.getElementById('filter-options');
+        const filterArrowIcon = document.getElementById('filter-arrow-icon');
+
+        if (filterBtn && filterOptions) {
+            // Check if any filters are active on page load
+            const urlParams = new URLSearchParams(window.location.search);
+            let filtersActive = false;
+            const filterKeys = ['location', 'pickupDate', 'returnDate', 'category', 'vehicleType', 'budget', 'seats', 'requiresLicense'];
+            for (const key of filterKeys) {
+                if (urlParams.has(key) && urlParams.get(key) !== '') {
+                    filtersActive = true;
+                    break;
+                }
+            }
+
+            // If filters are active, show the filter section by default
+            if (filtersActive) {
+                filterOptions.classList.remove('hidden');
+                filterArrowIcon.classList.add('rotate-180');
+            }
+
+            filterBtn.addEventListener('click', function() {
+                filterOptions.classList.toggle('hidden');
+                filterArrowIcon.classList.toggle('rotate-180');
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/layout :: head}"></head>
+  <link href="/css/sidebar-common.css" rel="stylesheet" />
+
+  <body class="bg-gray-100">
+    <div class="flex h-screen bg-gray-100 overflow-hidden">
+      <div
+        th:replace="~{fragments/sidebar-layout :: layout(navContentFragment=~{owner/owner-sidebar-nav :: nav})}"
+      ></div>
+      <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex items-center justify-between h-16 px-4 bg-white shadow-sm border-b">
+          <button id="sidebar-toggle" class="text-gray-600 hover:text-gray-900 lg:hidden">
+            <i class="fas fa-bars text-xl"></i>
+          </button>
+          <div>
+            <h1 class="text-lg font-semibold text-gray-800">Feedback Management</h1>
+            <p class="text-xs text-gray-500 hidden sm:block">Quản lý và phản hồi đánh giá của khách hàng</p>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div th:replace="~{fragments/nav :: #userMenu}"></div>
+          </div>
+        </div>
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+          <div class="max-w-7xl mx-auto px-0" th:fragment="feedback-content">
+            <!-- Header -->
+            <div class="mb-8 flex items-center justify-between">
+              <div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Đánh giá xe của tôi</h1>
+                <p class="text-gray-600">Xem và phản hồi đánh giá từ khách hàng về xe của bạn</p>
+              </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="bg-white rounded-lg shadow-md mb-6">
+              <div class="flex border-b border-gray-200 overflow-x-auto">
+                <button
+                  class="filter-tab active px-6 py-3 font-medium text-green-500 border-b-2 border-green-500"
+                  data-filter="all"
+                >
+                  Tất cả (<span th:text="${ownerFeedback != null ? ownerFeedback.size() : 0}">0</span>)
+                </button>
+                <button
+                  class="filter-tab px-6 py-3 font-medium text-gray-600 hover:text-green-500"
+                  data-filter="with-replies"
+                >
+                  Đã phản hồi (<span th:text="${feedbackWithReplies != null ? feedbackWithReplies.size() : 0}">0</span>)
+                </button>
+                <button
+                  class="filter-tab px-6 py-3 font-medium text-gray-600 hover:text-green-500"
+                  data-filter="without-replies"
+                >
+                  Chưa phản hồi (<span th:text="${feedbackWithoutReplies != null ? feedbackWithoutReplies.size() : 0}">0</span>)
+                </button>
+              </div>
+            </div>
+
+            <!-- Feedback List -->
+            <div th:if="${ownerFeedback == null or ownerFeedback.isEmpty()}" class="bg-white rounded-lg shadow-md p-12 text-center">
+              <i class="fas fa-comments text-6xl text-gray-300 mb-4"></i>
+              <h3 class="text-xl font-semibold text-gray-700 mb-2">Chưa có đánh giá nào</h3>
+              <p class="text-gray-500">Khách hàng chưa có đánh giá nào về xe của bạn.</p>
+            </div>
+
+            <div th:if="${ownerFeedback != null and !ownerFeedback.isEmpty()}" class="space-y-4">
+              <div
+                th:each="feedback : ${ownerFeedback}"
+                th:class="${feedback.staffReply != null && !feedback.staffReply.trim().isEmpty()} ? 'feedback-card bg-green-50 border-2 border-green-400 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all' : 'feedback-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all'"
+                th:attr="data-has-reply=${feedback.staffReply != null && !feedback.staffReply.trim().isEmpty()}"
+              >
+                <div class="p-6">
+                  <div class="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
+                    <!-- Customer Info & Rating -->
+                    <div class="flex-1">
+                      <div class="flex items-center gap-3 mb-2">
+                        <h3
+                          class="text-lg font-semibold text-gray-900"
+                          th:text="${feedback.user.firstName + ' ' + feedback.user.lastName}"
+                        >
+                          Tên khách hàng
+                        </h3>
+                        <div class="flex items-center">
+                          <div class="flex text-yellow-400">
+                            <span
+                              th:each="i : ${#numbers.sequence(1, 5)}"
+                              th:class="${i <= feedback.rating} ? 'text-yellow-400' : 'text-gray-300'"
+                              >★</span
+                            >
+                          </div>
+                          <span class="ml-2 text-sm text-gray-600" th:text="${feedback.rating} + '/5'">5/5</span>
+                        </div>
+                      </div>
+                      <p class="text-sm text-gray-500 mb-2">
+                        <i class="far fa-calendar mr-1"></i>
+                        Đánh giá ngày:
+                        <span th:text="${#temporals.format(feedback.createdDate, 'dd/MM/yyyy HH:mm')}"
+                          >01/01/2025 10:00</span
+                        >
+                      </p>
+                      <p class="text-sm text-gray-500">
+                        <i class="fas fa-car mr-1"></i>
+                        Xe: <span th:text="${feedback.vehicle.vehicleModel}">Toyota Camry</span>
+                      </p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mt-3 md:mt-0 flex gap-2">
+                      <button
+                        th:if="${feedback.staffReply == null || feedback.staffReply.trim().isEmpty()}"
+                        onclick="openReplyModal(this)"
+                        th:attr="data-feedback-id=${feedback.feedbackId}"
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all text-sm font-medium"
+                      >
+                        <i class="fas fa-reply mr-1"></i>
+                        Phản hồi
+                      </button>
+
+                      <span
+                        th:if="${feedback.staffReply != null && !feedback.staffReply.trim().isEmpty()}"
+                        class="px-4 py-2 bg-green-300 text-green-700 rounded-lg text-sm font-medium"
+                      >
+                        <i class="fas fa-check mr-1"></i>
+                        Đã phản hồi
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Feedback Content -->
+                  <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Nội dung đánh giá:</h4>
+                    <p class="text-gray-700" th:text="${feedback.content}">Nội dung đánh giá...</p>
+                  </div>
+
+                  <!-- Staff Reply -->
+                  <div
+                    th:if="${feedback.staffReply != null && !feedback.staffReply.trim().isEmpty()}"
+                    class="bg-blue-50 rounded-lg p-4"
+                  >
+                    <h4 class="font-semibold text-blue-800 mb-2">
+                      <i class="fas fa-user-tie mr-1"></i>
+                      Phản hồi của bạn:
+                    </h4>
+                    <p class="text-blue-700" th:text="${feedback.staffReply}">Phản hồi từ chủ xe...</p>
+                    <p class="text-xs text-blue-600 mt-2">
+                      <i class="far fa-clock mr-1"></i>
+                      Phản hồi lúc:
+                      <span th:text="${#temporals.format(feedback.replyDate, 'dd/MM/yyyy HH:mm')}"
+                        >01/01/2025 10:00</span
+                      >
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Reply Modal -->
+    <div id="replyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg max-w-lg w-full p-6">
+        <h3 class="text-xl font-semibold mb-4">Phản hồi đánh giá</h3>
+        <p class="text-gray-600 mb-4">Viết phản hồi cho đánh giá này</p>
+
+        <form id="replyForm">
+          <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Nội dung phản hồi</label>
+            <textarea
+              id="replyContent"
+              rows="4"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              placeholder="Viết phản hồi của bạn..."
+            ></textarea>
+          </div>
+
+          <div class="flex gap-3">
+            <button
+              type="button"
+              onclick="closeReplyModal()"
+              class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            >
+              Đóng
+            </button>
+            <button type="submit" class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              Gửi phản hồi
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer (not used in management layout) -->
+    <script th:src="@{/js/sidebar-common.js}"></script>
+
+    <script>
+      // Filter tabs
+      document.querySelectorAll(".filter-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+          // Remove active from all tabs
+          document.querySelectorAll(".filter-tab").forEach((t) => {
+            t.classList.remove("active", "text-green-500", "border-b-2", "border-green-500");
+            t.classList.add("text-gray-600");
+          });
+
+          // Add active to clicked tab
+          this.classList.remove("text-gray-600");
+          this.classList.add("active", "text-green-500", "border-b-2", "border-green-500");
+
+          // Filter feedback
+          const filter = this.getAttribute("data-filter");
+          const feedbackCards = document.querySelectorAll(".feedback-card");
+
+          feedbackCards.forEach((card) => {
+            const hasReply = card.getAttribute("data-has-reply") === "true";
+
+            if (
+              filter === "all" ||
+              (filter === "with-replies" && hasReply) ||
+              (filter === "without-replies" && !hasReply)
+            ) {
+              card.style.display = "block";
+            } else {
+              card.style.display = "none";
+            }
+          });
+        });
+      });
+
+      // Reply modal functions
+      function openReplyModal(button) {
+        const feedbackId = button.getAttribute("data-feedback-id");
+        document.getElementById("replyForm").setAttribute("data-feedback-id", feedbackId);
+        document.getElementById("replyModal").classList.remove("hidden");
+      }
+
+      function closeReplyModal() {
+        document.getElementById("replyModal").classList.add("hidden");
+        document.getElementById("replyContent").value = "";
+      }
+
+      // Close reply modal on outside click
+      document.getElementById("replyModal").addEventListener("click", function (e) {
+        if (e.target === this) {
+          closeReplyModal();
+        }
+      });
+
+      // Reply form submission
+      document.getElementById("replyForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        const feedbackId = this.getAttribute("data-feedback-id");
+        const replyContent = document.getElementById("replyContent").value.trim();
+
+        if (!replyContent) {
+          alert("Vui lòng nhập nội dung phản hồi");
+          return;
+        }
+
+        fetch(`/owner/feedback/reply/${feedbackId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `reply=${encodeURIComponent(replyContent)}`,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Phản hồi thành công!");
+              location.reload();
+            } else {
+              alert("Lỗi: " + data.message);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Có lỗi xảy ra khi gửi phản hồi");
+          });
+      });
+    </script>
+  </body>
+</html>

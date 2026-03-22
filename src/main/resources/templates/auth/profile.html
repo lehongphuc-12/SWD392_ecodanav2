@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+<link rel="stylesheet" th:href="@{/css/profile.css}" />
+
+<head th:replace="~{fragments/layout :: head}"></head>
+
+<body class="bg-gray-50 pt-16">
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<main class="profile-container">
+    <aside class="profile-sidebar">
+        <h3>Xin chào bạn!</h3>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#profile-form" id="profile-link" class="active"
+                    ><i class="fa-solid fa-user"></i> Tài khoản của tôi</a
+                    >
+                </li>
+<!--                <li>-->
+<!--                    <a href="#"><i class="fa-solid fa-route"></i> Chuyến của tôi</a>-->
+<!--                </li>-->
+                <li>
+                    <a href="#documents-section" id="documents-link"><i class="fa-solid fa-id-card"></i> Giấy tờ của tôi</a>
+                </li>
+                <li>
+                    <a href="#bank-accounts-section" id="bank-accounts-link">
+                        <i class="fa-solid fa-university"></i> Tài khoản ngân hàng
+                    </a>
+                </li>
+<!--                <li>-->
+<!--                    <a href="#"><i class="fa-solid fa-gift"></i> Quà tặng</a>-->
+<!--                </li>-->
+<!--                <li>-->
+<!--                    <a href="#"><i class="fa-solid fa-location-dot"></i> Địa chỉ của tôi</a>-->
+<!--                </li>-->
+                <li>
+                    <a href="#change-password-form" id="change-password-link"><i class="fa-solid fa-key"></i> Đổi mật khẩu</a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <section class="profile-content">
+        <form th:action="@{/profile/update}" th:object="${user}" method="post" id="profile-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="content-header">
+                <h2>Thông tin tài khoản</h2>
+                <div>
+                    <a href="#" class="edit-link" id="edit-link">Chỉnh sửa</a>
+                    <button type="button" class="cancel-button" id="cancel-button" style="display: none">Hủy</button>
+                    <button type="submit" class="save-button" id="save-button" style="display: none">Lưu thay đổi</button>
+                </div>
+            </div>
+
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${profile_error}" class="alert alert-danger" th:text="${profile_error}"></div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <label class="info-label" for="firstName">Họ và tên</label>
+                    <div class="name-inputs">
+                        <input type="text" id="firstName" th:field="*{firstName}" class="info-value" th:classappend="${firstName_error} ? 'input-error' : ''" readonly />
+                        <input type="text" th:field="*{lastName}" class="info-value" th:classappend="${lastName_error} ? 'input-error' : ''" readonly />
+                    </div>
+                    <div th:if="${firstName_error}" class="error-message" th:text="${firstName_error}"></div>
+                    <div th:if="${lastName_error}" class="error-message" th:text="${lastName_error}"></div>
+                </div>
+                <div class="info-item">
+                    <label class="info-label" for="userDOB">Ngày sinh</label>
+                    <input
+                            type="date"
+                            id="userDOB"
+                            name="userDOB"
+                            th:value="*{userDOB != null ? #temporals.format(userDOB, 'yyyy-MM-dd') : ''}"
+                            class="info-value"
+                            readonly
+                            placeholder="Chưa cập nhật"
+                    />
+                </div>
+                <div class="info-item">
+                    <label class="info-label" for="gender">Giới tính</label>
+                    <select id="gender" th:field="*{gender}" class="info-value" disabled>
+                        <option value="" th:selected="*{gender == null}">Chưa cập nhật</option>
+                        <option value="Male" th:selected="*{gender == 'Male'}">Nam</option>
+                        <option value="Female" th:selected="*{gender == 'Female'}">Nữ</option>
+                        <option value="Other" th:selected="*{gender == 'Other'}">Khác</option>
+                    </select>
+                </div>
+                <div class="info-item">
+                    <label class="info-label" for="phoneNumber">Số điện thoại</label>
+                    <input type="text" id="phoneNumber" th:field="*{phoneNumber}" class="info-value" th:classappend="${phoneNumber_error} ? 'input-error' : ''" readonly />
+                    <div th:if="${phoneNumber_error}" class="error-message" th:text="${phoneNumber_error}"></div>
+                </div>
+                <div class="info-item">
+                    <label class="info-label">Email</label>
+                    <p class="info-value static" th:text="${currentUser.email}">tatuanky2014sv@gmail.com</p>
+                </div>
+                <div class="info-item-linked">
+                    <div class="linked-content">
+                        <label class="info-label">Liên kết Google</label>
+
+                        <p class="info-value static" th:if="${isGoogleLinked}">
+                            <i class="fab fa-google" style="color: #4285F4; margin-right: 8px;"></i>
+                            Đã liên kết
+                        </p>
+
+                        <p class="info-value static" th:unless="${isGoogleLinked}">
+                            Chưa liên kết
+                        </p>
+                    </div>
+
+                    <a th:href="@{/oauth2/authorization/google}" class="link-button" th:if="${isPasswordAccount and !isGoogleLinked}">
+                        Liên kết ngay
+                    </a>
+
+                    <a href="#" class="link-button" th:if="${isGoogleLinked and isPasswordAccount}"
+                       style="background-color: #f44336; color: white; border-color: #f44336; opacity: 0.7; cursor: not-allowed;"
+                       onclick="alert('Tính năng hủy liên kết đang phát triển'); return false;">
+                        Hủy liên kết
+                    </a>
+                </div>
+            </div>
+        </form>
+
+        <div id="documents-section" style="display: none">
+            <div class="content-header">
+                <h2>Giấy tờ của tôi</h2>
+                <p style="color: #666; font-size: 14px; margin-top: 8px">
+                    Tải lên CCCD và giấy phép lái xe để đặt xe nhanh hơn. Hệ thống sẽ tự động trích xuất thông tin.
+                </p>
+            </div>
+
+            <div th:if="${document_success}" class="alert alert-success" th:text="${document_success}"></div>
+            <div th:if="${document_error}" class="alert alert-danger" th:text="${document_error}"></div>
+
+            <div class="document-card">
+                <h3><i class="fa-solid fa-id-card"></i> Căn cước công dân (CCCD)</h3>
+                <div id="cccd-status" class="document-status"></div>
+
+                <form th:action="@{/documents/upload}" method="post" enctype="multipart/form-data" id="cccd-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" name="documentType" value="CitizenId" />
+
+                    <div class="upload-grid">
+                        <div class="upload-item">
+                            <label class="upload-label">Ảnh mặt trước <span style="color: red">*</span></label>
+                            <div class="upload-box" id="cccd-front-box">
+                                <input
+                                        type="file"
+                                        name="frontImage"
+                                        id="cccd-front"
+                                        accept="image/*"
+                                        required
+                                        style="display: none"
+                                />
+                                <label for="cccd-front" class="upload-placeholder">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p>Chọn ảnh hoặc kéo thả vào đây</p>
+                                    <span>JPG, PNG (tối đa 10MB)</span>
+                                </label>
+                                <img id="cccd-front-preview" class="image-preview" style="display: none" />
+                            </div>
+                        </div>
+
+                        <div class="upload-item">
+                            <label class="upload-label">Ảnh mặt sau <span style="color: red">*</span></label>
+                            <div class="upload-box" id="cccd-back-box">
+                                <input
+                                        type="file"
+                                        name="backImage"
+                                        id="cccd-back"
+                                        accept="image/*"
+                                        required
+                                        style="display: none"
+                                />
+                                <label for="cccd-back" class="upload-placeholder">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p>Chọn ảnh hoặc kéo thả vào đây</p>
+                                    <span>JPG, PNG (tối đa 10MB)</span>
+                                </label>
+                                <img id="cccd-back-preview" class="image-preview" style="display: none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="upload-button" id="cccd-upload-btn">
+                        <i class="fa-solid fa-upload"></i> Tải lên CCCD
+                    </button>
+                </form>
+            </div>
+
+            <div class="document-card">
+                <h3><i class="fa-solid fa-car"></i> Giấy phép lái xe (GPLX)</h3>
+                <div id="gplx-status" class="document-status"></div>
+
+                <form th:action="@{/documents/upload}" method="post" enctype="multipart/form-data" id="gplx-form">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <input type="hidden" name="documentType" value="DriverLicense" />
+
+                    <div class="upload-grid">
+                        <div class="upload-item">
+                            <label class="upload-label">Ảnh mặt trước <span style="color: red">*</span></label>
+                            <div class="upload-box" id="gplx-front-box">
+                                <input
+                                        type="file"
+                                        name="frontImage"
+                                        id="gplx-front"
+                                        accept="image/*"
+                                        required
+                                        style="display: none"
+                                />
+                                <label for="gplx-front" class="upload-placeholder">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p>Chọn ảnh hoặc kéo thả vào đây</p>
+                                    <span>JPG, PNG (tối đa 10MB)</span>
+                                </label>
+                                <img id="gplx-front-preview" class="image-preview" style="display: none" />
+                            </div>
+                        </div>
+
+                        <div class="upload-item">
+                            <label class="upload-label">Ảnh mặt sau <span style="color: red">*</span></label>
+                            <div class="upload-box" id="gplx-back-box">
+                                <input
+                                        type="file"
+                                        name="backImage"
+                                        id="gplx-back"
+                                        accept="image/*"
+                                        required
+                                        style="display: none"
+                                />
+                                <label for="gplx-back" class="upload-placeholder">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p>Chọn ảnh hoặc kéo thả vào đây</p>
+                                    <span>JPG, PNG (tối đa 10MB)</span>
+                                </label>
+                                <img id="gplx-back-preview" class="image-preview" style="display: none" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="upload-button" id="gplx-upload-btn">
+                        <i class="fa-solid fa-upload"></i> Tải lên GPLX
+                    </button>
+                </form>
+            </div>
+
+            <div class="info-note">
+                <i class="fa-solid fa-info-circle"></i>
+                <div>
+                    <strong>Lưu ý:</strong>
+                    <ul>
+                        <li>Vui lòng chụp ảnh rõ nét, không bị mờ hoặc che khuất</li>
+                        <li>Giấy tờ cần còn hiệu lực và chưa hết hạn</li>
+                        <li>Admin sẽ xác minh giấy tờ trong vòng 24h</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="bank-accounts-section" style="display: none">
+            <div th:replace="~{auth/bank-account-management :: bank-account-fragment(saveActionUrl=@{/customer/bank-accounts/save})}"></div>
+        </div>
+
+        <form th:action="@{/profile/change-password}" method="post" id="change-password-form" style="display: none">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <div class="content-header">
+                <h2>Đổi mật khẩu</h2>
+                <div>
+                    <button type="submit" class="save-button">Lưu thay đổi</button>
+                </div>
+            </div>
+
+            <div th:if="${password_success}" class="alert alert-success" th:text="${password_success}"></div>
+            <div th:if="${password_error}" class="alert alert-danger" th:text="${password_error}"></div>
+
+            <div class="info-grid">
+                <div class="info-item">
+                    <label class="info-label" for="currentPassword">Mật khẩu hiện tại</label>
+                    <input type="password" id="currentPassword" name="currentPassword" class="info-value" th:classappend="${password_error} ? 'input-error' : ''" required />
+                </div>
+                <div class="info-item">
+                    <label class="info-label" for="newPassword">Mật khẩu mới</label>
+                    <input type="password" id="newPassword" name="newPassword" class="info-value" th:classappend="${password_error} ? 'input-error' : ''" required />
+                </div>
+                <div class="info-item">
+                    <label class="info-label" for="confirmPassword">Xác nhận mật khẩu mới</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="info-value" th:classappend="${password_error} ? 'input-error' : ''" required />
+                </div>
+            </div>
+        </form>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/vn.js"></script>
+<script th:src="@{/js/bank-account-management.js}"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener("DOMContentLoaded", function () {
+        const profileForm = document.getElementById("profile-form");
+        const changePasswordForm = document.getElementById("change-password-form");
+        const profileLink = document.getElementById("profile-link");
+        const changePasswordLink = document.getElementById("change-password-link");
+        const bankAccountsSection = document.getElementById("bank-accounts-section");
+        const bankAccountsLink = document.getElementById("bank-accounts-link");
+
+        const sidebarLinks = document.querySelectorAll(".profile-sidebar a");
+
+        function setActiveLink(activeLink) {
+            sidebarLinks.forEach((link) => link.classList.remove("active"));
+            activeLink.classList.add("active");
+        }
+
+        const documentsSection = document.getElementById("documents-section");
+        const documentsLink = document.getElementById("documents-link");
+
+        profileLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            profileForm.style.display = "block";
+            changePasswordForm.style.display = "none";
+            documentsSection.style.display = "none";
+            bankAccountsSection.style.display = "none";
+            setActiveLink(profileLink);
+        });
+
+        documentsLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            profileForm.style.display = "none";
+            changePasswordForm.style.display = "none";
+            documentsSection.style.display = "block";
+            bankAccountsSection.style.display = "none";
+            setActiveLink(documentsLink);
+            loadDocuments();
+        });
+
+        changePasswordLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            profileForm.style.display = "none";
+            changePasswordForm.style.display = "block";
+            documentsSection.style.display = "none";
+            bankAccountsSection.style.display = "none";
+            setActiveLink(changePasswordLink);
+        });
+
+        if (bankAccountsLink && bankAccountsSection) {
+            bankAccountsLink.addEventListener("click", function (e) {
+                e.preventDefault();
+                profileForm.style.display = "none";
+                changePasswordForm.style.display = "none";
+                documentsSection.style.display = "none";
+                bankAccountsSection.style.display = "block"; // Hiển thị section
+                setActiveLink(bankAccountsLink);
+                // Khởi tạo logic quản lý tài khoản ngân hàng
+                initializeBankAccountManagement({
+                    ajaxListUrl: '/customer/bank-accounts/list-ajax',
+                    deleteUrlPrefix: '/customer/bank-accounts/delete',
+                    setDefaultUrlPrefix: '/customer/bank-accounts/set-default',
+                    unsetDefaultUrlPrefix: '/customer/bank-accounts/unset-default',
+                    csrfToken: /*[[${_csrf.token}]]*/ '',
+                    csrfParameterName: /*[[${_csrf.parameterName}]]*/ ''
+                });
+            });
+        }
+
+        // Show the correct form based on hash or flash attributes
+        const hash = window.location.hash;
+        if (hash === "#documents" || hash === "#documents-section") {
+            documentsLink.click();
+        } else if (hash === "#bank-accounts-section" ||
+            document.querySelector("#bank-accounts-section .alert-success") ||
+            document.querySelector("#bank-accounts-section .alert-danger")) {
+            bankAccountsLink.click();
+        } else if (
+            document.querySelector("#change-password-form .alert-danger") ||
+            document.querySelector("#change-password-form .alert-success")
+        ) {
+            changePasswordLink.click();
+        } else if (
+            document.querySelector("#documents-section .alert-danger") ||
+            document.querySelector("#documents-section .alert-success")
+        ) {
+            documentsLink.click();
+        } else {
+            profileLink.click();
+        }
+
+        // --- Profile Edit/Cancel Logic ---
+        const form = document.getElementById("profile-form");
+        const editLink = document.getElementById("edit-link");
+        const saveButton = document.getElementById("save-button");
+        const cancelButton = document.getElementById("cancel-button");
+        const inputs = form.querySelectorAll("input.info-value, select.info-value");
+
+        let originalValues = {};
+        inputs.forEach((input) => {
+            originalValues[input.name || input.id] = input.value;
+        });
+
+        function setFormEditable(isEditable) {
+            inputs.forEach((input) => {
+                if (input.tagName.toLowerCase() === "select") {
+                    input.disabled = !isEditable;
+                } else {
+                    if (!isEditable) {
+                        input.setAttribute("readonly", "readonly");
+                    } else {
+                        input.removeAttribute("readonly");
+                    }
+                }
+                if (isEditable) {
+                    input.classList.remove("readonly");
+                } else {
+                    input.classList.add("readonly");
+                }
+            });
+
+            editLink.style.display = isEditable ? "none" : "inline-block";
+            saveButton.style.display = isEditable ? "inline-block" : "none";
+            cancelButton.style.display = isEditable ? "inline-block" : "none";
+        }
+
+        editLink.addEventListener("click", function (e) {
+            e.preventDefault();
+            setFormEditable(true);
+            inputs.forEach((input) => {
+                originalValues[input.name || input.id] = input.value;
+            });
+        });
+
+        cancelButton.addEventListener("click", function (e) {
+            e.preventDefault();
+            inputs.forEach((input) => {
+                input.value = originalValues[input.name || input.id];
+            });
+            setFormEditable(false);
+            // Xóa các thông báo lỗi nếu có
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+            document.querySelectorAll('.alert-danger').forEach(el => el.style.display = 'none');
+        });
+
+        // Tự động bật chế độ "edit" nếu có lỗi validation
+        if (document.querySelector("#profile-form .alert-danger")) {
+            setFormEditable(true);
+        } else {
+            setFormEditable(false);
+        }
+
+        // --- Document Upload Logic ---
+        function setupImagePreview(inputId, previewId, boxId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const box = document.getElementById(boxId);
+            const placeholder = box.querySelector(".upload-placeholder");
+
+            input.addEventListener("change", function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert("Kích thước file không được vượt quá 10MB!");
+                        input.value = "";
+                        return;
+                    }
+                    if (!file.type.startsWith("image/")) {
+                        alert("Vui lòng chọn file ảnh (JPG, PNG)!");
+                        input.value = "";
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        preview.src = event.target.result;
+                        preview.style.display = "block";
+                        if (placeholder) placeholder.style.display = "none";
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        setupImagePreview("cccd-front", "cccd-front-preview", "cccd-front-box");
+        setupImagePreview("cccd-back", "cccd-back-preview", "cccd-back-box");
+        setupImagePreview("gplx-front", "gplx-front-preview", "gplx-front-box");
+        setupImagePreview("gplx-back", "gplx-back-preview", "gplx-back-box");
+
+        function loadDocuments() {
+            fetch("/documents/type/CitizenId")
+                .then((response) => response.json())
+                .then((data) => {
+                    const statusDiv = document.getElementById("cccd-status");
+                    if (data.success && data.document) {
+                        const doc = data.document;
+                        statusDiv.innerHTML = `
+                            <div class="document-info ${doc.isVerified ? "verified" : "pending"}">
+                                <div class="doc-status-badge">
+                                    ${
+                            doc.isVerified
+                                ? '<i class="fa-solid fa-check-circle"></i> Đã xác minh'
+                                : '<i class="fa-solid fa-clock"></i> Chờ xác minh'
+                        }
+                                </div>
+                                <div class="doc-details">
+                                    <div class="doc-field">
+                                        <label><strong>Số CCCD:</strong></label>
+                                        <input type="text" id="cccd-number" value="${doc.documentNumber || ""}">
+                                    </div>
+                                    <div class="doc-field">
+                                        <label><strong>Họ tên:</strong></label>
+                                        <input type="text" id="cccd-name" value="${doc.fullName || ""}">
+                                    </div>
+                                    <div class="doc-field">
+                                        <label><strong>Ngày sinh:</strong></label>
+                                        <input type="date" id="cccd-dob" value="${doc.dob || ""}">
+                                    </div>
+                                    <div class="doc-field">
+                                        <label><strong>Ngày cấp:</strong></label>
+                                        <input type="date" id="cccd-issued-date" value="${doc.issuedDate || ""}">
+                                    </div>
+                                    <div class="doc-field">
+                                        <label><strong>Nơi cấp:</strong></label>
+                                        <input type="text" id="cccd-issued-place" value="${doc.issuedPlace || ""}">
+                                    </div>
+                                </div>
+                                ${
+                            doc.frontImageUrl
+                                ? `
+                                    <div class="doc-images">
+                                        <img src="${doc.frontImageUrl}" alt="CCCD mặt trước" onclick="window.open('${
+                                    doc.frontImageUrl
+                                }', '_blank')">
+                                        ${
+                                    doc.backImageUrl
+                                        ? `<img src="${doc.backImageUrl}" alt="CCCD mặt sau" onclick="window.open('${doc.backImageUrl}', '_blank')">`
+                                        : ""
+                                }
+                                    </div>
+                                `
+                                : ""
+                        }
+                                <div class="doc-actions">
+                                    <button class="btn btn-primary btn-sm" onclick="updateDocumentInfo('${
+                            doc.documentId
+                        }', 'cccd')">
+                                        <i class="fa-solid fa-save"></i> Cập nhật thông tin
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById("cccd-upload-btn").innerHTML =
+                            '<i class="fa-solid fa-rotate"></i> Cập nhật CCCD';
+                    } else {
+                        statusDiv.innerHTML = `
+                            <div class="no-doc-message-enhanced">
+                                <i class="fa-solid fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                                <p class="text-gray-600">Bạn chưa tải lên <strong>Căn cước công dân</strong>.</p>
+                                <p class="text-sm text-gray-500">Vui lòng tải lên để hoàn tất hồ sơ và đặt xe.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch((error) => console.error("Error loading CCCD:", error));
+
+            fetch("/documents/type/DriverLicense")
+                .then((response) => response.json())
+                .then((data) => {
+                    const statusDiv = document.getElementById("gplx-status");
+                    if (data.success && data.document) {
+                        const doc = data.document;
+                        statusDiv.innerHTML = `
+                            <div class="document-info ${doc.isVerified ? "verified" : "pending"}">
+                                <div class="doc-status-badge">
+                                    ${
+                            doc.isVerified
+                                ? '<i class="fa-solid fa-check-circle"></i> Đã xác minh'
+                                : '<i class="fa-solid fa-clock"></i> Chờ xác minh'
+                        }
+                                </div>
+                                <div class="doc-details">
+                                    <div class="doc-field">
+                                        <label><strong>Số GPLX:</strong></label>
+                                        <input type="text" id="gplx-number" value="${doc.documentNumber || ""}">
+                                    </div>
+                                    <div class="doc-field">
+                                        <label><strong>Họ tên:</strong></label>
+                                        <input type="text" id="gplx-name" value="${doc.fullName || ""}">
+                                    </div>
+                                    <div class="doc-field">
+                                        <label><strong>Ngày sinh:</strong></label>
+                                        <input type="date" id="gplx-dob" value="${doc.dob || ""}">
+                                    </div>
+                                    <div class="doc-field">
+                                        <label><strong>Ngày cấp:</strong></label>
+                                        <input type="date" id="gplx-issued-date" value="${doc.issuedDate || ""}">
+                                    </div>
+                                    <div class="doc-field">
+                                        <label><strong>Nơi cấp:</strong></label>
+                                        <input type="text" id="gplx-issued-place" value="${doc.issuedPlace || ""}">
+                                    </div>
+                                </div>
+                                ${
+                            doc.frontImageUrl
+                                ? `
+                                    <div class="doc-images">
+                                        <img src="${doc.frontImageUrl}" alt="GPLX mặt trước" onclick="window.open('${
+                                    doc.frontImageUrl
+                                }', '_blank')">
+                                        ${
+                                    doc.backImageUrl
+                                        ? `<img src="${doc.backImageUrl}" alt="GPLX mặt sau" onclick="window.open('${doc.backImageUrl}', '_blank')">`
+                                        : ""
+                                }
+                                    </div>
+                                `
+                                : ""
+                        }
+                                <div class="doc-actions">
+                                    <button class="btn btn-primary btn-sm" onclick="updateDocumentInfo('${
+                            doc.documentId
+                        }', 'gplx')">
+                                        <i class="fa-solid fa-save"></i> Cập nhật thông tin
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById("gplx-upload-btn").innerHTML =
+                            '<i class="fa-solid fa-rotate"></i> Cập nhật GPLX';
+                    } else {
+                        statusDiv.innerHTML = `
+                            <div class="no-doc-message-enhanced">
+                                <i class="fa-solid fa-cloud-upload-alt text-gray-400 text-3xl mb-2"></i>
+                                <p class="text-gray-600">Bạn chưa tải lên <strong>Giấy phép lái xe</strong>.</p>
+                                <p class="text-sm text-gray-500">Vui lòng tải lên để hoàn tất hồ sơ và đặt xe.</p>
+                            </div>
+                        `;
+                    }
+                })
+                .catch((error) => console.error("Error loading GPLX:", error));
+        }
+
+        // Add loading state to upload buttons
+        document.getElementById("cccd-form").addEventListener("submit", function () {
+            const btn = document.getElementById("cccd-upload-btn");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý OCR...';
+        });
+
+        document.getElementById("gplx-form").addEventListener("submit", function () {
+            const btn = document.getElementById("gplx-upload-btn");
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý OCR...';
+        });
+    });
+
+    function updateDocumentInfo(documentId, docType) {
+        const prefix = docType === "cccd" ? "cccd" : "gplx";
+
+        const data = {
+            documentNumber: document.getElementById(prefix + "-number").value,
+            fullName: document.getElementById(prefix + "-name").value,
+            dob: document.getElementById(prefix + "-dob").value,
+            issuedDate: document.getElementById(prefix + "-issued-date").value,
+            issuedPlace: document.getElementById(prefix + "-issued-place").value,
+        };
+
+        fetch(`/documents/${documentId}/update`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                // Thêm CSRF token vào đây
+                '[[${_csrf.headerName}]]': '[[${_csrf.token}]]'
+            },
+            body: JSON.stringify(data),
+        })
+            .then((response) => response.json())
+            .then((result) => {
+                if (result.success) {
+                    alert("Cập nhật thông tin thành công!");
+                } else {
+                    alert("Lỗi: " + (result.message || "Không thể cập nhật thông tin"));
+                }
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                alert("Có lỗi xảy ra khi cập nhật thông tin");
+            });
+    }
+
+</script>
+</body>
+</html>

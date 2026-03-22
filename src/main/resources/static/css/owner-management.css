@@ -1,0 +1,554 @@
+/* Owner Management Styles */
+
+:root {
+  --primary-color: #4caf50;
+  --primary-hover: #45a049;
+  --primary-dark: #388e3c;
+  --danger-color: #ef4444;
+  --warning-color: #f59e0b;
+  --info-color: #3b82f6;
+  --success-color: #10b981;
+}
+
+/* Tab Navigation */
+.tab-button {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-button:hover {
+  color: var(--primary-color);
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.tab-content {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-rejected {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.status-ongoing {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-completed {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.status-cancelled {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: modalFadeIn 0.3s ease-in-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  position: relative;
+  background-color: white;
+  border-radius: 0.75rem;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(-50px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.modal-content.max-w-md {
+  max-width: 28rem;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Calendar Styles */
+#calendar {
+  margin-top: 1rem;
+}
+
+.fc-event {
+  cursor: pointer;
+  border: none;
+  padding: 2px 4px;
+}
+
+.fc-event-pending {
+  background-color: #fbbf24 !important;
+}
+
+.fc-event-approved {
+  background-color: #10b981 !important;
+}
+
+.fc-event-ongoing {
+  background-color: #3b82f6 !important;
+}
+
+.fc-event-completed {
+  background-color: #6b7280 !important;
+}
+
+.fc-event-rejected,
+.fc-event-cancelled {
+  background-color: #ef4444 !important;
+}
+
+/* Filter Buttons */
+.filter-btn {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.filter-btn.inactive {
+  opacity: 0.5;
+  filter: grayscale(50%);
+}
+
+/* Table Styles */
+.booking-row {
+  transition: all 0.2s ease;
+}
+
+.booking-row:hover {
+  background-color: #f9fafb;
+  transform: scale(1.001);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Button Hover Effects */
+button[title] {
+  position: relative;
+}
+
+button[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #1f2937;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  z-index: 10;
+  margin-bottom: 0.25rem;
+}
+
+/* Loading Spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fa-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Notification Styles */
+#success-notification,
+#error-notification {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Info Card Styles */
+.info-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  color: white;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 600;
+  min-width: 140px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.info-value {
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .modal-header,
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .tab-button {
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+
+  .booking-row td {
+    padding: 0.75rem 0.5rem;
+  }
+}
+
+/* Custom Scrollbar */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Action Buttons */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.action-btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.action-btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.action-btn-danger {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.action-btn-danger:hover {
+  background-color: #dc2626;
+}
+
+.action-btn-success {
+  background-color: var(--success-color);
+  color: white;
+}
+
+.action-btn-success:hover {
+  background-color: #059669;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-state i {
+  font-size: 4rem;
+  color: #d1d5db;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Timeline Group Styles */
+.group-content {
+  max-height: 2000px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.group-content.collapsed {
+  max-height: 0;
+}
+
+.timeline-filter-btn {
+  transition: opacity 0.3s ease;
+}
+
+.timeline-filter-btn.opacity-50 {
+  opacity: 0.5;
+}
+
+/* Rotation for chevron icon */
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+.transition-transform {
+  transition: transform 0.3s ease;
+}
+
+/* Primary Color Classes */
+.text-primary-dark {
+  color: var(--primary-dark);
+}
+
+.hover\:text-primary-dark:hover {
+  color: var(--primary-dark);
+}
+
+/* Simple Status Badges */
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-approved {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-ongoing {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-completed {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.status-rejected,
+.status-cancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.primary { color: #4CAF50; }
+.bg-primary { background-color: #4CAF50; }
+.text-primary { color: #4CAF50; }
+.hover\:bg-accent:hover { background-color: #45a049; }
+
+/* --- Style cho Tab trạng thái --- */
+.status-tab-container {
+    display: flex;
+    overflow-x: auto; /* Cho phép cuộn ngang trên di động */
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 1.5rem; /* mb-6 */
+    background-color: white;
+    border-radius: 0.5rem; /* rounded-lg */
+    padding: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    width: 100%; /* Đảm bảo container chiếm 100% */
+}
+.status-tab {
+    white-space: nowrap;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem; /* text-sm */
+    font-weight: 600; /* font-semibold */
+    color: #4b5563; /* text-gray-600 */
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px; /* Dính vào border-bottom của container */
+
+    /* --- THÊM CÁC THUỘC TÍNH NÀY ĐỂ DÃN TAB --- */
+    flex-grow: 1; /* Cho phép các tab dãn ra */
+    display: flex; /* Bật flexbox */
+    align-items: center; /* Căn giữa */
+    justify-content: center; /* Căn giữa */
+    /* --- KẾT THÚC THÊM MỚI --- */
+}
+.status-tab:hover {
+    background-color: #f9fafb; /* hover:bg-gray-50 */
+    color: #111827; /* hover:text-gray-900 */
+}
+.status-tab.active {
+    color: #4CAF50; /* text-primary */
+    border-bottom-color: #4CAF50; /* border-primary */
+}
+.status-tab .count-badge {
+    margin-left: 0.5rem;
+    background-color: #e5e7eb; /* bg-gray-200 */
+    color: #374151; /* text-gray-700 */
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.status-tab.active .count-badge {
+    background-color: #4CAF50; /* bg-primary */
+    color: white;
+}
+/* --- Hết Style cho Tab --- */
+
+.booking-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem; /* rounded-lg */
+    padding: 1rem; /* p-4 */
+    margin-bottom: 1rem; /* mb-4 */
+    transition: box-shadow 0.2s ease-in-out;
+}
+.booking-item:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+.booking-item:last-child {
+    margin-bottom: 0;
+}

@@ -1,0 +1,126 @@
+# ===============================
+# = MAVEN
+# ===============================
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# ===============================
+# = ENVIRONMENT & SECRETS
+# ===============================
+# Environment files (NEVER commit these)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+
+# Sensitive configuration files
+application-local.properties
+application-dev.properties
+application-prod.properties
+application-local.yml
+application-dev.yml
+application-prod.yml
+
+# Security files
+*.key
+*.pem
+*.secret
+*.keystore
+*.jks
+*.p12
+
+# ===============================
+# = LOGS
+# ===============================
+*.log
+logs/
+log/
+
+# ===============================
+# = IDE FILES
+# ===============================
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ===============================
+# = TEMPORARY FILES
+# ===============================
+*.swp
+*.swo
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# ===============================
+# = DATABASE FILES
+# ===============================
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Database dumps (add specific patterns if needed)
+# *-dump.sql
+# backup-*.sql
+
+# ===============================
+# = APPLICATION SPECIFIC
+# ===============================
+# Upload directories
+uploads/
+files/
+storage/
+temp/
+
+# Generated documentation
+docs/generated/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

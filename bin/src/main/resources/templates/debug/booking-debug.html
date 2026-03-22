@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="max-w-6xl mx-auto py-8 px-4">
+        <h1 class="text-3xl font-bold text-gray-900 mb-8">Debug Booking Information</h1>
+        
+        <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+            <span th:text="${error}"></span>
+        </div>
+
+        <div th:if="${booking}" class="space-y-6">
+            <!-- Booking Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Booking Details</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Booking ID</p>
+                        <p class="font-medium" th:text="${booking.bookingId}">ID</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Status</p>
+                        <p class="font-medium" th:text="${booking.status}">Status</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Total Amount</p>
+                        <p class="font-medium" th:text="${booking.totalAmount}">Amount</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Deposit Required</p>
+                        <p class="font-medium" th:text="${booking.depositAmountRequired}">Deposit</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Payment Confirmed At</p>
+                        <p class="font-medium" th:text="${booking.paymentConfirmedAt}">Time</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Created Date</p>
+                        <p class="font-medium" th:text="${booking.createdDate}">Date</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payments Information -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Payment Records</h2>
+                <div th:if="${#lists.isEmpty(payments)}" class="text-gray-500">
+                    No payments found for this booking.
+                </div>
+                <div th:if="${!#lists.isEmpty(payments)}" class="space-y-4">
+                    <div th:each="payment : ${payments}" class="border rounded-lg p-4">
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">Payment ID</p>
+                                <p class="font-medium" th:text="${payment.paymentId}">ID</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Amount</p>
+                                <p class="font-medium" th:text="${payment.amount}">Amount</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Status</p>
+                                <p class="font-medium" th:text="${payment.paymentStatus}">Status</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Method</p>
+                                <p class="font-medium" th:text="${payment.paymentMethod}">Method</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Type</p>
+                                <p class="font-medium" th:text="${payment.paymentType}">Type</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Payment Date</p>
+                                <p class="font-medium" th:text="${payment.paymentDate}">Date</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Actions</h2>
+                <div class="space-x-4">
+                    <a th:href="@{'/booking/detail/' + ${booking.bookingId}}" 
+                       class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                        View Booking Detail
+                    </a>
+                    <a th:href="@{'/booking/payment/check-status/' + ${booking.bookingId}}" 
+                       class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                        Force Update Status
+                    </a>
+                    <form th:if="${booking.status.name() == 'Confirmed' or booking.status.name() == 'AwaitingDeposit'}"
+                          th:action="@{'/booking/cancel/' + ${booking.bookingId}}" 
+                          method="post" 
+                          class="inline">
+                        <button type="submit" 
+                                class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                                onclick="return confirm('Are you sure you want to cancel this booking?')">
+                            Cancel Booking
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
