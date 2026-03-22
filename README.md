@@ -1,4 +1,4 @@
-# EcoDana Project
+# EcoDana Project - SQL Server Edition
 
 ## Introduction
 
@@ -6,63 +6,66 @@ EcoDana is a web application built with Spring Boot, designed to connect vehicle
 
 ## Key Features
 
-*   **User Management:** Registration, login, and user profile management.
-*   **Vehicle Management:** Allows vehicle owners to add, update, and manage rental vehicle information.
-*   **Booking:** Users can search, view details, and book vehicles.
-*   **Payment:** Secure payment integration to handle transactions.
-*   **Notifications:** Sends email notifications for booking confirmations and other updates.
-*   **Image Upload:** Uses Cloudinary for managing vehicle images.
+- **User Management:** Registration, login, and user profile management.
+- **Vehicle Management:** Allows vehicle owners to add, update, and manage rental vehicle information.
+- **Booking:** Users can search, view details, and book vehicles.
+- **Payment:** Secure payment integration to handle transactions (VNPAY, PayOS).
+- **Notifications:** Sends email notifications for booking confirmations and other updates.
+- **Image Upload:** Uses Cloudinary for managing vehicle images.
+- **AI Integration:** Integration with Cloudflare AI for advanced features.
 
 ## Technologies Used
 
-*   **Backend:**
-    *   Java 21
-    *   Spring Boot 3
-    *   Spring Web
-    *   Spring Data JPA
-    *   Spring Security
-    *   Spring Mail
-*   **Frontend:**
-    *   Thymeleaf
-*   **Database:**
-    *   MySQL
-*   **Image Storage:**
-    *   Cloudinary
-*   **Build Tool:**
-    *   Maven
+- **Backend:**
+  - Java 21
+  - Spring Boot 3.5.x
+  - Spring Data JPA
+  - Spring Security (OAuth2)
+- **Frontend:**
+  - Thymeleaf & Vanilla CSS
+- **Database:**
+  - **Microsoft SQL Server 2022+**
+- **Third-Party Services:**
+  - Cloudinary (Images)
+  - Cloudflare AI (LLM)
+  - VNPAY & PayOS (Payments)
+  - OCR Space (Document Scanning)
 
-## Project Structure
+## Setup Instructions
 
-The project follows the standard Maven structure:
+### 1. Database Setup (SQL Server)
 
-*   `src/main/java`: Java source code
-*   `src/main/resources`: Resource files, including `application.properties` and Thymeleaf templates
-*   `pom.xml`: Maven project configuration file
+1.  **Create Database**: Create a new database in SQL Server (e.g., `ecodanav2`).
+2.  **Run Script**: Execute the consolidated SQL script **[sql2 (1).sql](<sql2%20(1).sql>)** in your SQL Server instance. This script contains both the schema (tables/constraints) and the initial data (roles, users, vehicles).
 
-## Participants
+### 2. Environment Configuration
 
-This project was developed by a dedicated team of developers.
+1.  Copy `env.example` to `.env`.
+2.  Update the `.env` file with your specific credentials:
+    - `DB_URL`: JDBC URL for SQL Server (e.g., `jdbc:sqlserver://localhost:1433;databaseName=ecodanav2;encrypt=true;trustServerCertificate=true`)
+    - `DB_USERNAME`: Your SQL Server username (e.g., `sa`).
+    - `DB_PASSWORD`: Your SQL Server password.
+    - Provide other 3rd-party keys for Mail, Cloudinary, etc.
 
-## User Roles
+### 3. Run the Application
 
-| Role     | Email                 | Password |
-|----------|-----------------------|----------|
-| Admin    | admin@ecodana.com     | password |
-| Owner    | owner@ecodana.com     | password |
-| Customer | customer@ecodana.com  | password |
+Execute the following command in the project root:
 
-## Getting Started
+```bash
+./mvnw spring-boot:run
+```
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/datlee27/EcoDanav2
-    ```
-2.  **Configure the database:**
-    *   Create a MySQL database.
-    *   Update the `spring.datasource` properties in `application.properties`.
-3.  **Run the application:**
-    ```bash
-    ./mvnw spring-boot:run
-    ```
+The application will be accessible at `http://localhost:8080`.
 
-Thank you for considering our project!
+## User Roles (Initial Data)
+
+Role Email Password
+Admin admin@ecodana.com password
+Owner owner@ecodana.com password
+Customer customer@ecodana.com password
+
+_Note: Passwords in the database are hashed; the above are the plain-text passwords for the initial data._
+
+---
+
+Thank you for using EcoDana!
